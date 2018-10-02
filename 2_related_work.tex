@@ -70,7 +70,80 @@ submodular optimization approaches \cite{submod,svm}.
 
 
 
-\subsection{Unsupervised Methods}
+\subsection{Supervised Sentence Methods}
+
+
+Structured prediction methods have also been explored. The most common is
+to model the sentence selection problem as an integer linear program (ILP)
+and learning typically happens in a large margin/structured svm framework 
+\cite{durret}. In addition to learning ngram feature weights, discourse,
+and redundancy features can also be modeled \cite{somebody}. 
+Deletion based compression 
+and phrase substitution have also been modeled using ILPs, where non-essential
+phrases can be discarded or shortened, and entity references rewritten, e.g.
+turning a pronominal reference into a nominal one.
+
+Sentence selection can be viewed as a submodular set optimization 
+(submodularity in set theory is analagous to convexity in functional analysis)
+where greedy selection algorithms can efficiently find the best subset of 
+sentences according to a set scoring function and budget constraints.
+Learning of the scoring function has been done by \cite{uwsipos} using 
+linear functions on ngram features. Feature weights can similarly be learned 
+in a large margin svm framework.
+
+
+Sentence selection can be modeled as a sequence tagging problem, e.g. using
+hidden Markov models \cite{conroy}.
+
+Dependencies between sentence selection can be difficult, and so in the
+spirit of naive Bayes, it can be fruitful to model sentence selection as 
+independent classification problems. For example, \cite{kupiec} use ....
+
+
+\cite{drago_nn} use a graph convolutional neural network on top of a sentence
+graph constructed from either discourse structure or sentence similarity.
+
+
+Learning to rank methods have been explored, see \cite{lapata}.
+
+\subsection{Text Generation}
+
+
+While there are a variety of text generation methods, we cover three main
+approaches, template based generation, sentence fusion, and 
+sequence-to-sequence models.
+
+
+
+\paragraph{Template-Based Generation} 
+
+
+\paragraph{Sentence Fusion} Sentence fusion attempts to combine two or
+more sentences into one. This is typically done by selecting one sentence
+as the backbone, and then aligning the remaing sentences to the backbone.
+Heuristics are used for backbone selection and alignment. This method
+is better suited to cases where there is much redundancy between candidate
+summary sentences since fusing radically different sentences is likely to
+yield misleading results.
+this approach is that it is difficult 
+
+
+
+Thanks to recent advances in neural machine translation (NMT), we now
+have flexible, high capacity models for generating free form text from
+an arbitrary sequence input. This has led to a host of work exploring 
+variety for attention based models to the summarization task \cite{everybody}.
+Adaptations to attention like copying have been found to be helpful for 
+handling out of vocabulary terms and controlling for repetitive outputs 
+\cite{see and others}.
+One difficulty with this approach is that is hard to control the output,
+spurring additional research in more controllable neural text generation.
+Length \cite{lc1,lc2}, sentiment \cite{contr}, and domain \cite{socher_I_think}
+have been explored, typically by treating the feature under control 
+as a learned embedding that is fed as an additional input into the generator.
+\cite{lapata} explore a method similar too our faithful text generation model,
+however we intend to explore some differences.
+
 
 
 
