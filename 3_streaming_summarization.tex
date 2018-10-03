@@ -1,0 +1,293 @@
+\section{Content Selection Models for Streaming Summarization}
+This section describes completed work on streaming summarization. We
+present two approaches, one using affinity propagation (AP) clustering and 
+regression \cite{some_clustering,and_regression},
+and one using learning-to-search (L2S) \cite{lols}. 
+This work let to two publications \cite{us1,us2} and participation in the
+Temporal Sumarization track at the Text REtrieval Conference (TREC)
+in 20?? and 20??. The first year, our AP clustering was the best
+overall performer, and in the second year, our L2S approach was the 
+??? best overall system.
+
+
+
+
+
+In the streaming summarization task, a user supplies a query $\query$,
+a brief text-based search query describing an information need, 
+and time period of interest $\poi = (\tau_\alpha, \tau_\omega)$. 
+The goal of the task is to sequentially process a document stream 
+$X_1, X_2, \ldots$ consisting of an ordered series of
+documents with corresponding timestamps $\tau_1, \tau_2, \ldots$,
+extracting sentences from the document stream. We refer to the selected
+sentences as updates. The document stream is ordered by timestamp where
+$\tau_\alpha \le \tau_i \le \tau_\omega$ for all $i$ and $\tau_i \le \tau_j$
+for all $i < j$, .
+
+
+In the Temporal Summarization track, the grounding scenario was disaster
+summarization, where the queries corresponeded to natural and man-made 
+disasters, and the document stream consisted of online news.
+Each query was associated with a set of \textit{nuggets}, textual 
+descriptions of canonical pieces of important information for the query event.
+See Figure~\ref{fig:events_nuggets} for an example of some of the queries and 
+their nuggets. The nuggets are also assumed to have a canonical timestamp
+when they are believed to have first been described by a document in 
+the document stream.
+
+
+
+
+\begin{figure}
+    \textbf{Hurricane Shandy}\\
+    ~~~~~~~~~``1986 people left without desert'' ~~ $\cdot$ ~~ ``crane brothers knocked over'' ~~ $\cdot$ ~~ ``subway is better than it will be in 2018''
+    Something else \\
+    something elses nuggets
+    \caption{Example queries in bold, and their nuggets in quotes.}
+    \label{fig:events_nuggets}
+\end{figure}
+
+Systems are rewarded when they find sentences that contain important and novel
+pieces of information relevant to $\query$. Systems are penalized for 
+selecting sentences that are irrelevant or contain content already covered
+by previous updates. Latency penalized metrics are also computed where
+the importance of a nugget decays over time. E.g. if a system
+recovers the nugget ``25 people were reported injured,'' several days
+after this fact was first reported, it receive less credit for it
+than the system that emits that nugget an hour after it enters the 
+document stream.
+
+
+When considering whether or not to select a sentence for the update summary
+there are two considerations. First we must estimate the salience, or 
+importance, of the sentence with respect to the query. Second, we must consider
+whether the relative importance of the sentence in the context of previous
+updates and current candidate updates warrants selecting it for the summary.
+
+Streaming summarization is a very hard task compared to single and 
+multi-document summarization. In the latter case, the context for the 
+summarization is fixed, and the input documents are usually quite 
+topically focused, minimizing the prevalence of completely irrelevant 
+information. In fact, in most multi-document evaluation settings, the
+document collections were manually created leading to very topically
+coherent text collections. 
+\cite{that_guy_who_presented_once} for example found that in the ???
+query focused summarization datasets are so on topic that a summarization
+system could completely ignore the query and perform just as well as a
+query aware system.
+
+
+
+
+
+In the next sections, we describe to proposed solutions to this problem.
+Both approaches use feature-based regression models to eestimate sentence
+salience and so we briefly describe the features here.
+
+\subsection{Features for Sentence Importance Estimation}
+
+The streaming summarization problem is difficult precisely because the context
+is constantly shifting. We cannot rely solely on word frequency because
+the counts of particular ngrams will be shifting throughout the period of 
+interest. Instead we compute several groups of sentence features that are
+specifically helpful for the query focused task.
+
+\paragraph{Simple Surface Features} 
+
+We employ several basic features
+that have been used previously in supervised
+models to rank sentence salience (Kupiec et al.,
+1995; Conroy et al., 2001). These include sentence
+length, the number of capitalized words normalized
+by sentence length, document position,
+and number of named entities. The data stream
+comprises text extracted from raw html documents;
+these features help to downweight sentences
+that are not content (e.g. web page titles,
+links to other content) or more heavily weight important
+sentences (e.g., that appear in prominent
+positions such as paragraph initial or article initial).
+
+
+Our most basic features look at the length in
+words of a sentence, its position in the document, and the ratio
+of specific named entity tags to non-named entity tokens.
+We also compute the average number of sentence tokens that
+match the event query words and synonyms using WordNet.
+
+
+\paragraph{Query Features} Query features measure the
+relationship between the sentence and the event
+query and type. These include the number of
+query words present in the sentence in addition to
+the number of event type synonyms, hypernyms,
+and hyponyms using WordNet (Miller, 1995). For
+example, for event type earthquake, we match sentence
+terms “quake”, “temblor”, “seism”, and “aftershock”.
+
+
+\paragraph{Language Model Scores}
+
+
+
+Similar to [Kedzie et al.,
+2015], we compute the average token log probability of the
+sentence on two language models: i) an event type specific
+language model and ii) a general newswire language model.
+The first language model is built from Wikipedia articles relevant
+to the event-type domain. The second model is built
+from the New York Times and Associate Press sections of the
+Gigaword-5 corpus [Graff and Cieri, 2003].
+
+
+
+Language models
+allow us to measure the likelihood of producing
+a sentence from a particular source. We consider
+two types of language model features. The first
+model is estimated from a corpus of generic news
+articles (we used the 1995-2010 Associated Press
+section of the Gigaword corpus (Graff and Cieri,
+2003)). This model is intended to assess the general
+writing quality (grammaticality, word usage)
+of an input sentence and helps our model to select
+sentences written in the newswire style.
+The second model is estimated from text specific
+to our event types. For each event type
+we create a corpus of related documents using
+pages and subcategories listed under a related
+Wikipedia category. For example, the language
+model for event type ‘earthquake’ is estimated
+from Wikipedia pages under the category Category:Earthquakes.
+Fig. 2 lists the event types
+found in our dataset. These models are intended
+to detect sentences similar to those appearing in
+summaries of other events in the same category
+(e.g. most earthquake summaries are likely to include
+higher probability for ngrams including the
+token ‘magnitude’). While we focus our system on
+the language of news and disaster, we emphasize
+that the use of language modeling can be an effective
+feature for multi-document summarization for
+other domains that have related text corpora.
+We use the SRILM toolkit (Stolcke and others,
+2002) to implement a 5-gram Kneser-Ney model
+for both the background language model and the
+event specific language models. For each sentence
+we use the average token log probability under
+each model as a feature.
+
+
+
+\paragraph{Geographic Relevance} The disasters
+in our corpus are all phenomena that affect some
+part of the world. Where possible, we would like
+to capture a sentence’s proximity to the event, i.e.
+when a sentence references a location, it should be
+close to the area of the disaster.
+There are two challenges to using geographic
+features. First, we do not know where the event is,
+and second, most sentences do not contain references
+to a location. We address the first issue by
+extracting all locations from documents relevant to
+the event at the current hour and looking up their
+latitude and longitude using a publicly available
+geo-location service. Since the documents that are
+at least somewhat relevant to the event, we assume
+in aggregate the locations should give us a rough
+area of interest. The locations are clustered and
+we treat the resulting cluster centers as the event
+locations for the current time.
+The second issue arises from the fact that the
+majority of sentences in our data do not contain
+explicit references to locations, i.e. a sequence of
+tokens tagged as location named entities. Our intuition
+is that geographic relevance is important in
+the disaster domain, and we would like to take ad
+
+
+\paragraph{Temporal Relevance} As we track
+events over time, it is likely that the coverage of
+the event may die down, only to spike back up
+when there is a breaking development. Identifying
+terms that are “bursty,” i.e. suddenly peaking
+in usage, can help to locate novel sentences that
+are part of the most recent reportage and have yet
+to fall into the background.
+We compute the IDF for each hour in our data
+stream. For each sentence, the average TF*IDF
+for the current hour t is taken as a feature. Additionally,
+we use the difference in average TF*IDF
+from time t to t − i for i = {1, . . . , 24} to measure
+how the TF*IDF scores for the sentence have
+changed over the last 24 hours, i.e. we keep the
+sentence term frequencies fixed and compute the
+difference in IDF. Large changes in IDF value indicate
+the sentence contains bursty terms. We also
+use the time (in hours) since the event started as a
+feature.
+
+
+\subsection{Model 1: Salience Estimation with Affinity Propagation Clustering}
+
+  In this model, we process the document stream in hourly batches, 
+  first predicting the salience of the individual sentences and then 
+  using affinity propagation (AP) to select a set of exemplar sentences.
+  Exemplar sentences that have predicted salience above a threshold 
+  and are below a similarity threshold to previously select sentences are
+  then emitted to the user as an update summary.
+
+  
+\subsubsection{Data}
+
+  The document stream comes from the news portion of the 2014 TREC
+KBA Stream Corpus \cite{frank_et_al_2012}, which contains hourly crawls
+of the web covering a roughly two year span from 2011 to 2013.
+Event queries and their nuggets were taken from the data prepared for 
+the 2013 and 2014 TREC Temporal Summarization tracks. This data
+contained 25 events and their query strings, period of interest, 
+event type. 
+Additionally, each event was associated with anywhere from 50 to several
+hundred timestamped nugget texts. Each event query was significant 
+enough to have a Wikipedia page. Event nuggets were taken manually
+extracted from the corresponding Wikipedia entry, using the earliest
+revision that contained the nugget to obtain it's timestamp.
+For details on the creation of this dataset see \cite{aslam_et_al_2013}.
+
+From the larger KBA Stream Corpus we created event specific document 
+streams by filtering out any documents that did occur in the period
+of interest and contain all the query words of the corresponding event.  
+
+
+
+\subsubsection{Salience Estimation}
+
+Since we lack annotations 
+
+
+
+
+
+
+
+
+
+
+
+%During the a tim
+
+%While  An
+%information retrieval (IR) system will then begin 
+
+
+
+
+
+
+
+
+
+
+
+
+
