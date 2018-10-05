@@ -262,8 +262,297 @@ of interest and contain all the query words of the corresponding event.
 
 \subsubsection{Salience Estimation}
 
-Since we lack annotations 
+Given the feature representation of a sentence, we want to predict how
+confident we are that it contains one or more nuggets. While we have
+many sentences in our corpus, we did not have may sentence level judgements
+about the nuggets that they contained. 
+Lacking these gold annotations, we instead get noisy salience annotations 
+using the maximum similarity of the nugget texts to the sentence texts.
+Formally, given a query $q$, sentence text $s$, and query's nugget texts $n \in \mathcal{N}(q)$
+the sentence salience $y$ is 
+using the following equation:
+\[ y = \max_{n \in  \mathcal{N}(q)} \operatorname{sim}(s, n)\]
+where $\operatorname{sim}$ is a semantic similarity measure (in practice
+we used the weight matrix factorization method of \cite{wmtf}).
 
+We use a Gaussian process-based regression model \cite{gp} to predict $y$ from
+the feature representation $\phi(s)$ \emph{without} knowledge of the nuggets.
+We fit a separate regressor for each query in our dataset using 1000
+randomly sampled sentences from each query's associated relevant document 
+stream. We use seperate radial basis function (RBF) kernels for each 
+feature group described above, and use the sum of all the kernels as final
+kernel matrix for fitting the model.
+At prediction time for a specific query, we hold out that query's salience
+model, use the average prediction of the remaining models to obtain
+a saleince estimate $\hat{y}$ for sentences in the stream.
+
+\subsubsection{Sentence Selection with salience-biased AP}
+
+
+    Affinity propagation (AP) clustering is a factor-graph based clustering
+    method that simultaneously selects exemplar data points and maps 
+    the remaining data points to one of the exemplars \cite{frey}. 
+    The exemplar mappings determine the clusters.
+    AP has a number of nice properties for extractive summarization.
+    First, as an exemplar based clustering method, the cluser center
+    is gaurranteed to be an actual data point observed in the input; 
+    this removes the added step of selecting a representative sentence
+    if we had used for $k$-means clustering, for example.
+    Two, the number of clusters that result is adaptive and 
+    based on the interaction of unary and pairwise factors.
+
+    Given datapoint $n$ datapoints $X =x|^n_{i=1}$, 
+    the net similarity objective
+    \[ \mathcal{L}(X, \mathcal{E}) = 
+    \sum_{i \in \mathcal{E}} \operatorname{salience}(x_i) + \sum_{i \in\mathcal{E}} \sum_{j:e_j = i}\operatorname{similarity}(x_i, x_j)  \]
+    where $\operatorname{salience}$ and $\operatorname{similarity}$ 
+    are unary and pairwise factors that express the degree to which
+    $x_i$ is apriori likey to be an examplar and that $x_i$ is a suitable
+    representative for $x_j$. 
+    $\mathcal{L}$ is optimized using and iterative message passing 
+    algorithm. In the naive setting, $\operatorname{salience}$ is uniform
+    across all $x_i$, i.e. every data point is equally likely to be an
+    exemplar, and exemplar assignment is purely determined by the 
+    pairwise similarity factors.
+    
+    In our present summarization scenario, we have a strong prior belief
+    about suitability of a particular sentence to be an examplar which is
+    represented by the salience predictions $\hat{y}_i$.
+ Our system processes hourly batches of sentences 
+ $\mathcal{S}_{\textrm{batch}} = \{s_1, s_2, \ldots \}$ by first predicting
+ their corresponding saliences $\hat{Y} = \{\hat{y}_1, \hat{y}_2, \ldots\}$.
+ We then use AP clustering to find an assignment of exemplar sentences
+ that maximizes the following objective:
+ \[ \mathcal{L}(\mathcal{S}_{\textrm{batch}}, \mathcal{E}) = 
+    \sum_{i \in \mathcal{E}} \hat{y}_i + \sum_{i \in\mathcal{E}} \sum_{j:e_j = i}\operatorname{similarity}(s_i, s_j)  \]
+    where $\operatorname{similarity}$ is the same WTMF method used in the 
+    noisy salience annotation above. We refer to this method as biased-AP
+    clustering, since the exemplar selection is now biased by our prior
+    beliefs about the sentence's importance to the query.
+
+
+    After the examplars are selected, we perform one final filtering of
+    exemplars, discarding sentences that have a $y_i$ below $\lambda_{sal}$
+    or that have a maximum similarity to any previous updates above
+    $\lambda_{sim}$, where the $\lambda$'s are preset thresholds. 
+    Exemplars that survive filtering are selected for the update summary.
+
+
+
+    \subsubsection{Experiments}
+
+    Since we lack gold judgements about what sentences contain which nuggets
+    we perform an automatic evaluation using ROUGE \cite{lin}. We 
+    create reference summaries for each query by concatenating all 
+    of it's nugget texts.
+    Since there are no fixed summary lengths, and depending on the severity
+    of the event, the reference summaries can vary greatly in length.
+    To account for this, we report ROUGE recall, precision and F-measure.
+
+
+    
+    We also approximate the manual evaluation of the official TREC TS track
+    by automatically mapping sentences to nuggets if their semantic similarity
+    is a above a threshold. We report results across a sweep of threshold 
+    values in figure ???, with values to right yielding more conservative
+    estimates of performance. We report the Expected Gain and Comprehensiveness
+    measures which are precission and recall like measures of nugget 
+    coverage. If $N$ is the total number of nuggets for a query, $\hat{N}$ is 
+    the number of unique nuggets recoverd in our 
+    update 
+    summary, and $U$ is the total number of sentences extracted for the update
+    summary, the Expected Gain and Comprehensiveness are defined as
+    \[ \frac{\hat{N}}{U} \quad \textrm{and} \quad \frac{\hat{N}}{N} \]
+    respectively. An Expected Gain of 1 would mean that every sentence in
+    the update summary contained a novel nugget. Comprehensiveness is the 
+    nugget recall, a score of 1 indicating that all nuggets were found
+    in the update summary.
+    
+
+    We refer to our approach as AP+SAL and compare to several simpler 
+    baselines.
+    The first is our full system but with uniform salience scores, i.e.
+    the vanilla affinity propagation clustering algorithm. We refer to
+    this method as AP.
+    The second is to rank all sentences in each batch in order of decreasing
+    predicted
+    salience, and sequentially adding each sentence to the update summary, 
+    omitting
+    any sentences with similarity to previous updates above a threshold.
+    This method is reference to as RS for rank by salience.
+    Finally, we compare against another clustering algorithm,
+    hierarchical agglomerative clustering.
+    In this method, sentences are first clustered, 
+    and then centers are determined by the sentence
+    with  highest  cosine  similariy  to  the  cluster
+    mean. 
+    Sentences are added to the update summary in time order, 
+    removing sentences that are highly similary to previous updates in the
+    same manor as the RS method. We refer to this method as HAC.
+
+    \subsubsection{Results}
+
+
+Table  ???  shows  our  results  for  system  output
+samples against the full summary of nuggets using ROUGE. This improvement is statistically significant  for  all  ngram  
+precision,  recall,  and  F-measures at the
+$\alpha=.01$
+level using the Wilcoxon
+signed-rank test.
+AP+SALIENCE
+maintains    its    performance
+above  the  baselines  over  time  as  well.
+Figure  3  shows  the  ROUGE-1  scores  over  time.
+We  show  the  difference  in  unigram  precision
+(bigram  precision  is  not  shown  but  it  follows
+similar  curve).
+Within  the  initial  days  of  the
+event,  AP+SALIENCE
+is  able  to  take  the  lead
+over  the  over  systems  in  ngram  precision.   The
+AP+SALIENCE
+model is better able to find salient
+updates earlier on; for the disaster domain, this is
+an especially important quality of the model.
+Moreover, the AP+SALIENCE’s recall is not diminished by the high precision and remains com-
+petitive with AP. Over time AP+SALIENCE's recall also begins to pull away, while the other mod-
+els start to suffer from topic drift.
+
+
+Figure ??? shows the expected gain across a range
+of  similarity  thresholds,  where  thresholds  closer
+o 1 are more conservative estimates. The ranking
+of the systems remains constant across the sweep
+with AP+SALIENCE
+beating all baseline systems.
+Predicting salience in general is helpful for keeping a summary on topic as the  RS  approach out
+performs  the  clustering  only  approaches  on  expected gain.
+When looking at the comprehensiveness of the
+summaries AP outperforms AP+SALIENCE.  
+The compromise  encoded  in  the  AP+SALIENCE
+objective function, between being representative and
+being salient, is seen clearly here where the per-
+formance of the AP+SALIENCE
+methods is lower
+bounded by the salience focused  RS  system and
+upper bounded by the clustering only AP system.
+Overall, AP+SALIENCE
+achieves the best balance
+of these two metrics.
+
+
+\subsection{Model 2: LOLS}
+
+Our next model attempts to address some of the shortcomings of the 
+first. First the previous model process sentences in hourly batches.
+Ideally we would process new documents as soon as possible in order 
+to minimize the negative effects of latency. Second, our salience
+regressors were statically trained and did not take advantage of features
+like the similarity to recently selected updates and relied mostly on
+tuned thresholds to account for redundancy. 
+
+Getting around these limitations poses some severe challenges. Using
+dynamic features means that naive traing will require gold reference
+sentence extracts and that naively training a sentence salience model
+with these will under explore the space of plausable update summaries,
+meaning that in practice errors are likely to snowball over time.
+
+Instead, we develop a clairvoyant oracle summarizer $\pi^o$ whose behavior
+we want to imitate. $\pi^o$ has knowledge of what nuggets, if any, 
+are present in each sentence in the document stream, and it's behavior
+is quite simple: it processes each sentence in a query's relevant document 
+stream and 
+when it encounters a sentence with a novel nugget, it adds that sentence
+to the update summary.
+
+As we stated before, training only on a single oracle run over document stream
+would be sub-optimal because the oracle is perfect and it would finish 
+recovering all of the nuggets quite quickly and then do nothing for
+the remainder of the stream. In practice, our learned model is likely to
+make mistakes, missing the first few appearances of a nugget but hopefully
+recovering them as repetition in the stream makes them more likely to be 
+selected. Only following the oracle's first best pass would not help us learn
+to recover from errors.
+
+To make better use of the oracle, we adopt the locally optimal learning to
+search (LOLS) algorithm \cite{lols}, one of a family of learning to search 
+(L2S) algorithms. In order to formally describe the algorithm, we first 
+introduce some notation. We treat the streaming summarization problem
+as a markov decision process. At each timestep $t$ we observe a state
+$s_t \in \mathcal{S}$ and $t$-th sentence $x_t \in \mathcal{X}$ from the 
+document stream.
+A policy $\pi : \mathcal{S} \times \mathcal{X} \rightarrow \{0, 1\}$
+maps a state-sentence tuple to an action $a \in \mathcal{A} =\{0,1\}$
+where $a=1$ indicates we extract the sentence and $a=0$ indicates we skip
+the current sentence. The transition function 
+$d : \mathcal{S} \times \mathcal{X} \times \mathcal{A} \rightarrow \mathcal{S}$
+deterministically maps state-sentence-action tuples to the next state. 
+In practice the state contains set of sentences previously extracted and
+other rolling statistics from previously observed sentences in the stream.
+Our training objective is to minimize the expected costs of each action:
+\[ \mathcal{L}(\pi) = \mathbb{E}_{s,x \sim \pi} \left[ c\left(\pi(s,x), s, x\right) \right] \]
+where $c :\mathcal{A} \times \mathcal{S} \times \mathcal{X} \rightarrow \mathcal{A}$ is the cost of taking a given action in a particular state-sentence
+observation.
+
+~\\
+
+~\\
+
+In the LOLS training regime, there are two phases: the 
+\emph{roll-in} and the \emph{roll-out}. The roll-in phase 
+
+at each timestep 
+we alternate between using the oracle $pi^o$ or our current learned policy
+$\hat{\pi}$ to run multiple time steps into the future and get a cost for 
+a hypothetical summary we would have created in the case where we extracted the 
+current sentence or skipped it. We collect these scores for each decision
+and update a regression model to accuractely predict the cost of each action
+given the current sentence and update summary/stream state.
+
+
+
+
+
+\subsubsection{Data}
+We ran 
+
+\subsubsection{Oracle Policy and Loss Function}
+
+We use a greedy oracle that selects sentences that contain novel
+nuggets. This oracle will achieve an optimal Comprehensiveness score, i.e.
+it will obtain every possible novel nugget in the roll-out phase.
+However, it will not always achieve the maximum possible Expected Gain.
+For example, consider the sequence of sentences $s_1, s_2, s_3$, where
+nugget $n_1 \in s_1$, $n_2 \in s_2$, and $n_1,n_2 \in s_3$. The greedy oracle,
+proceeding sequentially would select sentences $s_1$ and $s_2$, and skip
+$s_3$, achieving an Expected Gain of $\frac{|\{n_1, n_2\}|}{|\{s_1, s_2 \}|} = \frac{2}{2} = 1$. The maximum achievable Expected Gain is obtained by skipping
+the first two sentences and selecting sentence $s_3$ yielding $\frac{|\{n_1, n_2\}|}{|\{s_3 \}|} = \frac{2}{1} = 2$. In practice we are far from matching
+the greedy oracle and so it suffices for now as an aspirational target.
+
+
+
+We used the complement of Dice coefficient as the loss function.
+
+
+
+\subsubsection{Experiments }
+
+In our results, we refer to our learn-to-search approach as LS.
+We compare to a lead sentence baseline that takes the first sentence
+of every document as an update if it's maximum cosine similarity to any 
+previous update was below a threshold. We refer to this method as COS.
+
+We also compare our 
+
+
+
+
+
+
+
+
+suboptimal in that it will achieve a perfect
+Comprehensiveness 
 
 
 
