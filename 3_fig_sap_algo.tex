@@ -1,0 +1,33 @@
+\begin{figure}
+\begin{algorithmic}[1] 
+\Procedure{APSalienceSummarize}{}
+  \State $\updates \gets \varnothing$ \Comment{Init. update summary.}
+  \For{$\strsents_t \in \strsents$} 
+    \State $\hat{\Salience} \gets \operatorname{salience}(\strsents_t, \query)$
+        \Comment{Estimate sentence salience for each 
+                 $\strsent \in \strsents_t$.}
+    \State $\Similarity \gets \operatorname{similarity}(
+           \strsents_t, \strsents_t)$ \Comment{Compute similarity 
+           between each $\strsent_i, \strsent_j \in \strsents_t$.}
+    \State $\exemplars \gets \operatorname{AffinityPropagation}(\hat{\Salience}, \Similarity)$ \Comment{Get exemplar sentences $\exemplars$ with AP.}
+
+    \For{$\strsent \in \exemplars$}
+      \If{$\hat{\Salience}_\strsent > \lambda_1 \wedge \max \operatorname{similarity}(\updates, \strsent) > \lambda_2$}
+        \State $\updates \gets \updates \cup \{\strsent\}$
+      \EndIf
+    \EndFor
+%    \If{$\exists \nugget$ s.t. $\nugget \in \strsent
+%            \wedge \nugget \notin \hat{\nuggets}$ }
+%      \State $\mathcal{U} \gets \mathcal{U} \cup \{\strsent\}$ 
+%      \State $\hat{\mathcal{N}} \gets \hat{\mathcal{N}} \cup \{\nugget \in \strsent\}$ 
+%    \EndIf
+  \EndFor
+  \State \Return $\mathcal{U}$
+\EndProcedure
+\end{algorithmic}
+    \caption{Salience-biased AP clustering based streaming summarization 
+             algorithm.}
+    \label{alg:ts_sap_algo}
+\end{figure}
+
+

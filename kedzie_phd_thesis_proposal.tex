@@ -1,12 +1,50 @@
 \documentclass[12pt]{article}
+\usepackage{wrapfig}
+\usepackage{adjustbox}
+\usepackage{array}
+
+\newcolumntype{R}[2]{%
+    >{\adjustbox{angle=#1,lap=\width-(#2)}\bgroup}%
+    l%
+    <{\egroup}%
+}
+\newcommand*\rot[2]{\multicolumn{1}{R{#1}{#2}}}
+
+\usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{dsfont}
 \usepackage{url}
 \usepackage[a4paper,left=1in,top=1in,right=1in,bottom=1in,nohead]{geometry}
+\usepackage[round]{natbib}
+\usepackage{multirow}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{subcaption}
+
 
 \newcommand{\query}{q}
+\newcommand{\strsent}{s}
+\newcommand{\strsents}{\mathcal{S}}
+\newcommand{\nugget}{n}
+\newcommand{\extract}{a}
+\newcommand{\salience}{y}
+\newcommand{\Salience}{Y}
+\newcommand{\similarity}{k}
+\newcommand{\Similarity}{K}
+\newcommand{\updates}{\mathcal{U}}
+\newcommand{\nuggets}{\mathcal{N}}
+\newcommand{\exemplars}{\mathcal{E}}
+
+
+
+\newcommand{\tfidf}{tf-idf }
+
+
+
+
+
 \newcommand{\poi}{T}
 
 \title{\textbf{What to Write and How to Write It}\\
@@ -64,5 +102,9 @@ about summary reliability.
 \input{2_related_work.tex}
 \input{3_streaming_summarization}
 \input{4_single_document_summarization.tex}
+
+
+\bibliographystyle{plainnat}
+\bibliography{cites}
 
 \end{document}
