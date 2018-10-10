@@ -1,0 +1,27 @@
+
+Increasingly, researchers are returning to single document summarization,
+once thought to be too difficult for automatic summarization methods.
+This has been driven both by the availability of large corpora (the
+most popular corpus, CNN-DailyMail, has a little over 300,000 data points
+\citep{see2017get}) and by the development of general purpose 
+generative models of text from the neural machine translation community.
+Accordingly, the bulk of the research has used this corpus, (and the NYT
+corpus \citep{sandhaus2008new}) to focus on abstractive summarization
+research \citep{rush2015neural,chopra2016abstractive,cheng2016neural,nallapati2016abstractive,see2017get,paulus2017deep}. 
+There has been a smaller but similar proliferation of sentence
+extractive single document summarization papers on these corpora also using 
+neural network architectures \citep{cheng2016neural,nallapati2016classify,nallapati2016abstractive,narayan2018ranking}.
+
+While different components of the neural architectures may be justified 
+by intuition, these methods are largely black boxes and it is not clear
+how they are making their sentence selection predictions. This is especially
+problematic in abstractive summarization, but it is also not well understood
+how extractive methods make their decisions either.
+
+In this chapter we investigate neural network architectures for extractive
+summarization, in the hopes of better understanding what is important 
+for the underlying word and sentence representations to learn.
+We start a description of completed experiments for sentence extractive
+models of summarization \citep{kedzie2018deep}, and then complete the chapter with a description
+of planned and ongoing word importance estimation techniques using deep
+learning models.
