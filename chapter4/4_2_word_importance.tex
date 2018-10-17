@@ -1,0 +1,186 @@
+\subsection{Word Importance Estimation in Deep Learning Models}
+
+
+\input{chapter4/figures/4_2_wimp_model.tex}
+Our previous experiments revealed that lexical sematics were not the 
+main driver of learning in sentence extractive news summarization. 
+One could plausibly argue that it is a feature, not a bug, and that 
+the structural
+signals in news are intentional and not to be avoided. However, we think more 
+attention could be paid to estimating importance scores at the word level.
+We are motivated by potential application to abstractive generation: better
+word level importance estimation could help to remove all but the most 
+necessary content from the documents as a preprocessing stage before
+abstractive summarization. We are also encouraged by parallel practices
+in multi-lingual news summarization, where word importance weights 
+are the main ingredient in sentence representations. 
+
+
+\newcommand{\mlingsys}{\textsc{Classy}}
+
+%\subsubsection{A brief discussion of \mlingsys.}
+
+\mlingsys and its antecedents have been consistent top performers in various
+summarization workshops \cite{tac,multiling}. In general the main approach 
+is to represent each sentence as a sparse bag-of-words, where non-zero
+entries correspond to word importance weights for the words found in the 
+sentence. Typically, tf-idf weights are used for the importance scores.
+The term by sentence matrix representing the document or documents to be
+summarized is then factorized into two low rank matrices (typically with
+non-negative entries) representing term factors and sentence factors.
+The entries in the sentence factor matrix represent latent factors, 
+and apriori the importance of each sentence is the sum of its latent factors.
+
+Sentence selection can subsequently be performed using one of several methods.
+In the naive case, one can select the sentence with the highest vector norm, 
+substract the selected latent factors from the remaining sentence vectors
+(zeroing out any terms that become negative), and repeating until the
+summary length budget is reached. More sophisticated selection procedures
+involving multi-dimensional knapsack packing or submodular optimization 
+can be used, however these are not the focus of this work.
+
+One draw back to this approach is that the sentence factors and word 
+importance scores are unsupervised with respect to the final summarization
+objective; their utility to the summarization task is a happy coincidence.
+Additionally, the word importance scores are not assigned based on the 
+context in which the word appears.
+
+We propose to address these issues by learning word level importance 
+scores in the process of single document sentence extractive summarization.
+Additionally, we propose a method of adapting these scores from the 
+single document case to multi-document summarization.
+
+\subsubsection{Proposed Model}
+
+
+In our proposed model for word importance, we estimate the importance of
+each word in the context it occurs by first running the ELMO model
+over all the words in the document to obtain contextual representations
+of each word. The ELMO embeddings are then combined with pretrained Glove
+embeddings, document frequency embeddings, topic signature embeddings,
+sentence position embeddings, and part-of-speech tag embeddings and then
+fed into a multi-layer perceptron to predict a scalar importance score.
+When a word occurs multiple times in the input, it can be given a different 
+importance score at each location because the ELMO embeddings will capture
+contributions of the salient neighbor words. A term-sentence matrix is 
+then formed from the input, using the estimated word importance scores 
+as the term weights. A sentence extractive summary can be obtained 
+using the naive sentence selection method described above or in Figure ?.
+The total score for the summary can also be obtained.
+
+We can train this summarizer using a gold extract sequence and a margin loss
+\[  \max\left(0, 1 + f(\hat{y}) - f(y) \right) \] where $f(\hat{y})$ is
+the score of our predicted extract summary.
+
+
+Let $z_1, z_2, \dots, z_n$ be the bag of words representations of the 
+sentences selected for the summary, in the order they were selected.
+The score for the summary is computed as 
+$\textsc{Score}(z) = \sum_{i=1}^n \sum_{j=1}^k \max(0, z_{i,j} - \sum_{l=1}^{i-1} z_{l,j})$ 
+
+
+~\\
+~\\
+
+Let $\vocab$ be a fixed vocabulary of words. A document is a sequence $m$
+words $\word = \{\word_1, \word_2, \ldots, \word_m\} \in \vocab^m$.
+We define two mappings of words to dense vector representations.
+The first $\fdef{\wordFeatures}{\vocab}{\Rn{d_1}}$ maps words to 
+a concatenation of feature embeddings whose total dimension is of size $f$. 
+The various components of the feature embeddings include the word's Glove 
+embedding, an embedding for sentence position, and other features of the word.
+The second mapping
+$\fdef{\contextFeatures}{\vocab}{\Rn{d_2}}$ maps the word to it's contextual
+embedding; here this corresponds to the output of \elmo at that word's
+position in the document. 
+The importance score $\wordImportance_i$ of a word $\word_i$ is the output of 
+a feedforward layer 
+\[ \wordImportance_i = \sigma\Big(W \left[\begin{array}{c} \wordFeatures(\word_i) \\ \contextFeatures(\word_i) \end{array} \right] + b \Big) \]
+    where $W \in \Rn{d_1 + d_2}$ and $b \in \R$ are learned weight
+and bias parameters, and $\sigma$ is the logistic sigmoid.
+
+Next, we aggregate the flat token level scores into a bag-of-words (BOW) 
+representation for each sentence in the document.
+Let $I_i$ be the set of indices of the flat word sequence corresponding
+to the words in $i$-th input sentence. Let $\bow_i$ be the BOW 
+representation of the $i$-th sentence with entries 
+\[ \bow_{i,j} = \begin{cases} 
+    0 & \textrm{if $\word_k \ne \vocab_j $ for all $k \in I_i $} \\ 
+\sum_{k \in I_i} \mathbbm{1}\{\word_k = \vocab_j \} \cdot \wordImportance_k  & \textrm{otherwise}     \end{cases} \]
+        for all $j \in \{1, \ldots, |\vocab|\}$.
+
+
+\input{chapter4/figures/4_2_sent_ext_alg.tex}
+
+
+        With the BOW representations in hand, we perform sentence selection
+        using the algorithm presented in \autoref{alg:wimp_ext_alg} to 
+        obtain a predicted extract indices $\predLabels$ and their associated
+        score $\hat{\eta}$.
+
+        We can optimize this model using a margin loss, where given a 
+        gold extract sequence  $\labels$, we can compute the associated
+        gold extract summary score $\eta$ and then minimize the following
+        loss function \[\mathcal{L}_{ext}(\predLabels, \labels;\theta) = \max\big(0, 1 + \hat{\eta} - \eta\big)\]
+        with respect to the parameters of the word importance predictor.
+        If needed, we can also introduce a supervised learning signal to the 
+        individual word importance scores by collecting labels $\zeta_i$ for
+        each $\wordImportance_i$ such that $\zeta_i = 1$ if $\word_i$ occurs
+        and any human reference abstract and $0$ otherwise. For the word level
+        loss we would use the cross entropy 
+        \[ \mathcal{L}_{word}(\wordImportance, \zeta; \theta) = -\sum_{i=1}^m \zeta_i \log \wordImportance_i + (1 - \zeta_i) \log (1 - \wordImportance_i). \] 
+
+
+
+
+        \paragraph{Adaptation to MDS} We also propose a simple 
+        self attention-based modification to
+        the word importance aggregation step to help adapt this method
+        to multi-document summarization (MDS). \citep{conroy} found
+        that dimensionality reduction on the BOW representations improves
+        summarizer performance in the MDS setting (but not on single document
+        summarization). 
+
+
+        We plan to experiment with the following importance 
+        aggregation method. First, given the outputs of the contextual features
+        $h_i$, we compute a self attention matrix $\Lambda \in \Rn{m\times m}$
+        where \[\Lambda_{i,j} = \sigma(h_i \cdot h_j / \tau + b)  \]
+        using sigmoidal attention \cite{strucattn} with a learned bias 
+        parameter $b$ and a temperature parameter $\tau$.
+        Next we compute an attention weighted word importance score $\bar{\wordImportance}_i$ for each word in the input using the following formula,
+        \[ \bar{\wordImportance}_i = \sum_{j=1}^m \wordImportance_j \cdot \Lambda_{i,j}.\]
+
+        Our motivation is that by accumulating scores based on context
+        similarity, words and topics that appear in multiple documents 
+        will accumulate the bulk of the word importance scores, giving 
+        an added boost to sentences that contain them. Implicitly, errant
+        words from one document that are not on topic to the cluster will
+        effectively not contribute much to a sentences score, reducing the 
+        effectve dimension of the BOW vectors and regularizing individual
+        sentences to the document cluster's mean.
+
+        
+        Since we are training our models on single documents, we expect that
+        running our pretrainined word scoring model on the individual 
+        documents from an MDS document cluster will result in 
+        minimal task-adaptation mismatch. Remaining bias and temperature
+        parameters can easily be tuned on the small amount of MDS training 
+        data available.
+
+        We also plan to compare this method to using a non-negative matrix 
+        factorization 
+        method on the output of the learned BOW representation, 
+        and to hard attention assignments using Brown clustering.
+
+
+
+
+
+
+
+%\subsubsection{
+%\cite{conroy} 
+
+
+ 

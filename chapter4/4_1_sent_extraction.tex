@@ -266,3 +266,258 @@ attention weighted encoder output and the decoder $\gru$ output are concatenated
 and fed into a multi-layer perceptron to compute the extraction probability.
 See \autoref{fig:extractors}.b for a graphical layout.
 
+
+
+
+\subsection{Experiments}
+
+ We are interested in two questions. The first, more pragmatic question, is
+ what are the best configuration of encoder/extractor architectures?
+ We answer this question by evaluating ROUGE recall and METEOR \citep{meteor}
+ performance across our six collected datasets. We perform the standard
+ stochastic gradient descent \cite{sgd} based optimization (using the Adam
+ update \cite{adam}) of the weighted negative log likehood 
+ \[ \mathcal{L}(\theta) = -\sum_{\Sents, \Labels \in \mathcal{D}} 
+            \sum_i \omega(\lbl_i) 
+        \log p(\lbl_i|\lbl_{<i}, \Sents; \theta) \]
+        where $\theta$ are model parameters and $\omega(\lbl_i)$ upweights
+        the positive labels to account for the imbalanced label distribution.
+
+ We lack human reference extract labels for our datasets and so we obtain
+ said lable sequences heuristically, by finding a label sequence $\Labels^*$
+ by greedily optimizing ROUGE-1 recall with respect to the human reference
+ abstracts.
+
+ The second question, is more diagnostic in nature: what signals
+ in the data are driving model learning?
+ We perform several experiments to find answers. 
+ We hypothesize that the lexical semantics encoded at the word embedding
+ level will be important to subsequent sentence representations, and
+ perform a comparison on learning with and with out fine tuning of the 
+ embeddings. In both cases, embeddings are initialized with Glove
+ embeddings pretrained on Wikipedia and Gigaword \citep{glove}.
+ 
+ 
+ We also hypothesize that certain classes of words will be more important 
+ to identifying salient content than others. We perform word ablation 
+ experiments where we alternately remove nouns, verbs, adjectives \& adverbs,
+ and function words from the sentence encoder input and compare performance 
+ to the non-ablated system. We expect that the nouns will be more important
+ to content selection. 
+
+
+ Our final experiments attempt to tease out the effect of structural features 
+ from the lexical. In this experiment, we shuffle the sentence order at 
+ training time. In this setup, we obfuscate features about which content 
+ was introduced in the article first, an important and well known bias in 
+ news domain \cite{leadbias}. 
+
+
+ \subsection{Results}
+
+
+  
+
+The results of our main experiment comparing 
+the different extractors/encoders are shown in 
+Table~\ref{tab:results}.
+Overall, we find no major advantage when using the CNN and RNN sentence
+encoders over the averaging encoder. The best performing encoder/extractor pair either 
+uses the averaging 
+encoder (five out of six datasets) or the differences 
+are not statistically significant. %When only comparing within the 
+%same extractor choice,  the averaging encoder is the better choice
+%in 14 of 20 cases. 
+%\hal{i wonder if it would be worth adding another ``average performance metric'' column to \autoref{tab:results}.
+%  i'm thinking have ``Average $\Delta$-Best'' meaning how far (on average across the datasets) is this setting from the best setting available on that dataset.
+%  so since the best numbers are: 25.56, 35.85, 23.11, 13.65, 5.63
+%  and the first row numbers are: 25.42, 34.67, 22.65, 11.37, 5.50
+%  then the deltas are:            0.14,  1.18,  0.46,  2.28, 0.13
+%  the the average delta is 0.84 (assuming my math is right)
+%  there's an argument to do multiplicative, in which case
+%  the multipliers for first row:  0.99,  0.97,  0.98,  0.83, 0.97
+%  and the average is 0.95
+%  either way this gives a quick way to make comparisons between rows. you could do the same for the other tables too.}
+
+  %\hal{in some of the tables you list R-2 as headers even though all the numbers are R-2. just put that in the caption.}
+
+
+When looking at extractors, the Seq2Seq extractor is either part of 
+the best performing system (three out of six datasets) or is not 
+statistically distinguishable from the best extractor. 
+
+Overall, on the news and medical journal domains, the differences are 
+quite small with the 
+differences between worst and best systems on the CNN/DM dataset 
+spanning only .56 of a ROUGE point. While there is more performance variability
+ in the Reddit and AMI data, there is less distinction among systems: 
+ no differences are significant on Reddit
+and every extractor has at least one configuration that is indistinguishable
+from the best system on the AMI corpus. This is probably due to the small test
+size of these datasets.
+%\hal{this is probably at least partially because of test set size. maybe mention this.}
+
+
+
+
+
+%?\textcolor{red}{Overall we find that the \modelTwoBF~extractor achieves the 
+%?best ROUGE scores on three out of four domains (STILL RUNNING ON AMI AND PUBMED). 
+%?However, most
+%?differences are not signficant. (Need to discuss stat sig and how to show it).}
+%?On the larger CNN-DailyMail dataset, especially, 
+%?differences are quite smail across all extractor/encoder pairs.
+%?The \baselineOneBF~extractor achieves the best performance on the DUC 2002
+%?dataset. It is disappointing that the \baselineOneBF~and \baselineTwoBF~based 
+%?models do not gain any apparent advantage in conditioning on previous 
+%?sentence selection decisions; this result suggests the need to improve
+%?the representation of the summary as it is being constructed iteratively.
+%?
+%?\textbf{Choice of Encoder} We also find there to be no major advantage 
+%?between the different sentence encoders. \textcolor{red}{In most cases,
+%?there is no statistical significance between the averaging encoder and either
+%?the RNN or CNN encoders.} 
+
+%The lack of differentiation amongst the different encoders concerning; one
+%would assume learning with the appropriate structure would be helpful.
+%The results of next 
+
+
+
+
+\paragraph{Word Embedding Learning}
+ Given that learning a sentence encoder (averaging has no learned parameters)
+ does not yield significant improvement, it is natural to consider whether
+ learning word embeddings is also necessary. 
+ In \autoref{tab:embeddings} we compare the performance of different extractors
+ using the averaging encoder, when the word embeddings are held fixed or 
+ learned during training. In both cases, word embeddings are initialized with
+ GloVe embeddings trained on a combination of Gigaword and Wikipedia.
+% \hal{TRAINED ON WHAT? JUST THE DEFAULT ONES?}
+ When learning embeddings, words occurring 
+ fewer than three times in the training data are mapped to an unknown
+ token (with learned embedding).
+ 
+% shows ROUGE recall
+%when using fixed or updated word embeddings. 
+ In all but one case,
+fixed embeddings are as good or better than the learned embeddings.
+This is a somewhat surprising finding on the CNN/DM data since it is reasonably
+large, and learning embeddings should give the models more
+flexibility to identify important word features.\footnote{The AMI corpus is an exception here where learning \emph{does} lead to small
+performance boosts, however, only in the Seq2Seq extractor is this diference 
+significant; it is quite possible that this is an artifact of the very small
+test set size.}
+%\hal{why is it surprising?} \textcolor{green}{[[CK: Because learning embeddings should give the model more capacity to represent important patterns]]}
+This suggests that we cannot extract much generalizable learning signal 
+from the content other than what is already present from initialization. 
+Even on PubMed, where the language is quite different from the news/Wikipedia
+articles the GloVe embeddings were trained on, learning leads to 
+significantly worse results.
+
+%The language of this corpus is quite different from the 
+%data that the GloVe embeddings were trained on and so it makes sense 
+%that  there would be more benefit to learning word representations; one
+%explanation for only seeing modest improvements is purely the small size
+%of the test dataset which has only 20 training meetings.
+
+%textcolor{red}{(NOTE TO CK -- expect learning to help on pubmed)}. \hal{yes, the dataset size is certainly an issue here. probably worth pointing this out. also when you learned the embeddings, did you initialize to pretrained embeddings? did you regularize toward them?}
+
+
+\paragraph{POS Tag Ablation}
+It is also not well explored what word features are being used by the encoders.
+To understand which classes of words were most important we ran an ablation
+study, selectively removing nouns, verbs 
+(including participles and auxiliaries), adjectives \& adverbs, and 
+function words (adpositions, determiners, conjunctions).
+%Additionally, we ran ablation experiments
+%using part-of-speech (POS) tags. \hal{this needs to be justified. why is this experiment interesting?}
+All datasets were automatically tagged using
+the spaCy part-of-speech (POS)
+tagger\footnote{https://github.com/explosion/spaCy}.   
+%\kathy{I'm still curious what would happen if you separately removed all conjunction tags and later remaining POS.}
+%We experimented with selectively removing 
+%\begin{itemize}
+%    \item nouns (NOUN and PROPN tags), 
+%    \item verbs (VERB, PART, and AUX tags), 
+%    \item adjectives/adverbs (ADJ and ADV tags), 
+%    \item numerical expressions (NUM and SYM tags), and 
+%    \item miscellaneous words (ADP, CONJ, CCONJ, DET, INTJ, and SCONJ tags)
+%\end{itemize}
+%from each sentece. 
+The embeddings of removed words were replaced with a zero vector,
+preserving the order and position of the non-ablated words in the sentence.
+Ablations were performed on training, validation, and test partitions,
+using the RNN extractor with averaging encoder.
+\autoref{tab:ablations} shows the results of the POS
+tag ablation experiments. 
+While removing any word class from the representation generally hurts 
+performance (with statistical significance), on the news domains,
+the absolute values of the differences are quite small 
+(.18 on CNN/DM, .41 on NYT, .3 on DUC) suggesting that the model's predictions
+are not overly dependent on any particular word types.
+On the non-news datasets, the ablations have a larger effect 
+(max differences are 1.89 on Reddit, 2.56 on AMI, and 1.3 on PubMed).
+Removing nouns leads to the largest drop on AMI and PubMed.
+Removing adjectives and adverbs leads to the largest drop on Reddit,
+suggesting the intensifiers and descriptive words are useful for 
+identifying important content in personal narratives.
+Curiously, 
+removing the function word POS class yields a significant improvement
+on DUC 2002 and AMI.
+
+
+%The newswire domain does not appear to be sensative
+%to these ablations; this suggests that the models are still able to identify
+%the lead section of the document with the remaining word classes \textcolor{red}{(Verify this with histogram analysis)}. 
+%The Reddit domain, which is not lead biased, is significantly effected.
+%Notably, removing adjectives and adverbs results in a 1.8 point drop 
+%in ROUGE-2 recall. 
+
+
+\textbf{Document Shuffling} Sentence position is a well known and 
+powerful feature for news summarization \cite{hong2014improving}, owing 
+to the intentional lead bias in the news article writing\footnote{\url{https://en.wikipedia.org/wiki/Inverted_pyramid_(journalism)}}; it also explains the difficulty in beating
+the lead baseline for single-document summarization 
+\cite{nenkova2005automatic,rau:1999}.
+In examining the generated summaries, we found
+most of the selected sentences in the news domain came from the lead paragraph
+%\hal{i feel like there must be citations to dig up here from like the 90s about lead summarization in news... it's also an intentional bias: maybe the right thing is to cite a style guide from a newsppaer that says to write this way}
+of the document. This is despite the fact that there is a long tail of 
+sentence extractions from later in the document in the ground truth extract 
+summaries (31\%, 28.3\%, and 11.4\% of DUC, CNN/DM, and NYT training extract labels come 
+from the second half of the document). 
+%\hal{can you be more specific? like give some stats? what \%age come from first quarter of doc and what \%age from last half or something}. 
+Because this lead bias is so strong, it is questionable whether
+the models are learning to identify important content or just find the start
+of the document. We conduct a sentence order experiment where 
+each document's sentences are randomly shuffled during training. We then
+%KM - I think below should be shuffled. I changed.
+%CK - models are trained on shuffled data but evaluated on in order models.
+%evaluate each model performance on the unshuffled test data, comparing to 
+evaluate each model performance on the unshuffled test data, comparing to 
+the model trained on unshuffled data; if the models trained on shuffled data
+drop in performance, then this indicates the lead bias is the relevant factor.
+%in learning content selection.
+
+\autoref{tab:shuffle} shows the results
+of the shuffling experiments. 
+The news domains and PubMed suffer a significant drop in performance 
+when the document order is shuffled. By comparison, there is no significant difference between the shuffled and in-order models on 
+the Reddit domain, and shuffling actually improves performance on AMI.
+%\hal{what about in the cross-domain setting?} 
+This suggest that position 
+is being learned by the models in the news/journal article domain even when 
+the model has no explicit position features, and that this feature is more 
+important than either content or function words.
+
+
+
+
+
+
+
+
+
+
+

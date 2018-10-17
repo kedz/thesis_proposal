@@ -1,11 +1,7 @@
-filename=kedzie_phd_thesis_proposal
+filename=4_2_wimp_model
 
-pdf: 
-	#ps2pdf ${filename}.ps
-	pdflatex ${filename}
-	pdflatex ${filename}
-	bibtex ${filename}||true
-	pdflatex ${filename}
+pdf: ps
+	ps2pdf ${filename}.ps
 
 pdf-print: ps
 	ps2pdf -dColorConversionStrategy=/LeaveColorUnchanged -dPDFSETTINGS=/printer ${filename}.ps
