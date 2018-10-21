@@ -1,0 +1,256 @@
+~\\
+~\\
+
+
+
+
+
+
+Text summarization has many obvious applications, and many have been or are 
+actively being studied, including clinical records summarization, academic 
+research summarization, and crisis-management/monitoring.
+
+
+
+
+
+
+In this thesis we focus on two components of summarization 
+in particular: i) text salience estimation, and ii) the faithful 
+text generation
+
+
+
+A summarization algorithm can be evaluated on a number of dimensions,
+including content selection, fluency/linguistic quality, compression ratio,
+and others. 
+
+
+
+
+
+
+
+
+
+The goals of most summarization 
+algorithms are fairly straightforward, typically the aim is to
+reduce a natural language input data to its most important pieces of 
+information. 
+
+
+
+
+Text summarization is a form of lossy compression over natural language data.
+
+
+
+
+
+
+Text summarization is not unlike other forms of lossy data compression.
+Given 
+
+Given an input text to summarize, human readers are likely to judge 
+certain bits as more or less important, or as we shall refer to it here, 
+salient
+
+
+
+
+
+Automatic text summarization is a long-standing subfield of natural language
+processing (NLP). A frequent ``earliest'' cited paper is that of Hans Peter 
+Luhn \cite{luhn1958automatic} although the field is related to information
+retrieval (IR) which can trace its roots back even further. However you
+measure it, researchers have been studying summarization for as long
+as any of the other major pillars of language processing, e.g. syntactic
+parsing, machine translation, or speech understanding. 
+
+If one adopts the (currently) unfashionable idea that machines should 
+strive to faithfully emulate humans in their design, then it would initially
+seem that summarization requires the whole kitchen sink of ``cognitive''
+tools including broad-coverage semantic parsing, logical reasoning, 
+and psychological models of salience and communication, among others.
+
+However, one can dream up any number of practical uses for automatic 
+summarization and, so spurred on by ``R\&D glory,'' a more pragmatic research 
+agenda has emerged. The proposed thesis focuses on two such topics:
+\textit{i)} the estimation of sentence and word-level salience, and 
+\textit{ii)} ensuring that the important content is faithfully expressed 
+in the generated summary.
+
+~\\
+~\\
+
+
+In it's most general terms, the goal of summarization is to take arbitrary
+text as input and to output a text-based summary of that input. It is
+intended that the summary be significantly shorter than the input. 
+In practiace, most research focuses a few significant variations:
+extractive vs. abstractive summarization and 
+single document vs. multi-document summarization. 
+
+
+
+\subsection{Extractive vs. Abstractive Summarization}
+
+Tyically a distinction is made between summarization models\footnote{In the
+summarization literature the word model is often used to refer to a human 
+summary. This is confusing given the dominant usage in NLP and machine learning where model implies a statistical model. In this proposal we will use model
+in the machine learning sense, and use ``reference'' summary to refer to a 
+human or gold-standard summary. } that construct a summary by extracting
+sentences, phrases, and/or words from the input and combine them to
+form a summary and summarization models that employ more
+sophisticated rewriting and compression mechanisms.
+
+Prior to 2015, most research studied sentence extractive summarization models,
+i.e. summaries were created from a subset of input sentences.
+While this approach certainly places hard limits on the expressiveness of 
+the model generated summaries, it allows researchers to isolate the 
+problems of content importance and redundancy from text generation.
+We take this approach as well, using extractive summarization in a variety
+of contexts to study content importance estimation.
+
+Another way to think of the extractive task formulation is as multi-dimensional
+knapsack packing: sentences contain zero or more semantic units, and our
+goal is to select a subset of sentences that maximize the coverage of distinct semantic units without exceding our sentence budget. 
+
+
+
+In asbtractive summarization, the goal is to design an algorithm that
+can flexibly and expressively generate summary text that is not explicitly
+copied from the input material. Often, abstractive algorithms participate
+alongside or on top of extractive approaches.
+For example, sentence extraction is sometimes done in combination with some 
+form of deletion based sentence compression. On the other end of the spectrum,
+a template based system might generate completely new sentences by filling
+in various slots with information gleaned from the input. 
+
+The development of general purpose sequence transduction models in the 
+neural machine translation community has spurred renewed interest in 
+abstractive summarization. Generally, these sequence-to-sequence models
+generate a summary one word at time, performing double duty as both a model
+of content selection and summary language model. In practice, they tend
+to be somewhat difficult to control. In the latter half of the thesis
+we study ways of controlling the output of such models to conform to
+known document information.
+
+
+Add notes on evaluation.
+
+
+%As with many binary classifications, the reality is more often a spectrum.
+%For example, ??? develop a sentence extraction but also generate 
+%multiple versions of the same sentence by word deletion. 
+
+
+\subsection{Single Document vs. Multi-Document}
+
+The other common axis of differentiation is single-document vs. 
+multi-document summarization. In the latter case, a cluster of related 
+documents is input to the summarization model and a summary describing the 
+cluster is generated. In the former, a single document (e.g. a single
+newspaper article) is input for summization. Perhaps surprisingly, 
+the multi-document case is often easier than the single document case;
+in \cite{nenkovaSomething} for example, no automatic systems beat the lead
+baselines in single-document summarization while systems were competitive 
+with some human baselines on multi-document summarization.
+One explanation for this difference is that most systems use word frequency
+as a proxy for word importance; in the multi-document context there is more 
+context to determine if a word is being used frequently by chance or 
+in a statistically surprising way that would indicate its importance.
+
+\subsubsection{Update Summarization and Streaming Summarization}
+
+Update summarization is a variant of multi-document summarization where
+several clusters of documents on a topic are to be summarized in sequential
+steps, or updates. In the initial update, the scenario is identical to the 
+multi-document case. It becomes more interesing in subsequent updates,
+where the goal is to summarize the next document cluster with an eye toward
+novelty -- information mentioned in previous document clusters is no longer 
+considered valuable or important. 
+
+Streaming summarization is a natural generalization of the update summarization
+task where documents are no longer clustered but rather are placed on a 
+timeline; the summarization system is expected to processing them in 
+time order, and decide when to produce update summaries. 
+Summary evaluation in this setting is concerned not only with coverage of
+important topics but also in their timely discovery. If the summarization
+system has to process a whole days worth of news before it can emit 
+an update summary it may not immediately cover some fast-breaking news item.
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Genre and Domain}
+Summarization is most often performed on newswire since the text is 
+typically well formed, existing NLP tools are well supported in the this 
+domain, and increasingly there are large datasets of document/summary pairs.
+However, summarization is performed on other domains and genres. 
+Summarization models have been tailored to scientific
+journal articles (especially the bio-medical literature), workplace meetings,
+and broadcast news speech for example.
+While we present some results on non-newswire domains, the primary 
+focus of this thesis is on newswire given the ease of obtaining such data. 
+
+
+
+\subsection{Summary Evaluation}
+Automatic evaluation of summaries is also a difficult problem.
+The most prominent (and convenient) method of evaluation has been
+to rely on average ngram recall, i.e. ROUGE \cite{rougepeople},
+with respect to one or more (typically human authored) reference
+summaries. ROUGE can be said to measure content selection and
+how well this accords with that of the reference authors.
+It is not sensitive to discourse coherence, grammaticallity,
+or any other measure of sentence or document quality
+that one might reasonablly care about in a summary.
+When limited to extractive summarization, one could plausibly 
+ignore this issue and claim to be studying content selection in
+isolation. However, when we move to abstractive summarization
+this argument is no longer defensible and at the very least
+some automatic measure of sentence quality should be used,
+and a human evaluation preferred.
+
+In the streaming context, we are also concerned with latency:
+how long did it take from when a piece of important 
+information entered the stream made it into a summary.
+In a hypothetical disaster management scenario, for example,
+stakeholders receiving automatic summary updates of a news
+stream would need very low latency for a system to be useful.
+
+
+\subsection{Contributions}
+
+The proposed contributions of this work are as follows:
+\begin{enumerate}
+
+ \item A novel approach to streaming summarization using a feature-based
+     regression model of sentence salience and sentence selection using 
+     exemplar-based clustering.
+
+ \item A novel approach to streaming summarization using the locally optimal
+     learning to search (LOLS) algorithm.
+
+ \item A study on the design, strengths, and limitations of deep learning 
+     models for content selection at the sentence and word level in 
+     single document summarization. 
+
+ \item An experimental study of extractive content selection algorithms
+     as input to abstractive summarization model.
+
+ \item A novel approach to generating text that is faithful to some
+     structured information in a database.
+
+\end{enumerate}
+
+

@@ -1,6 +1,12 @@
 
-\section{Sentence and Word Salience for Extractive Summarization}
+\section{Deep Learning Models of Word and Sentence Salience}
+
+\label{sec:chapter4}
+
+\def\tfidf{TF-IDF}
 \input{chapter4/4_0_introduction.tex}
-\input{chapter4/4_1_sent_extraction.tex}
-\input{macros/chapter4.tex}
-\input{chapter4/4_2_word_importance.tex}
+\ifthenelse{\equal{\highlevel}{false}}{
+  \input{chapter4/4_1_sent_extraction.tex}
+  \input{macros/chapter4.tex}
+  \input{chapter4/4_2_word_importance.tex}
+}{}

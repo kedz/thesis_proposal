@@ -1,82 +1,42 @@
-We propose two novel approaches to the streaming summarization task
-using biased affinity propagation (AP) clustering \citep{frey2007clustering}
-and learning-to-search (L2S) \citep{daume2009search,chang2015learning}.
-These models led to the publication of two papers 
-\citep{kedzie2015predicting,kedzie2016real}, in addition to participation 
-in the TREC Temporal Summarization tracks where we were the top performer in
-2014 and the fourth and fifth place performer in 2015 
-\citep{aslam2015trec,aslam2016trec}. 
+Learning models of sentence salience in summarization is often difficult
+because summarization datasets are typically small (a few hundred training
+examples in many cases); learning lexical 
+feature weights directly is likely to run into issues of coverage on the test
+set. To get around this problem, we rely heavily lexicalized components 
+trainable on unlabeled data to produce scores that serve as unlexicalized 
+features in our salience models. The canonical example of this is to use 
+a language model trained on in-domain but non-summarization data to 
+obtain average token perplexity scores for a sentence. In this section we 
+describe our features in the context of stream summarization task, but the 
+features are themselves fairly generic and likely obtainable in other task
+settings.
 
-In the Temporal Summarization track, the grounding scenario was disaster
-summarization, where a participant system received a brief query string 
-$\query$ describing a natural or man-made disaster, and the system was 
-expected to process a time-ordered stream of documents relevant to the query, 
-extracting sentences that were likely to contain important facts about the
-event. Each query corresponded to a real-life disaster that was significant
-enough to have an associated entry in Wikipedia.
+A second but important issue is that salience judgments do not occur
+in isolation. Intuitively, as we add content to the summary, the salience
+of our remaining inputs is likely change based on redundancy and other factors.
+Adding summary/sentence interaction features introduces an element of 
+exploration to training the model for now various summary configuration 
+and candidate sentence pairs must be considered.
 
-For each query, human annotators also collected a reference set of important 
-facts, which we refer to as \textit{nuggets}, 
-from the revision history of that query's associated Wikipedia page. 
-Nuggets consist of a piece of reference text and timestamp for when this piece
-of information first appeared in the Wikipedia revision history. 
-See \autoref{fig:eventsnuggets} for example queries and nuggets.
+We propose two model based solutions to this. 
+The first model, Salience-biased Affinity Propagation (SAP) 
+\citep{kedzie2015predicting}, combines 
+independent sentence level predictions into a clustering algorithm,
+Affinity Propagation (AP) \citep{frey2007clustering}, that also 
+considers sentence similarity to jointly select salient and 
+non-redundant sentences for inclusion in the summary.
 
-\input{chapter3/figures/3_fig_events_and_nuggets.tex}
+Our second model, Learning-to-Summarize (L2S) \citep{kedzie2016real}, allows 
+us to freely incorporate summary/sentence interaction
+features, as we train the salience model using the learning-to-search regime
+\cite{daume2009search,chang2015learning}
+where learning takes place using different exploration policies. Using 
+this method we can learn a salience model that makes good individual sentence
+selection choices (i.e. good local decisions) that also correlate to a good 
+final summary (i.e. good global decisions). 
 
-We will refer to the set of extracted sentences as the update or extract
-summary interchangeably. Similarly, we will use the phrases extract a sentence,
-select a sentence, or emit a sentence to mean we add a sentence in the 
-document stream to our rolling update summary. If a sentence $\strsent$ 
-expresses the same piece of information as a nugget text $\nugget$ 
-we say that $\strsent$ contains $\nugget$ or $\nugget \in \strsent$.
+In the next subsections, we will describe the stream summarization task
+in detail, before moving on to the sentence features, and finally the models
+and their evaluations.
 
-Systems are rewarded when they find sentences that contain important and novel
-nuggets. Systems are penalized for 
-selecting sentences that are irrelevant (i.e. contain no nuggets) or 
-contain nuggets already covered by previous updates. 
-Latency penalized metrics are also computed where
-the importance of a nugget decays over time. E.g. if a system
-recovers the nugget ``25 people were reported injured,'' several days
-after this fact was first reported, it will receive less credit for it
-than the system that emits that nugget an hour after it enters the 
-document stream. See \cite{aslam2014trec} for more details on this decay 
-factor. Intuitively, latency penalized metrics capture the idea that stale
-information in a rapidly evolving disaster is less useful and possibly
-distracting.
 
-Streaming summarization is a very hard task compared to single and 
-multi-document summarization. In the latter case, the context for the 
-summarization is fixed, and the input documents are usually quite 
-topically focused, minimizing the prevalence of completely irrelevant 
-information. In fact, in most multi-document evaluation settings, the
-document collections were manually created leading to very topically
-coherent text collections. 
-\cite{baumel2016topic} for example found that the DUC
-query focused summarization datasets are so on topic that a summarization
-system could completely ignore the query and perform just as well as a
-query aware system.
-
-\input{chapter3/figures/3_fig_stream_algos.tex}
-
-If we had clairvoyant knowledge of which nuggets were contained in each
-sentence in the document stream,
-this task would be trivial in that the greedy algorithm in 
-\autoref{alg:ts_greedy_oracle} would return an approximately optimal summary.
-Since we do not know this information at test time, we attempt approximate
-the if-statement in line 5 of the oracle by answering the following proxy 
-questions:
-\begin{enumerate}
-    \item How salient is sentence $\strsent$ with respect to query $\query$?
-    \item How similar is the sentence $\strsent$ with respect to the set of 
-            previously selected updates $\hat{\strsent} \in \updates$?
-\end{enumerate}
-The generic stream summarization algorithm we aim to implement is presented
-in \autoref{alg:ts_greedy_generic}.
-
-The two models we propose to solve these more tractable problems come with
-different trade-offs. They both, however, rely on a feature-base 
-representation of the stream sentences to make salience and selection 
-predictions. In the next sub-section, we describe the different feature
-groups before describing each of the models used to perform the streaming
-summarization task.

@@ -148,4 +148,93 @@ however we intend to explore some differences.
 
 
  
+\subsection{Other stuff from other sections}
+Estimating the salience of words and phrases is core to the problem of 
+summarization. For example, \cite{luhn1958automatic} 
+noted how the most topically central words in a document occur not too much 
+but not
+too little, and that,
+``the presence in the region of highest frequency of many of the words
+ previously described as too common to have the  type  of
+ significance being sought would constitute
+`noise' in the system.''
+Typically, this has been done with heuristically derived word weights
+\citep{luhn1958automatic,sparck1972statistical} or feature-based, linear 
+models of sentence salience \citep{martins2009summarization,woodsend2010automatic,berg2011jointly,durrett2016learning}.
+
+However, the recent availability of large scale single-document summarization 
+data \citep{sandhaus2008new,hermann2015teaching,grusky2018newsroom}. 
+With these corpora, and other developments in word embedding representation 
+\citep{mikolov2013distributed,pennington2014glove},
+many researchers have been developing end-to-end models of both 
+abstractive \citep{rush2015neural,chopra2016abstractive,cheng2016neural,nallapati2016abstractive,see2017get,paulus2017deep} and extractive \citep{cheng2016neural,nallapati2016classify,nallapati2016summarunner,narayan2018ranking} summarization.
+While the spirit of ``let a thousand architectures bloom'' has spurred much
+creativity and performance gains, it has left us with little explainability
+about how such models work. 
+
+While different components of the neural architectures may be justified 
+by intuition, these methods are largely black boxes and it is not clear
+how they are making their sentence selection predictions. This is especially
+problematic in abstractive summarization, but it is also not well understood
+how extractive methods make their decisions either.
+
+
+
+
+~\\
+~\\
+
+
+
+
+
+Subsequently, many methods have been proposed for salience estimation
+in the context of summarization. Word weights have typically been derived
+in an unsupervised way from a large collection of in-domain text.
+The classic example here is Term Frequency-Inverse Document Frequency
+(\tfidf) weighting \citep{sparck1972statistical}, whose aim is similar in 
+spirit to Luhn's: important 
+words occur frequently in the current context (the term frequency component)
+ but not so much that they occur in every document 
+(the inverse frequency component).
+
+While \tfidf weights (and others like BM25 \citep{bm25}) have been frequent
+ingredients in many summarization systems \citep{a,b,c,d,e}, they are 
+not specifically tuned to any one summarization task. Another prominent
+strand of research has been the learning of word or ngram specific weights
+typically for use in linear models of salience \citep{martins2009summarization,woodsend2010automatic,berg2011jointly,durrett2016learning}. 
+Given the small size of most summarization datasets at the time, one could question 
+the utility of learning ngram weights when it was unlikely that there 
+would be adequate data to learn broad coverage summarizers.
+
+%In this chapter we investigate neural network architectures for extractive
+%summarization, in the hopes of better understanding what is important 
+%for the underlying word and sentence representations to learn.
+%We start a description of completed experiments for sentence extractive
+%models of summarization \citep{kedzie2018deep}, and then complete the chapter with a description
+%of planned and ongoing word importance estimation techniques using deep
+%learning models.
+
+
+~~\\
+~\\
+
+
+
+
+
+
+Increasingly, researchers are returning to single document summarization,
+once thought to be too difficult for automatic summarization methods.
+This has been driven both by the availability of large corpora (the
+most popular corpus, CNN-DailyMail, has a little over 300,000 data points
+\citep{see2017get}) and by the development of general purpose 
+generative models of text from the neural machine translation community.
+Accordingly, the bulk of the research has used this corpus, (and the NYT
+corpus \citep{sandhaus2008new}) to focus on abstractive summarization
+research \citep{rush2015neural,chopra2016abstractive,cheng2016neural,nallapati2016abstractive,see2017get,paulus2017deep}. 
+There has been a smaller but similar proliferation of sentence
+extractive single document summarization papers on these corpora also using 
+neural network architectures \citep{cheng2016neural,nallapati2016classify,nallapati2016abstractive,narayan2018ranking}.
+
 
