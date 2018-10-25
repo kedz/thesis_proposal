@@ -1,0 +1,132 @@
+\documentclass[crop,tikz]{standalone}
+\usepackage{amsfonts}
+\usetikzlibrary{shapes}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\begin{document}
+ \begin{tikzpicture}[
+    record/.style={rectangle,draw=black,anchor=north west,text width=42mm,
+                   font=\scriptsize},
+    beam/.style={rectangle,draw=black,anchor=north west,text width=36mm,
+                 font=\scriptsize},
+    table/.style={anchor=north west,rotate=90,font=\tiny},
+    dot/.style={circle,draw=black,fill=white,inner sep=.75pt},
+ ]
+  %\draw[color=black] (0,7.25) rectangle (15,0);
+
+  \node[record] (r1) at (.05,4.41-.6*0) {\textbf{Name:} Karen Sp\"arck Jones};
+  \node[record] (r2) at (.05,4.41-.6*1) {\textbf{Born:} 26 August 1935};
+  \node[record] (r3) at (.05,4.41-.6*2) {\textbf{Died:} 4 April 2007};
+  \node[record] (r4) at (.05,4.41-.6*3) 
+        {\textbf{Occupation:} Computer Scientist};
+  \node[record] (r5) at (.05,4.41-.6*4) {\textbf{Nationality:} British};
+  
+  \node at (2.25,4.75) {Structured Data};
+  \node[rectangle,densely dotted,draw=black] (gen) at (5.4, 6) {Generator};
+  \node[rectangle,densely dotted,draw=black] (rec) at (11.3, 6) {Recognizer};
+  \node at (8.25, 5.65) {Beam Candidates};
+  \node[text width=26mm,align=center] at (13.5,6.75) 
+    {Recovered Structured Data};
+
+ \node[beam] (b1) at (6.5,5.35) 
+    {Karen Sp\"arck Jones was a British computer scientist.};
+ \node[beam] (b2) at (6.5,3.35) 
+    {Karen Sp\"arck Jones was a computer scientist.};
+ \node[beam] (b3) at (6.5,1.35) 
+    {Karen Sp\"arck Jones was an American computer scientist.};
+
+ \node[draw=black,fill=white,rectangle] at (6.4, 5.35) {\tiny 1};
+ \node[draw=black,fill=white,rectangle] at (6.4, 3.35) {\tiny 2};
+ \node[draw=black,fill=white,rectangle] at (6.4, 1.35) {\tiny 3};
+
+    \draw[-] (r1.east) to [out=0,in=180] (5,2.975);
+    \draw[-] (r2.east) to [out=-15,in=180] (5,2.975);
+    \draw[->] (r3.east) to (4.5,2.975) to (5.5,2.975) to  (b2.west); 
+    \draw[-] (r4.east) to [out=15,in=180] (5,2.975);
+    \draw[-] (r5.east) to [out=0,in=180] (5,2.975);
+    \draw[->] (5.5,2.975) to [out=0,in=180] (b1.west);
+    \draw[->] (5.5,2.975) to [out=0,in=180] (b3.west);
+
+
+
+ \node[table] (d1) at (12.5, 4) 
+    {\begin{tabular}{l} 
+        French \\ 
+        German \\ 
+        British\\ 
+        Italian \\
+        \quad~$\vdots$ \\
+        Mexican \\ 
+        American \\ 
+        Canadian 
+    \end{tabular}}; 
+
+ \node[table] (d2) at (12.5, 2) 
+    {\begin{tabular}{l} 
+        French \\ 
+        German \\ 
+        British\\ 
+        Italian \\
+        \quad~$\vdots$ \\
+        Mexican \\ 
+        American \\ 
+        Canadian 
+    \end{tabular}}; 
+
+ \node[table] (d3) at (12.5, 0) 
+    {\begin{tabular}{l} 
+        French \\ 
+        German \\ 
+        British\\ 
+        Italian \\
+        \quad~$\vdots$ \\
+        Mexican \\ 
+        American \\ 
+        Canadian 
+    \end{tabular}}; 
+
+   \draw[-] (12.5,5.35) to (14.75, 5.35);
+   \foreach \x/\ystop in {12.75/5.5,12.95/5.5,13.14/5.95,13.35/5.5,14.15/5.5,
+                          14.35/5.5,14.55/5.5} {
+     \draw[-] (\x,5.35) to (\x, \ystop);
+     \node[dot] at (\x,\ystop) {};
+   }
+   \node at (13.8,5.5) {$\cdots$};
+
+
+
+   \draw[-] (12.5,3.35) to (14.75, 3.35);
+   \foreach \x/\ystop in {12.75/3.5,12.95/3.5,13.14/3.5,13.35/3.5,14.15/3.5,
+                          14.35/3.5,14.55/3.5} {
+     \draw[-] (\x,3.35) to (\x, \ystop);
+     \node[dot] at (\x,\ystop) {};
+   }
+   \node at (13.8,3.5) {$\cdots$};
+
+   
+   \draw[-] (12.5,1.35) to (14.75, 1.35);
+   \foreach \x/\ystop in {12.75/1.5,12.95/1.5,13.14/1.5,13.35/1.5,14.15/1.5,
+                          14.35/1.95,14.55/1.5} {
+     \draw[-] (\x,1.35) to (\x, \ystop);
+     \node[dot] at (\x,\ystop) {};
+   }
+   \node at (13.8,1.5) {$\cdots$};
+
+    \draw[->] (b1.east) to (12.25,4.975);
+    \draw[->] (b2.east) to (12.25,2.975);
+    \draw[->] (b3.east) to (12.25,0.975);
+
+    \draw[draw=green] (12.4,6.15) rectangle (14.85,4.25);
+    \draw[draw=yellow] (12.4,4.15) rectangle (14.85,2.25);
+    \draw[draw=red] (12.4,2.15) rectangle (14.85,0.25);
+    \draw[-,densely dotted] (rec.south) to [out=270,in=180] (12.25,4.975);
+    \draw[-,densely dotted] (rec.south) to [out=270,in=180] (12.25,2.975);
+    \draw[-,densely dotted] (rec.south) to [out=270,in=180] (12.25,0.975);
+    \draw[-,densely dotted] (gen.south) to [out=270,in=180] (b1.west);
+    \draw[-,densely dotted] (gen.south) to [out=270,in=180] (b2.west);
+    \draw[-,densely dotted] (gen.south) to [out=270,in=180] (b3.west);
+   
+
+%Karen Sp\:arck Jones FBA (26 August 1935 – 4 April 2007) was a British computer scientist who was responsible for the concept of inverse document frequency, a technology that underlies most modern search engines.[3][4]
+ \end{tikzpicture}
+\end{document}

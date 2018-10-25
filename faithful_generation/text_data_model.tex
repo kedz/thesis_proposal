@@ -1,0 +1,36 @@
+\subsection{Text Data Model}
+For cases where the evidence is not structured data but text, e.g. 
+summarization, we can modify the structured data model slightly to obtain 
+a workable faithful training regime. Our data will now consist of 
+4-tuples $\evidence, \utterance, \bar{\evidence}, \bar{\utterance} \in 
+\dataset$ where $\evidence$ is the input text to be summarized, 
+$\utterance$ is the reference
+abstractive summary, and $\bar{\evidence}, \bar{\utterance}$ are cloze
+style questions and answers \citep{taylor1953cloze} respectively. In
+a typical cloze question, a passage is given followed by a sentence with a 
+missing word; one must provide the correct word to fill in the blank 
+based
+on evidence from the passage. We can heuristically create cloze style questions
+for summarization by selecting input phrases/sentences with high similarity
+to the reference summary, and redacting random content words. See 
+\autoref{fig:cloze_example} for an example from the CNN/DailyMail dataset.
+
+\input{faithful_generation/figures/example2.tex}
+
+
+We modify our recognizer defintion to the following:
+an utterance $\utterance$ is \textbf{faithful}
+ to the evidence $\evidence$ under a recognizer $\rec$, 
+denoted $\faithful(\utterance,\evidence,\rec)$, if
+\[ \rec(\bar{\utterance} |\bar{\evidence}, \utterance) >
+ \max_{\bar{\utterance}^\prime \in \vocab \setminus \{\bar{\utterance}\}}
+\rec(\bar{\utterance}^\prime |\bar{\evidence}, \utterance)
+  \quad \textrm{ or } \quad  
+  \entropy_{\max} - \entropy_{\rec(\cdot|\bar{\evidence}, \utterance)} < \epsilon\]
+where the entropy terms are defined similarly to 
+\autoref{sec:struct_data_model} and the recognizer is now modified to map 
+cloze question/passage tuples $\bar{\evidence},\utterance$ to probabilties
+of a cloze answer
+$\bar{\utterance}$. In practice multiple cloze question/answer pairs will
+be created for each input/summary pair. Training of the faithful generator
+will proceed similarly to the process outlined in \autoref{sec:struct_data_model}.

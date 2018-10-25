@@ -1,0 +1,75 @@
+  \subsection{Structured Data Model}
+  \label{sec:struct_data_model}
+
+  Our structured data model consists of evidence/utterance tuples $(\evidence, \utterance)\in
+  \dataset$.
+   The evidence $\evidence = \{\evidence_1, \ldots, \evidence_m\}$
+   is a sequence of $m$ categorical variables drawn from  
+   $\evidenceSpaces{m}$ where $\evidence_i$ is the observed value for the 
+   $i$-th field in the structured data, e.g. the $i$-th field could correspond 
+   to \textit{occupation} with possible values
+   in $\evidenceSpace_i = 
+   \{ \textsc{Accountant}, \textsc{Actor},
+    \ldots, \textsc{Zoologist} \}$ .
+The utterance $\utterance = \{\utterance_1,\ldots, 
+\utterance_{|\utterance|}\}$ is a 
+  sequence of $|\utterance|$ tokens with each token drawn from a fixed 
+  vocabulary $\vocab$. The utterances correspond to natural language 
+  realizations of a subset
+  of the evidence.
+
+  The first player in our game is the \textit{generator} $\gen$, which can 
+  generate a list of $k$ candidate utterances $\utterance^{(1)},\ldots,
+  \utterance^{(k)}$. In practice, $\gen$ is a sequence-to-sequence 
+  model \citep{bahdanau2014neural} with parameters $\genParams$, and the $k$ 
+candidates are produced using beam search.
+ The second player, called the \textit{recognizer}, has a mapping
+ $\fdef{\rec_i}{\vocab^*}{(0,1)^{|\evidenceSpace_i|}}$ of utterances to
+ probabilities over values for each field
+ $i \in \Idx{m}$. We say that an utterance $\utterance$ is \textbf{faithful}
+ to the evidence $\evidence$ under a recognizer $\rec$, 
+denoted $\faithful(\utterance,\evidence,\rec)$, if, for all $i\in \Idx{m},$
+\[ \rec_i(\evidence_i|\utterance) >
+ \max_{\evidence^\prime \in \evidenceSpace_i \setminus \{\evidence_i\}}
+  \rec_i(\evidence^\prime|\utterance) 
+  \quad \textrm{ or } \quad  
+  \entropy^{(i)}_{\max} - \entropy_{\rec_i(\cdot|\utterance)} < \epsilon\]
+where $\entropy^{(i)}_{\max}$ is the maximum entropy for the $i$-th field,
+i.e. the entropy of the uniform distribution 
+$\log |\evidenceSpace_i|$, and $\entropy_{\rec_i(\cdot|\utterance)}$ 
+is the entropy of $\rec$ over the $i$-th field. In English, 
+an utterance is faithul to the evidence if the recognizer can correctly
+predict the true evidence from the utterance (left statement) or, barring that,
+the recognizer can not infer a value of the evidence with
+anything better than random chance (right statement).
+
+We evaluate the degree to which the generator is faithul with the quantity
+\[ \objective_\beamDistr(\evidence) = \E_{\utterance \sim \beamDistr(\evidence)} 
+ \Ind{\faithful(\utterance, \evidence, \rec)}, \]
+where $\beamDistr(\evidence) \propto \frac{\gen(\utterance|\evidence;\genParams)}{|\utterance|}$ is a the generator distribution renormalized by average token
+probability over the
+beam candidates $\utterance^{(1)},\ldots, \utterance^{(k)}$.
+
+We implement the recognizer using CNN classifiers with parameters $\recParams$,
+ and fit the parameters  with 
+the average log likehood objective \[ \objective_\rec(\phi) = 
+\frac{1}{|\dataset|} \frac{1}{m} \sum_{\evidence, \utterance \in \dataset} \sum_{i=1}^m 
+\log \rec_i(\evidence_i|\utterance;\recParams).\] After training, the 
+recognizer is frozen and we do not update the parameters when fitting the 
+generator.
+
+The generator is pre-trained also using the standard maximum log likelihood
+objective: \[\objective_\gen(\genParams) = 
+\frac{1}{|\dataset|} \sum_{\evidence, \utterance \in \dataset} 
+\log \gen(\utterance|\evidence;\genParams).\] To make the generator faithful,
+we then maximize the joint objective \[
+\frac{1}{|\dataset|} \sum_{\evidence, \utterance \in \dataset} 
+\Big[
+\log \gen(\utterance|\evidence;\genParams) + 
+ \E_{\utterance \sim \beamDistr(\evidence)} 
+ \Ind{\faithful(\utterance, \evidence, \rec)} \Big], 
+\]
+where the second term results in a minimum risk training (MRT) style gradient
+update \citep{edunov2018classical}.
+
+

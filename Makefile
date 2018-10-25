@@ -1,6 +1,6 @@
 filename=kedzie_phd_thesis_proposal
 
-pdf: 
+pdf: .images
 	pdflatex ${filename}.tex
 	bibtex ${filename}||true
 	pdflatex ${filename}.tex
@@ -16,6 +16,9 @@ pdf-clean: pdf
 	rm -f ${filename}.blg
 	rm -f ${filename}.toc
 	rm -f ${filename}.ps
+
+.images:
+	cd images && make 
 
 #pdf-print: ps
 #	ps2pdf -dColorConversionStrategy=/LeaveColorUnchanged -dPDFSETTINGS=/printer ${filename}.ps

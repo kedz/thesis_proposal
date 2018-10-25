@@ -1,0 +1,37 @@
+
+ \subsection{Applications and Data}
+We envision several applications and scenarios where faithful generation might
+be useful. The first is for data-to-text generation tasks. We plan on 
+training the structured data model on at least two data-to-text tasks. 
+The first is a biography generation task using biographical Wikipedia
+entries and structured data extracted from the corresponding Wikipedia page's
+info box \citep{lebret2016neural}. The second data-to-text task is a 
+basketball game summary generation task, where the structured data consists
+of game statistics (shots, penalties, etc.) \citep{wiseman2017challenges}.
+For the text-to-text scenarios, we plan to perform faithful summary generation
+using the CNN/DailyMail,
+NYT, and Newsroom datasets 
+\citep{hermann2015teaching,sandhaus2008new,grusky2018newsroom}.
+
+
+We would also like to explore ways in which faithful generation could 
+be applied to understanding and controlling for bias in machine learning
+\citep{bolukbasi2016man}. By modifying the faithful generation objective
+function to reward only uncertainty for missing data fields, we could 
+encourage the generator to produce utterances that are decorrelated with 
+a particular field value. 
+As an example let's say that our observed evidence consists
+of $\evidence_{name} = \textsc{Fran Allen}$ and  
+$\evidence_{occupation} = \textsc{Computer Scientist}$
+but we did not know the value of the gender field, 
+$\evidence_{gender} = \textsc{Missing} $. If our dataset over 
+represents men (a known bias in Wikipedia), 
+the sequence-to-sequence based generator is 
+likely to fall back to the most prevalent patterns in the dataset and use
+the masculine pronoun during generation. In turn, 
+the gender field recognizer is likely
+to key in on pronoun usage as a discriminative feature and predict male.
+If we train the faithful generator to produce utterances that result in
+maximum uncertainty in the gender 
+recognizer then it is likely to avoid gendered pronouns and minimize
+the chances of implying incorrect knowledge.

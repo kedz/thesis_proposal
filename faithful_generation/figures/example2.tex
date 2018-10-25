@@ -1,0 +1,28 @@
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\begin{figure}
+\centering
+\begin{tabular}{L{40mm}|L{40mm}|L{40mm}|L{20mm}}
+  \centering \textbf{Input Text} 
+& \centering \textbf{Reference Abstract}  
+& \centering \textbf{Cloze Question}  
+& \begin{center} \textbf{Cloze Answer} \end{center} \\
+\centering $(\evidence)$ & \centering $(\utterance)$ 
+& \centering $(\bar{\evidence})$ 
+& \begin{center}$(\bar{\utterance})$\end{center} \\
+\hline
+The BBC producer Oisin Tymon allegedly struck by Jeremy
+Clarkson will not press charges against the ``Top
+Gear'' host, his lawyer said Friday.\newline 
+~~~~~~~~\large{$\vdots\quad\vdots\quad\vdots$} &
+Producer Oisin Tymon will not press charges against Jeremy
+Clarkson, his lawyer says. &
+The BBC producer $\blacksquare~\blacksquare$ allegedly struck by Jeremy
+Clarkson will not press charges against the ``Top
+Gear'' host, his lawyer said Friday. & Oisin Tymon \\
+\end{tabular}
+
+\caption{Example Summarization Cloze Question}
+\label{fig:cloze_example}
+\end{figure}
+
