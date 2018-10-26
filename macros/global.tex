@@ -1,3 +1,14 @@
+%%% Latex Table Column Types %%%
+
+\newcolumntype{R}[2]{%
+    >{\adjustbox{angle=#1,lap=\width-(#2)}\bgroup}%
+    l%
+    <{\egroup}%
+}
+\newcommand*\rot[2]{\multicolumn{1}{R{#1}{#2}}}
+
+%%% General Math Notation %%%
+
 \newcommand{\fdef}[3]{#1 : #2 \rightarrow #3}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\Rn}[1]{\R^{#1}}
@@ -8,7 +19,34 @@
 \newcommand{\dataset}{\mathcal{D}}
 \newcommand{\objective}{\mathcal{L}}
 
+%%% General Lang Processing %%%
 
+\newcommand{\tfidf}{TF-IDF}
+\newcommand{\idf}{IDF}
+
+%%% Feature Based Salience Models Macros $$$
+
+\newcommand{\query}{q}
+\newcommand{\strsent}{s}
+\newcommand{\strsents}{\mathcal{S}}
+\newcommand{\nugget}{n}
+\newcommand{\Nuggets}{\mathcal{N}}
+\newcommand{\predNuggets}{\hat{\Nuggets}}
+\newcommand{\extract}{a}
+\newcommand{\salience}{y}
+\newcommand{\Salience}{Y}
+\newcommand{\similarity}{k}
+\newcommand{\Similarity}{K}
+\newcommand{\updates}{\mathcal{U}}
+\newcommand{\nuggets}{\mathcal{N}}
+\newcommand{\exemplars}{\mathcal{E}}
+
+\newcommand{\comprehensiveness}{\textsc{Comprehensiveness}}
+\newcommand{\expectedGain}{\E\left[\textsc{Gain}\right]}
+\newcommand{\comp}{\textsc{Comp.}}
+
+
+%\newcommand{\poi}{T}
 
 
 %%% Faithful Generation Macros %%%

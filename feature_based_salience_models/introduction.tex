@@ -1,20 +1,23 @@
 Learning models of sentence salience in summarization is often difficult
 because summarization datasets are typically small (a few hundred training
-examples in many cases); learning lexical 
+examples in many cases) and learning lexical 
 feature weights directly is likely to run into issues of coverage on the test
-set. To get around this problem, we rely heavily lexicalized components 
+set. To get around this problem, we rely on heavily lexicalized components 
 trainable on unlabeled data to produce scores that serve as unlexicalized 
 features in our salience models. The canonical example of this is to use 
 a language model trained on in-domain but non-summarization data to 
-obtain average token perplexity scores for a sentence. In this section we 
+obtain average token perplexity scores for a sentence; the salience model
+only sees the average perplexity and is blissfully unaware of any lexical 
+features. 
+In this section we 
 describe our features in the context of stream summarization task, but the 
 features are themselves fairly generic and likely obtainable in other task
 settings.
 
 A second but important issue is that salience judgments do not occur
-in isolation. Intuitively, as we add content to the summary, the salience
+in isolation. As we add content to the summary, the salience
 of our remaining inputs is likely change based on redundancy and other factors.
-Adding summary/sentence interaction features introduces an element of 
+Unfortunately, adding summary/sentence interaction features introduces an element of 
 exploration to training the model for now various summary configuration 
 and candidate sentence pairs must be considered.
 

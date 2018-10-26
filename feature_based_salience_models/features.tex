@@ -1,21 +1,27 @@
-\input{chapter3/figures/3_fig_features.tex}
+%\input{feature_based_salience_models/figures/features.tex}
 
-\subsection{Features for Sentence Importance Estimation}
+\subsection{Features for Sentence Salience Estimation}
 
 The streaming summarization problem is difficult precisely because the context
 is constantly shifting. We cannot rely solely on word frequency because
-the counts of particular ngrams will be shifting throughout the period of 
-interest. Instead we compute several groups of sentence features that are
-specifically helpful for the query focused task. We divide our features
-into two groups: static and dynamic features. Static features do not take into
-account previous sentence selection decisions, while dynamic features
-can be used information about current state of the update summary or stream
-behaviour. \autoref{fig:strfeats} shows which feature groups were used 
-in each of our two approaches. In general, incorporating dynamic features
-into the learning-to-search approach is much easier.
+the counts of particular ngrams will be shifting throughout the document
+stream. Instead we compute several groups of sentence features that are
+specifically helpful for the query focused task. Because our models were
+developed over several years of the Temporal Summarization track, some
+features were not used or available to certain models. If a feature
+is only used in one model, we list that model's name in parenthesis next
+to the feature name.
+
+%We divide our features
+%into two groups: static and dynamic features. Static features do not take into
+%account previous sentence selection decisions, while dynamic features
+%can be used information about current state of the update summary or stream
+%behaviour. %\autoref{fig:strfeats} shows which feature groups were used 
+%in each of our two approaches. In general, incorporating dynamic features
+%into the learning-to-search approach is much easier.
 
 
-\subsubsection{Static Features}
+%\subsubsection{Static Features}
 \paragraph{Simple Surface Features} 
 
 The document stream that we will be operating over is incredibly noisy,
@@ -85,26 +91,7 @@ We use the SRILM toolkit \citep{stolke2002srilm} to implement a 5-gram
 Kneser-Ney model \citep{kneser1995improved} for both the general and type
 specific language models. 
 
-\paragraph{Nugget Likelihood}
-Using human judgements from 2014 Temporal Summarization we were able to obtain
-example sentences that contained many of the nuggets in our corpus. We used
-these judgements to train an ngram based classifier to predict a binary 
-label $y$ for a sentence, with $y=1$ if it contained any event nugget and
-$0$ otherwise. We used the probability of $y=1$ as an additional feature.
-
-\paragraph{Single Document Summarization Features}
-We used several unsupervised sentence ranking methods from the single 
-document summarization literature to get several sentence rank features.
-Inspired be the \textsc{SumBasic} summarizer \citep{nenkova2005impact}, we
-compute the average and sum of unigram probability of each sentence using 
-sentence's document unigram distribution. Inpsired by \citep{guo2013updating},
-for each sentence we compute the average cosine distance to the remaining 
-sentences in it's enclosing document. Finally, we compute the document
-level centroid rank \citep{radev2000centroid} and LexRank 
-\citep{erkan2004lexrank} for each sentence.
-
-\subsubsection{Dynamic Features}
-\paragraph{Geographic Relevance} 
+\paragraph{Geographic Relevance (SAP)} 
 The queries in the Temporal Summarization data are all grounded to physical
 events in the world and we would like to exploit that. For example, while
 there are sadly many reports of bombings or explosions at any given time 
@@ -151,23 +138,24 @@ article to the query event locations.
 %?the disaster domain, and we would like to take ad
 
 
-\paragraph{Temporal Relevance} As we track a query over time, the document
+\paragraph{Temporal Relevance (SAP)} As we track a query over time, the document
 stream will ebb and flow as the underlying event unfolds. With hurricanes
 for example, forecasters are usually watching a tropical storm as it grows
 and predicitng where it might make landfall. As a result, news about a major
 hurricane grows gradually, peaking after its main contact with land
 and gradually diminishing. An eartquake on the otherhand gives no warning,
 and there is a sudden spike in the query relevant document stream.
-While we do not
-do an extensive study of different event type shapes (which would certainly 
-be very interesting), we would like to take advantage of spiking or bursty
-activity in the docuemnt stream as a signal for our summarization system.
-We do this by maintaining IDF values for each hour of the document stream.
-We create 24 average TF-IDF features for each sentence as if it had occurred
+%While we do not
+%do an extensive study of different event type shapes (which would certainly 
+%be very interesting), 
+We would like to take advantage of spiking or bursty
+activity in the document stream as a signal for our summarization system.
+We do this by maintaining \idf{} values for each hour of the document stream.
+We create 24 average \tfidf{} features for each sentence as if it had occurred
 in each of the previous 24 hours; large changes in any of the individual
 features should be representative of a spike in the news.
 
-\paragraph{Document Frequency} We also compute the hour-to-hour
+\paragraph{Document Frequency (L2S)} We also compute the hour-to-hour
 percent change in document frequency of the stream. This
 feature helps gauge breaking developments in an unfolding
 event. As this feature is also heavily affected by the daily
@@ -176,9 +164,7 @@ and evening) we compute the 0-mean/unit-variance of this
 feature using the training streams to find the mean and variance
 for each hour of the day.
 
-
-
-\paragraph{Stream Language Models}
+\paragraph{Stream Language Models (L2S)}
 We construct several simple unigram language models that we update with 
 each new document that we see in the stream. Using these models 
 we compute the sum, average, and maximum token likelihood
@@ -186,11 +172,36 @@ of the non-stop words
 in the sentence. We compute similar quantities restricted to
 the person, location, and organization named entities.
 
-\paragraph{Update Similarity} The average and maximum cosine similarity
+\paragraph{Update Similarity (L2S)} The average and maximum cosine similarity
 of the current sentence to all previous updates is computed
-under both the tf-idf bag-of-words and latent vector
-representation. We also include indicator features for when
+under both the \tfidf{} bag-of-words and latent vector
+representation \citep{guo2012simple}. 
+We also include indicator features for when
 the set of updates is empty (i.e. at the beginning of a run) and
 when either similarity is 0.
+
+\paragraph{Nugget Probability (L2S)}
+When developing the L2S model, we had access to a relatively large number of
+human sentence/nugget judgements from the 2014 Temporal Summarization 
+evaluation.
+We used
+these judgements to train an ngram based classifier to predict whether
+the sentence contained a nugget, and we use the probability of a nugget
+given the sentence text as a feature. 
+
+
+\paragraph{Single Document Summarization Features (L2S)}
+Even though we are processing the stream one sentence at a time, we still
+have knowledge of the document that a sentence came from and so we can
+compute features that take into account the other sentences in the document.
+We used several unsupervised sentence ranking methods from the single 
+document summarization literature to get several sentence rank features.
+Inspired be the \textsc{SumBasic} summarizer \citep{nenkova2005impact}, we
+compute the average and sum of unigram probability of each sentence using 
+sentence's document unigram distribution. Inpsired by \citep{guo2013updating},
+for each sentence we compute the average cosine distance to the remaining 
+sentences in it's enclosing document. Finally, we compute the document
+level centroid rank \citep{radev2000centroid} and LexRank 
+\citep{erkan2004lexrank} for each sentence.
 
 

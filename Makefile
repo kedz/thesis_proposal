@@ -1,4 +1,4 @@
-filename=kedzie_phd_thesis_proposal
+filename=main
 
 pdf: .images
 	pdflatex ${filename}.tex

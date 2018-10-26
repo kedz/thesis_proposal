@@ -1,0 +1,136 @@
+\subsection{Stream Summarization Task}
+
+In the most general sense, the stream summarization task requires a 
+summarization model to process a stream of text data and produce updates,
+i.e. extracted sentences, that describe the most important information in the
+stream. For our evaluations, we further ground this task in a crisis-monitoring
+scenario, as was used in the TREC Temporal Summarization track 
+\citep{aslam2015trec}.
+
+The grounding scenario was disaster
+summarization, where a participant model received a brief query string 
+$\query{}$ describing a natural or man-made disaster, and the model was 
+expected to process a time-ordered stream of documents relevant to the query, 
+extracting sentences that were likely to contain important facts about the
+event. Each query corresponded to a real-life disaster that was significant
+enough to have an associated entry in Wikipedia.
+
+
+
+%query focused summariz, and the model monitors a stream of text data, producing updates,
+%i.e. extracted sentences from the stream that summarize important developments
+%in the data that are relevant to the query.
+
+
+
+
+%We propose two novel approaches to the streaming summarization task
+%using biased affinity propagation (AP) clustering \citep{frey2007clustering}
+%and learning-to-search (L2S) \citep{daume2009search,chang2015learning}.
+%These models led to the publication of two papers 
+%\citep{kedzie2015predicting,kedzie2016real}, in addition to participation 
+%in the TREC Temporal Summarization tracks where we were the top performer in
+%2014 and the fourth and fifth place performer in 2015 
+%\citep{aslam2015trec,aslam2016trec}. 
+
+For each query, human annotators also collected a reference set of important 
+facts, which we refer to as \textit{nuggets}, 
+from the revision history of that query's associated Wikipedia page. 
+Nuggets consist of a piece of reference text and timestamp for when this piece
+of information first appeared in the Wikipedia revision history. 
+See \autoref{fig:eventsnuggets} for example queries and nuggets.
+
+\input{feature_based_salience_models/figures/events_and_nuggets.tex}
+
+We will refer to the set of extracted sentences as the update or extract
+summary interchangeably. Similarly, we will use the phrases ``extract a 
+sentence,''
+``select a sentence,'' or ``emit an update'' to mean the model extracted a 
+sentence in the 
+document stream and added it to our rolling update summary. 
+If a sentence $\strsent$ 
+expresses the same piece of information as a nugget text $\nugget$ 
+we say that $\strsent$ contains $\nugget$ or $\nugget \in \strsent$.
+
+Models are rewarded when they find sentences that contain important and novel
+nuggets. Models are penalized for 
+selecting sentences that are irrelevant (i.e. contain no nuggets) or 
+contain nuggets already covered by previous updates. 
+   The official Temporal Summarization track relied on two primary metrics to 
+evaluate updates summaries: the expected gain, or $\expectedGain$, and 
+comprehensiveness, or $\comp$, which are precision and recall like measures of nugget coverage respectively. Let $\updates \subseteq \strsents$ be the set 
+of sentences extracted by the summarization model for a query and let 
+$\Nuggets{}$ be the set of nuggets for that same query. The set of nuggets
+recovered by the model is then $\predNuggets = \{\nugget \in \Nuggets :
+\exists \strsent \in \updates \textrm{ s.t. } \nugget \in \strsent \}$.
+The expected gain and comprehensiveness are then defined as 
+    \[ \expectedGain = \frac{|\predNuggets|}{|\updates|} 
+            \quad \textrm{and} \quad 
+        \comp = \frac{|\predNuggets|}{|\nuggets|} \]
+    respectively. 
+    An $\expectedGain{}$ of 1 would mean that every sentence in
+    the update summary contained a novel nugget. $\comp{}$ is the 
+    nugget recall, a score of 1 indicating that all nuggets were found
+    in the update summary.
+ 
+Latency penalized metrics are also computed where
+the importance of a nugget decays over time. E.g. if a system
+recovers the nugget ``25 people were reported injured,'' several days
+after this fact was first reported, it will receive less credit for it
+than the system that emits that nugget an hour after it enters the 
+document stream. See \cite{aslam2014trec} for more details on this decay 
+factor. Intuitively, latency penalized metrics capture the idea that stale
+information in a rapidly evolving disaster is less useful and possibly
+distracting.
+
+ In most of our experiments, we lack annotations about what nuggets if 
+ any are contained in a given sentence so we 
+  approximate the manual evaluation of the official Temporal Summarization
+  track
+   by automatically mapping sentences to nuggets if their semantic similarity
+   \citep{guo2012simple}
+   is a above a threshold. We report results across a sweep of threshold 
+   values from zero to one, with values closer to one a more conservative
+   estimate of performance. 
+   We also concatenate the nugget texts to create a reference summary and
+   report Rouge scores \citep{lin2004rouge} for the update summary produced
+    by the model.
+
+%?~\\
+%?
+%?~\\
+%?Stream summarization is a very hard task compared to single and 
+%?multi-document summarization. In the multi-document case, the context for the 
+%?summarization is fixed, and the input documents are usually quite 
+%?topically focused, minimizing the prevalence of completely irrelevant 
+%?information. In fact, in most multi-document evaluation settings, the
+%?document collections were manually created leading to very topically
+%?coherent text collections. 
+%?\cite{baumel2016topic} for example found that the DUC
+%?query focused summarization datasets are so on topic that a summarization
+%?system could completely ignore the query and perform just as well as a
+%?query aware system.
+
+\input{feature_based_salience_models/figures/stream_algos.tex}
+
+If we had clairvoyant knowledge of which nuggets were contained in each
+sentence in the document stream,
+this task would be trivial in that the greedy algorithm in 
+\autoref{alg:ts_greedy_oracle} would return an approximately optimal summary.
+Since we do not know this information at test time, we attempt approximate
+the if-statement in line 5 of the oracle by answering the following proxy 
+questions:
+\begin{enumerate}
+    \item How salient is sentence $\strsent$ with respect to query $\query$?
+    \item How similar is the sentence $\strsent$ with respect to the set of 
+            previously selected updates $\hat{\strsent} \in \updates$?
+\end{enumerate}
+The generic stream summarization algorithm we aim to implement is presented
+in \autoref{alg:ts_greedy_generic}.
+
+The two models we propose to solve these more tractable problems come with
+different trade-offs. They both, however, rely on a feature-base 
+representation of the stream sentences to make salience and selection 
+predictions. In the next sub-section, we describe the different feature
+groups before describing each of the models used to perform the streaming
+summarization task.

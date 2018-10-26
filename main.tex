@@ -1,0 +1,59 @@
+\documentclass[12pt]{article}
+
+
+\input{packages.tex}
+
+%\let\emph\relax % there's no \RedeclareTextFontCommand
+\DeclareTextFontCommand{\textbfit}{\bfseries\em}
+
+\title{\textbf{What to Write and How to Write It}\\
+       \textit{\large Modeling Content Selection and Generation for Text Summarization}\\
+       ~\\
+       ~\\\large\textbf{Thesis Proposal}}
+\author{~\\
+        \textbf{Chris Kedzie}\\
+        Department of Computer Science\\
+        Columbia University\\
+        \url{kedzie@cs.columbia.edu}}
+
+\date{December $10^{\textrm{th}}$, 2018}
+
+\begin{document}
+
+\pagenumbering{gobble}
+\maketitle
+
+\pagebreak
+
+\renewcommand{\thepage}{\roman{page}}
+\setcounter{page}{1}
+
+\begin{abstract}
+  \input{abstract.tex}
+\end{abstract}
+
+\pagebreak
+
+\tableofcontents
+\newpage
+
+\renewcommand{\thepage}{\arabic{page}}
+\setcounter{page}{1}
+
+% Change to false to compile full document.
+\def\highlevel{true}
+
+\input{macros/global.tex}
+\input{introduction/main.tex}
+\ifthenelse{\equal{\highlevel}{false}}{\input{chapter2/2_related_work.tex}}{}
+\input{feature_based_salience_models/main.tex}
+\input{chapter4/4_single_document_summarization.tex}
+\input{faithful_generation/main.tex}
+\pagebreak
+\input{chapter6/chapter6.tex}
+\input{chapter7/chapter7.tex}
+
+\bibliographystyle{plainnat}
+\bibliography{cites}
+
+\end{document}

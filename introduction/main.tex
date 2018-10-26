@@ -25,8 +25,8 @@ In this thesis we focus on advances to two summarization subtasks:
 \textit{(i)} identifying the most import content for inclusion in the summary, 
 and \textit{(ii)}
 rendering that content in such a way as to not misrepresent the original 
-input. We refer to the former as \emph{salience estimation} and the latter
-as \emph{faithful generation}. 
+input. We refer to the former as \textbfit{salience estimation} and the latter
+as \textbfit{faithful generation}. 
 
 The completed and proposed methods of salience estimation cover a range of
 techniques including feature-based regression, clustering, learning-to-search,
@@ -38,7 +38,7 @@ identifying
 important words, phrases, and sentences that are likely to serve as 
 representitive members of the larger text in which they are found.
 
-In \emph{extractive summarization}, 
+In \textbfit{extractive summarization}, 
 where the summary is constructed by copying and pasting phrases or sentences 
 from the input text, salience estimation can be used directly to create
 a summary. For example, a simple method of sentence extractive summarization
@@ -48,46 +48,50 @@ consideration for summary inclusion; redundancy, discourse coherence, fluency,
 and many other metrics of text quality can and have been used as content
 selection criteria. These measures are largely independent of salience 
 (with the noteable exception of redundancy) and so we do not explore them in 
-detail here). Our salience estimation methods will constitute the bulk of the
-proposed thesis, the details of completed and proposed work can be found
-in \autoref{sec:chapter3} and \autoref{sec:chapter4}.
+detail here). The details of our completed and proposed work on 
+salience estimation can be found
+in \autoref{sec:feature_salience} and \autoref{sec:deep_learning_salience}.
 
-In \autoref{sec:chapter3} we develop two feature-based models of sentence
-salience and evaluate them in a relatively novel \emph{stream summarization} 
-crisis-monitoring scenario
+In \autoref{sec:feature_salience} we develop two feature-based models of 
+sentence
+salience and evaluate them in a relatively novel \textbfit{stream 
+summarization} crisis-monitoring scenario
 \citep{starbird2013working,aslam2016trec}. In this task, a user is interested
 in tracking information about a disaster event (e.g. a hurricane). The
 user provides a text based query describing the event 
-(e.g. ``Hurricane Sandy'') and the summarization model must then 
-monitor a stream of news articles, identifying important sentences in the 
-document stream and presenting them to the user. The information must be 
+(e.g. ``Hurricane Sandy'') to the summarization model. 
+The model must then 
+monitor a stream of news articles, extracting important sentences in the 
+document stream and present them to the user. The information must be 
 highly salient to the query event, as well as novel to the user, and timely
 -- we do not want to bombard the user with irrelevant or repeated information,
-and our methods used cannot take so long to identify content that the 
-information found is out of date.
+and our methods cannot take so long  that the extracted
+information is out of date.
   
 We develop and compare several deep learning based models of word and 
-sentence salience in \autoref{sec:chapter4} and evaluate them primarily on
-sentence extractive \emph{single document summarization} (SDS). 
+sentence salience in \autoref{sec:deep_learning_salience} and evaluate them 
+primarily on
+sentence extractive \textbfit{single document summarization} (SDS). 
 We perform this evaluation across
 a variety of genres including news, personal narratives, and medical journal
 articles. Intuitively, the goal here is to summarize a single news article, 
 short story, or research paper by selecting a subset of the input sentences
 to serve as the summary. We also explore adaptation of these algorithms to 
-the sentence extractive \emph{multi-document summarization} (MDS) task, 
+the sentence extractive \textbfit{multi-document summarization} (MDS) task, 
 where there is much less data, and only in the news genre.
 This is similarly straightforward, given a set of related news articles 
 (typically ten), select a subset of the sentences to use as the summary of
 the document set.
 
 
-Salience estimation can also be used to guide 
-\emph{abstractive summarization} techniques, i.e. methods that produce novel
+Salience estimation can also be used to guide \textbfit{abstractive 
+summarization} techniques, i.e. methods that produce novel
 summary text using a generative model. These types of models 
 must (at the very least) implicitly select important content for conditioning 
 their
-generative process, and salience estimation can be used for precisely this 
-purpose. 
+generative process. We propose a salience estimation component to 
+explicitly model this selection process in addition to a generative model 
+training regime which we briefly describe presently. (NOTE-TO-SELF: reorder this transition you dumb dumb.)
 
 Research in abstractive summarization is increasing, in part due to
 the success of general purpose sequence-to-sequence transduction models 
@@ -107,13 +111,13 @@ utterance describing a piece of evidence (either text or structured data);
 the second player, the recognizer, %change this name
 evaluates the plausibility of the utterance with respect to the evidence.
 This overall regime will consitute our method of faithful generation,
-to be outlined in more detail in \autoref{sec:chapter5}. We propose 
-evaluation both on an SDS task, as well as, a data-to-text generation 
-test bed \citep{wiseman2017challenges}.
+to be outlined in more detail in \autoref{sec:faithful_generation}. We propose 
+evaluation both on an SDS task, as well as, two data-to-text generation 
+test beds \citep{lebret2016neural,wiseman2017challenges}.
 
 \subsection{Contributions}
 
-To summarize, our comleted and proposed contributions of this thesis are as 
+To summarize, our completed and proposed contributions of this thesis are as 
 follows:
 \begin{enumerate}
 
@@ -133,9 +137,11 @@ follows:
 
  \item Adaptation of the deep learning based SDS models to a news MDS task. 
 
- \item A novel training regime for generative models of text to ensure
-          faithfulness of text output to structured data or 
-         prior distributions over structured data.
+ \item A novel training regime for generative models of text, 
+     called faithful generation, to ensure that the generated text does
+     not misrepresent the conditioning input. We develop faithful generation
+     models for both the data-to-text and text-to-text (i.e. summarization)
+     settings.
 
  \item A novel method of combining salience estimation based extractive 
      summarization with abstractive generation in the faithful generation
