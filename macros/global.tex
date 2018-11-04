@@ -1,5 +1,6 @@
 %%% Latex Table Column Types %%%
 
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[2]{%
     >{\adjustbox{angle=#1,lap=\width-(#2)}\bgroup}%
     l%
@@ -11,40 +12,64 @@
 
 \newcommand{\fdef}[3]{#1 : #2 \rightarrow #3}
 \newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Npos}{\N^{+}}
 \newcommand{\Rn}[1]{\R^{#1}}
 \newcommand{\Ind}[1]{\mathbbm{1}\{ #1 \}}
 \newcommand{\Idx}[1]{\llbracket #1 \rrbracket}
+\newcommand{\Sze}[1]{| #1 |}
 \newcommand{\E}{\mathbb{E}}
-\newcommand{\entropy}{\mathcal{H}} 
+\newcommand{\entropy}{H} 
 \newcommand{\dataset}{\mathcal{D}}
 \newcommand{\objective}{\mathcal{L}}
+\newcommand{\discSet}{\mathcal{X}}
 
 %%% General Lang Processing %%%
 
 \newcommand{\tfidf}{TF-IDF}
 \newcommand{\idf}{IDF}
+\newcommand{\rouge}{\textsc{Rouge}}
+\newcommand{\rougeN}[1]{\textsc{Rouge-{#1}}}
+
 
 %%% Feature Based Salience Models Macros $$$
 
 \newcommand{\query}{q}
+\newcommand{\Queries}{\mathcal{Q}}
 \newcommand{\strsent}{s}
+\newcommand{\sentvec}{\mathbf{s}}
 \newcommand{\strsents}{\mathcal{S}}
+\newcommand{\feats}{\phi}
 \newcommand{\nugget}{n}
 \newcommand{\Nuggets}{\mathcal{N}}
+\newcommand{\nuggets}{\mathcal{N}}
 \newcommand{\predNuggets}{\hat{\Nuggets}}
 \newcommand{\extract}{a}
 \newcommand{\salience}{y}
+\newcommand{\predSalience}{\hat{y}}
+\newcommand{\saliences}{\mathbf{\salience}}
+\newcommand{\predSaliences}{\mathbf{\hat{\salience}}}
+
+\newcommand{\gp}{\mathcal{GP}}
+
+
 \newcommand{\Salience}{Y}
-\newcommand{\similarity}{k}
+%\newcommand{\similarity}{k}
 \newcommand{\Similarity}{K}
 \newcommand{\updates}{\mathcal{U}}
-\newcommand{\nuggets}{\mathcal{N}}
 \newcommand{\exemplars}{\mathcal{E}}
+\newcommand{\similarity}[2]{\operatorname{similarity}(#1, #2)}
+
 
 \newcommand{\comprehensiveness}{\textsc{Comprehensiveness}}
 \newcommand{\expectedGain}{\E\left[\textsc{Gain}\right]}
 \newcommand{\comp}{\textsc{Comp.}}
+\newcommand{\fmeasure}{\textsc{F1}}
 
+\newcommand{\sap}{\textsc{Sap}}
+\newcommand{\ap}{\textsc{Ap}}
+\newcommand{\ranksal}{\textsc{Rs}}
+\newcommand{\hac}{\textsc{Hac}}
 
 %\newcommand{\poi}{T}
 

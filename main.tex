@@ -18,6 +18,17 @@
 
 \date{December $10^{\textrm{th}}$, 2018}
 
+%\usepackage{unicode-math}
+%\setmathfont{XITS Math}
+%\setmainfont{TeX Gyre Pagella}
+
+% Any of the following work, and probably many more
+%\setmathfont{TeX Gyre Pagella Math}
+%\setmathfont{TeX Gyre Termes Math}
+%\setmathfont{STIX}
+%\setmathfont{Asana Math}
+
+
 \begin{document}
 
 \pagenumbering{gobble}
@@ -37,13 +48,18 @@
 \tableofcontents
 \newpage
 
+\input{macros/global.tex}
+
+\input{list_of_definitions.tex}
+
+\newpage
+
 \renewcommand{\thepage}{\arabic{page}}
 \setcounter{page}{1}
 
 % Change to false to compile full document.
 \def\highlevel{true}
 
-\input{macros/global.tex}
 \input{introduction/main.tex}
 \ifthenelse{\equal{\highlevel}{false}}{\input{chapter2/2_related_work.tex}}{}
 \input{feature_based_salience_models/main.tex}

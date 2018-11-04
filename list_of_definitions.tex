@@ -1,0 +1,65 @@
+List of General Definitions \\
+
+
+\begin{tabular}{l l}
+    $\R$ & The set of real numbers.\\
+    $\N$ & The set of integers.\\
+    $\Npos$ & The set of positive integers.\\
+    $\discSet$ & A generic discrete space. \\ 
+    $\Sze{x}$ & Cardinality of a discrete set or sequence $x$. \\
+    $\Ind{\cdot}$ & Iverson bracket, i.e. evaluates to 1 if proposition in brackets evaluates to \textsc{True}.\\
+    $\Idx{n}$ & The index set $\{1, 2, \ldots, n\}$ for any $n \in \Npos$.\\
+    $\E[\cdot]$ & The expected value. \\
+    & When ambiguous we will use a subscript
+                   $\E_p[\cdot]$ to specify the distribution $p$. \\
+    $\entropy$ & The Shannon entropy, 
+                    $-\sum_{x \in \mathcal{X}} p(x) \log p(x)$.
+                  We will use the subscript $\entropy_{p(\cdot)}$
+                 to specify the distribution if it is ambiguous.\\
+    $\dataset$ & A dataset.\\
+    $\objective$ & An objective function.\\
+\end{tabular}
+
+~\\
+
+\pagebreak
+
+List of Chapter 3 Definitions\\
+
+\begin{tabular}[t]{p{1.1cm} p{13cm}}
+    $\query$ & An event query string, e.g. ``Hurricane Sandy''.\\~\\
+    $\strsents(\query)$ & A sentence stream, i.e. a time-ordered sequence of 
+                 sentences for a particular query $\query$.
+                 Typically we will omit the the query as it will be clear
+                 from the context which stream we are refferring to.\\~\\
+    $\strsent$ & A sentence from the sentence stream $\strsents$.\\ ~\\
+    $\feats$ & A function $\fdef{\feats}{\strsents}{\Rn{d}}$ mapping 
+                sentences to a $d$-dimensional feature vector.  \\~\\
+    $\Nuggets(\query)$ & The set of nuggets associated with query $\query$.
+                 Typically we will omit the the query as it will be clear
+                 from the context which nuggets we are refferring to.\\~\\
+    $\nugget$ & An event nugget text. \\~\\
+    $\updates$ & A distinguished set of sentences 
+                 $\{\strsent_i\}\subseteq \strsents$ that were emitted
+                 by a stream summarization algorithm, i.e. the extract 
+                 summary for a stream $\strsents(\query)$.\\~\\
+    $\predNuggets$ & The set of nuggets contained by the predicted 
+                    extract summary $\updates$,
+                     i.e. $\big\{\nugget \in \Nuggets\ |\  
+                        (\exists \strsent \in \updates)
+                        [ \nugget \in \strsent] \big\}$.\\~\\
+   $\salience$ & The salience of a sentence $\strsent$. Salience
+                 scores are real valued.\\~\\
+   $\saliences$ & A vector of $k$ salience values, i.e. 
+$\saliences = (\salience_1, \ldots, \salience_k) \in \Rn{k}$.\\~\\
+   $\predSalience$ & The predicted salience of a sentence $\strsent$. Salience
+                 scores are real valued.\\~\\
+   $\predSaliences$ & A vector of $k$ predicted salience values, i.e. 
+$\predSaliences = (\predSalience_1, \ldots, \predSalience_k) \in \Rn{k}$.\\~\\
+$\exemplars$ & The set of exemplars selected by the Affinity Propagation
+                algorithm. \\~\\
+
+
+\end{tabular}
+
+
