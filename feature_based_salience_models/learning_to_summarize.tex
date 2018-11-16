@@ -1,0 +1,424 @@
+\subsection{Model 2: Learning-to-Summarize}
+
+The \sap{} model has two primary shortcomings on the stream summarization
+task. First, by processing sentences in hourly batches, we potentially 
+incur latency penalties if important information enters the stream
+at the start of the hour.
+Ideally we would process new documents as soon as possible in order 
+to minimize the negative effects of latency. Second, the salience
+regressors were statically trained without exploration. If we had 
+some sort of exploration during training, we could take advantage of 
+features between previous sentence selection decisions and the current
+state of the update summary (something we didn't model in \sap).
+
+In order to train with exploration, we need either many possible trajectories
+(i.e. document streams and associated sentence extraction labels) for all
+of the plausibly good summaries or some tractable oracle summarizer 
+that we can use to complete a trajectory from any partially completed prefix
+of extraction decisions. Since we lack even one ground truth trajectory, we
+opt to use an oracle summarizer, which we refer to as the oracle policy, 
+in keeping with the learning-to-search literature.
+
+
+
+%Getting around these limitations poses some severe challenges. Using
+%dynamic features means that naive training will require gold reference
+%sentence extract sequences and that naively training a sentence salience model
+%with these will under explore the space of plausable update summaries,
+%meaning that at test time errors are likely to snowball over time.
+
+The oracle policy $\oraclePolicy$ has knowledge of what nuggets, 
+if any, are present in each sentence in the document stream, and it's behavior
+is quite simple: it processes the document stream sequentially and when it 
+encounters a sentence with a novel nugget, it adds that sentence to the update
+summary.
+
+
+As we stated before, training only on a single oracle run over document stream
+would be sub-optimal because the oracle is perfect and it would finish 
+recovering all of the nuggets quite quickly and then do nothing for
+the remainder of the stream. In practice, our learned model is likely to
+make mistakes, missing the first few appearances of a nugget but hopefully
+recovering them as repetition in the stream makes them more likely to be 
+selected. Only following the oracle's first best pass would not help us learn
+to recover from errors.
+
+To make better use of the oracle, we adopt the locally optimal learning to
+search (LOLS) regime \citep{chang2015learning}, one of a family of 
+learning-to-search algorithms. In order to formally describe the algorithm, we
+first introduce some notation. We define the stream summarization task as a 
+Markov decision process. We observe a sequence of states $\lsState_\lsStep \in 
+\lsStateSpace$ which correpsond to observing the first $\lsStep$ sentences in 
+the stream along with the first $\lsStep-1$ extraction decisions. A policy 
+$\policy \in \policySpace$ maps states to
+actions where the action space $\lsActionSpace = \{0, 1\}$ contains two 
+actions with $0$ indicating ``skip the current sentence'' and $1$ 
+indicating ``extract the current sentence.'' A deterministic transition
+function $\fdef{\lsTrans}{\lsStateSpace \times \lsActionSpace}{\lsStateSpace}$.
+maps state-action pairs $(\lsState_\lsStep, \lsAction_\lsStep)$ to the next 
+state $\lsState_{\lsStep + 1}$, i.e. updating the observed
+sentences with the next, i.e. $(\lsStep + 1)$-th, sentence from the stream 
+and 
+updating the prefix of extraction variables with $\lsAction_\lsStep$.
+A trajectory $(\lsState_1, \lsAction_1), \ldots, (\lsState_n, \lsAction_n)$
+of state-action tuples
+implicitly defines an extract label sequence $\lsSaliences \in \{0, 1\}^n$
+for a stream of $n$ sentences.
+Additionally, we assume possession of a non-negative loss function 
+$\lsStrucLoss(\lsSaliences, \lsSaliencesRef)$
+which measures the discrepancy between the predicted extract sequence 
+$\lsSaliences$ and a reference sequence $\lsSaliencesRef$.
+The model policy interacts with states through a feature
+map $\fdef{\lsFeats}{\lsStateSpace}{\Rn{d}}$ and a matrix 
+of associated feature
+weights $\policyParams\in \Rn{2 \times d}$ via $\policy(\lsState_\lsStep)
+= \operatorname{arg\; min}_{\lsAction \in \lsActionSpace} 
+    \policyParams_\lsAction \cdot \lsFeats(\lsState_\lsStep)$.
+
+
+In the LOLS regime, model training works by exploring the state space in 
+two phases. Consider a case where the document stream consists of $n$ 
+sentences. The first phase, called 
+the \textit{roll-in}, uses the current model policy $\modelPolicy$ (which
+is initially random) to explore $\lsStep$ steps into the stream, i.e. starting
+from state $\lsState_1$, we repeatly apply $\modelPolicy$ and take it's 
+predicted action, stopping at state $\lsState_\lsStep$. 
+In the second phase we complete the trajectory using either the oracle 
+$\oraclePolicy$ or $\modelPolicy$ (the probability $\lsChoiceParam$ of using 
+$\oraclePolicy$ over $\modelPolicy$ is a hyperparameter). Let 
+$\rollOutPolicy$ be the roll-out policy, and let 
+$\lsSaliencesRollOut^{(\lsState_\lsStep, \lsAction)}$ be the extract label
+sequence implied by the completed trajectory of using $\modelPolicy$
+to navigate to $\lsState_\lsStep$, taking action $\lsAction$, 
+and then using $\rollOutPolicy$ to complete the trajectory from 
+$\lsState_{\lsStep + 1}$.
+
+We also associate with $\lsSaliencesRollOut^{(\lsState_\lsStep, \lsAction)}$
+a non-negative cost $\lsCost(\lsState_\lsStep, \lsAction)$ which connects 
+global discrepancy of the resulting structured loss to the local action
+decisions via the following formula
+\[
+    \lsCost(\lsState_\lsStep, \lsAction) = 
+      \max_{\lsAction^\prime \in \lsActionSpace}
+        \lsStrucLoss(
+            \lsSaliencesRollOut^{(\lsState_\lsStep, \lsAction)},
+            \lsSaliencesRef)
+        - 
+        \lsStrucLoss(
+            \lsSaliencesRollOut^{(\lsState_\lsStep, \lsAction^\prime)},
+            \lsSaliencesRef).
+\]
+The cost of the locally optimal action will be zero, while the 
+the locally sub-optimal action will have a cost equal to the difference
+between the structured losses associated with the sub-optimal and optimal 
+actions as completed by $\rollOutPolicy$.
+
+For each epoch of training, we select a training stream and for 
+each sentence in the stream we perform a roll-in/roll-out, collecting
+the associated costs at each step into a dataset
+$\dataset = \big\{\big(\lsFeats(\lsState_1), \lsCost(\lsState_1, \lsAction_0), \lsAction_0\big), \ldots,
+\big(\lsFeats(\lsState_T), \lsCost(\lsState_T, \lsAction_1), \lsAction_1\big) \big\}$.
+After computing all costs for a given
+stream $\strsents(\query)$, we update $\modelPolicy$ to minimize the mean
+squared error of the sampled costs, i.e. we minimize the function
+\[ 
+  %  \objective\big(\policyParams, \strsents(\query)\big) =
+    \objective(\policyParams) =
+    \frac{1}{|\dataset|} \sum_{\lsFeats(\lsState_\lsStep), \lsCost(\lsState_\lsStep, \lsAction), \lsAction \in \dataset}  
+\Big( \lsCost(\lsState_\lsStep, \lsAction) -  \policyParams_{\lsAction} \cdot \lsFeats(\lsState_\lsStep, \lsAction) \Big)^2 \]
+using stochastic gradient descent. 
+
+\input{feature_based_salience_models/figures/lols_algo.tex}
+
+The full LOLS training algorithm is presented in \autoref{alg:lols}.
+The benefit of using $\modelPolicy$ to obtain the roll-in trajectory 
+is that the oberved state spaces are more likely to be similar to ones visited
+on test data since compounding error in $\modelPolicy$ will also effect the 
+states visited at training 
+time and thus minimizing train/test distribution mismatch. 
+Randomly selecting $\oraclePolicy$ versus $\modelPolicy$ is similarly 
+helpful for ensuring that the completed trajectory is somewhat realistic
+(i.e. when using $\modelPolicy$) but can also learn the behavior 
+of the more perfect oracle. The theoretical motivations of LOLS can be found
+in greater depth in \cite{chang2015learning}.
+
+
+\subsubsection{Oracle Policy and Loss Function}
+
+We use a greedy oracle that selects sentences that contain novel
+nuggets. This oracle will achieve an optimal \comp{} score, i.e.
+it will obtain every possible novel nugget in the roll-out phase.
+However, it will not always achieve the maximum possible $\expectedGain$.
+For example, consider the sequence of sentences $s_1, s_2, s_3$, where
+nugget $n_1 \in s_1$, $n_2 \in s_2$, and $n_1,n_2 \in s_3$. The greedy oracle,
+proceeding sequentially would select sentences $s_1$ and $s_2$, and skip
+$s_3$, achieving an $\expectedGain$ of $\frac{|\{n_1, n_2\}|}{|\{s_1, s_2 \}|}
+= \frac{2}{2} = 1$. The maximum achievable $\expectedGain$ is obtained by 
+skipping
+the first two sentences and selecting sentence $s_3$ yielding $\frac{|\{n_1, n_2\}|}{|\{s_3 \}|} = \frac{2}{1} = 2$. In practice we are far from matching
+the greedy oracle and so it suffices for now as an aspirational target.
+
+In order to implement a loss function $\lsStrucLoss$ we need a reference
+extract label sequence $\lsSaliencesRef$ for which to compare to the one 
+obtained by the model policy, $\predSaliences$. We set 
+$\lsSaliencesRef_\lsStep = 1$ if the oracle policy would have selected that
+sentence given the prefix of predicted extractions $\predSaliences_{1:\lsStep -1}$, i.e. if the $\lsStep$-th sentence contained a nugget not contained in
+any previous sentence extracted by $\modelPolicy$, the reference extract would
+contain it.
+
+We design our loss function to penalize policies that severely over- or
+ under-generate. 
+ Given the reference and predicted extract summaries, 
+ we define the loss as the complement of
+ the Dice coefficient between the decisions,
+\begin{align*}
+  \lsStrucLoss(\lsSaliencesRef, \predSaliences) = 1 - 2 \times 
+    \frac{ \sum_i \lsSaliencesRef_i \predSaliences_i }{ 
+    \sum_i \lsSaliencesRef_i + \predSaliences_i }.
+\end{align*}
+
+ This encourages not only local agreement between policies (the numerator of
+ the second term) but that the learned and oracle policy should generate
+ roughly the same number of updates (the denominator in the second term).
+
+\subsubsection{Salience Estimation}
+The model policy accesses a state-action tuple through the feature function 
+$\lsFeats$, upon which we learn a linear function of the features to predict 
+the anticipated cost of skipping or extracting the sentence. We can interpret
+the negative cost of selecting a sentence as its salience to the event
+query. Since a
+state $\lsState_\lsStep$ encodes the first $\lsStep$ sentences and $\lsStep-1$
+extraction decisions made while processing the document stream, $\lsFeats$
+can represent a broader range of features than a salience model trained 
+on static sentence salience judgements. In particular, we have several
+similarity features between the current sentence under consideration and
+the current state of the update summary. See \autoref{sec:features} for the 
+complete list of features. 
+
+Many of our features are helpful for
+ determining the importance of a sentence with respect to its document.
+ However, they are more ambiguous for determining importance to the event as
+ a whole. For example, it is not clear how to compare the document level
+ PageRank of sentences from different documents. To compensate for this, we
+ leverage two features which we believe to be good global indicators of
+ update selection: the summary content probability and the document
+ frequency.  These two features are proxies for detecting (1) a good summary
+ sentences (regardless of novelty with respect to other previous decisions)
+ and (2) when an event is likely to be producing novel content. 
+ Therefore, we also 
+ compute
+  feature conjunctions of all features in \autoref{sec:features} with the nugget 
+ probability and document 
+ frequency separately, as well as together.
+
+\subsubsection{Data}
+We used the official TREC 2015 Temporal Summarization dataset which 
+was expanded from the previous year (on which we evaluated the \sap{} model).
+We use an expanded version of the stream corpus used in \autoref{sec:sapmodel}
+collected by \cite{frank2012building}. 
+The event query dataset was also expanded to 44 total queries with coverage 
+in the stream stream corpus. Nuggets for the additional events were also 
+collected. Additionally, pooled output from the 2015 TS performer submissions
+was manually labeled by NIST to obtain nugget relevance judgements. We used 
+these judgements to build the nugget probability feature 
+(see \autoref{par:nuggetprob}) and to add noisy labels to the corpus.
+ 
+
+ Because of the large size of the corpus and the limited size of the manual
+ annotation pool,
+ many good candidate sentences were not manually reviewed.
+ Less than 1\% of the sentences in our relevant document streams received
+ manual review.  In order to increase the amount of data for training and
+ evaluation of our system, we augmented the manual judgements with automatic
+ or ``soft'' matches. A separate gradient boosting classifier was trained for
+ each nugget with more than 10 manual sentence matches.  Manually matched
+ sentences were used as positive training data and an equal number of
+ manually judged non-matching sentences were used as negative examples.
+ Ngrams (1-5), percentage of nugget terms covered by the sentence,
+ semantic similarity of the sentence to nugget were used as features, along
+ with an interaction term between the semantic similarity and coverage. When
+ augmenting the relevance judgments with these nugget match soft labels, we
+ only include those that have a probability greater than 90\% under the
+ classifier. Overall these additional labels increase the number of matched
+ sentences by 1600\%.
+ 
+% For evaluation, the summarization system only has access to the query and
+% the document stream, without knowledge of any nugget matches (manual or
+% automatic).
+
+
+
+
+
+%~\\~\\
+%
+%While our learning objective is to minimize the expected 
+%structured loss $\lsStrucLoss$,
+%the model policy makes greedy local local actions. We use a cost function 
+%over state-action pairs to connect the global structure discrepancy to
+%local action choices by defining the cost function as 
+%%$\fdef{\lsCost}{\lsStateSpace\times\lsActionSpace}{\Rnonneg}$
+%\[
+%    \lsCost(\lsState, \lsAction)
+%\]
+%
+%
+%and update a cost-sensitive 
+%classifier to predict the 
+%
+%
+%
+%~\\
+%
+%We treat the streaming summarization problem
+%as a Markov decision process. At each timestep $t$ we observe a state
+%$s_t \in \mathcal{S}$ and $t$-th sentence $x_t \in \mathcal{X}$ from the 
+%document stream.
+%A policy $\pi : \mathcal{S} \times \mathcal{X} \rightarrow \{0, 1\}$
+%maps a state-sentence tuple to an action $a \in \mathcal{A} =\{0,1\}$
+%where $a=1$ indicates we extract the sentence and $a=0$ indicates we skip
+%the current sentence. The transition function 
+%$d : \mathcal{S} \times \mathcal{X} \times \mathcal{A} \rightarrow \mathcal{S}$
+%deterministically maps state-sentence-action tuples to the next state. 
+%In practice the state contains set of sentences previously extracted and
+%other rolling statistics from previously observed sentences in the stream.
+%Our training objective is to minimize the expected costs of each action:
+%\[ \mathcal{L}(\pi) = \mathbb{E}_{s,x \sim \pi} \left[ c\left(\pi(s,x), s, x\right) \right] \]
+%where $c :\mathcal{A} \times \mathcal{S} \times \mathcal{X} \rightarrow \mathcal{A}$ is the cost of taking a given action in a particular state-sentence
+%observation.
+%
+%~\\
+%
+%~\\
+%
+%In the LOLS training regime, there are two phases: the 
+%\emph{roll-in} and the \emph{roll-out}. The roll-in phase 
+%
+%at each timestep 
+%we alternate between using the oracle $pi^o$ or our current learned policy
+%$\hat{\pi}$ to run multiple time steps into the future and get a cost for 
+%a hypothetical summary we would have created in the case where we extracted the 
+%current sentence or skipped it. We collect these scores for each decision
+%and update a regression model to accuractely predict the cost of each action
+%given the current sentence and update summary/stream state.
+%
+%
+
+
+
+
+
+\subsubsection{Experiments }
+
+ To evaluate our model, we randomly select five events to use as a
+ development set and then perform a leave-one-out style evaluation on the
+ remaining 39 events.
+ Even after filtering,  each training query's document stream is still too
+ large to be used directly in our combinatorial search space. In order to
+ make training time reasonable yet representative, we downsample each stream
+ to a length of 100 sentences. The downsampling is done uniformly over the
+ entire stream. This is repeated 10 times for each training event to create a
+ total of 380 training streams. In the event that a downsample contains no
+ nuggets (either human or automatically labeled) we resample until at least
+ one exists in the sample. 
+
+ In order to avoid overfitting, we select the model iteration for each
+ training fold based on its performance (in F-measure of $\expectedGain$ and
+ $\comp$) on the development set.
+
+
+ We refer to our ``learning to summarize'' model in the results as 
+ \modelLS.
+ We compare our proposed model against several baselines and extensions. 
+
+ \paragraph{Cosine Similarity Threshold} One of the top performing systems 
+ at TREC 2015 was a heuristic method that only
+ examined article first sentences, selecting those that were below a cosine
+ similarity threshold to any of the previously selected updates. We
+ implemented a variant of that approach using the latent-vector
+ representation used throughout this work \citep{guo2012simple}. 
+ The development set was used to
+ set the threshold. We refer to this model as \modelCos (Team
+ \textsc{WaterlooClarke} at TREC 2015).
+  
+ \paragraph{Salience-biased Affinity Propagation}
+ We also compare this model to a simplified varient of the \sap{} model.
+where we use the summary
+nugget probability feature as the salience estimator (the Gaussian process
+models were difficult to scale to the expanded dataset).  The time
+ window size, similarity threshold, and an offset for the cluster preference
+ are tuned on the development set.
+ As in the \modelCos{} model, a
+ similarity threshold is used to filter out updates that are too similar to
+ previous updates (i.e. previous clustering outputs).    
+ We refer to this method as \sap.  
+
+ \paragraph{Learning2Search+Cosine Similarity Threshold} In this model, which we
+ refer to as \modelLSCos, we run \modelLS{} as before, but filter the
+ resulting updates using the same cosine similarity threshold method as in
+ \modelCos. The threshold was also tuned on the development set. 
+
+
+ \subsubsection{Results}
+ \input{feature_based_salience_models/figures/ls_results.tex}
+
+  Results for system runs are shown in \autoref{fig:lsresults}.  On average,
+  \modelLS{} and \modelLSCos{} achieve higher \fmeasure{} scores than the baseline
+ systems in both latency penalized and unpenalized evaluations. For
+ \modelLSCos, the difference in mean \fmeasure{} score was significant compared
+ to all other systems (for both latency settings).
+ 
+ \sap{} achieved the overall highest $\expectedGain$, partially because
+ it was the tersest system we evaluated. However, only \modelCos{} was
+ statistically significantly worse than it on this measure. %Interestingly,
+ 
+ In comprehensiveness, \modelLS{} recalls on average a fifth of the nuggets
+ for each event. This is even more impressive when  compared to the average
+ number of updates produced by each system (\autoref{fig:lsresults}); while
+ \modelCos{} achieves similar comprehensiveness, it takes on average about
+ 62\% more updates than \modelLS{} and almost 400\% more updates than
+ \modelLSCos. The output size of \modelCos{} stretches the limit of the
+ term ``summary,'' which is typically shorter than 145 sentences in length.
+ This is especially important if the intended application is negatively
+ affected by verbosity (e.g. crisis monitoring).
+
+ \input{feature_based_salience_models/figures/lsfs_results.tex}
+
+ Since \modelCos{} only considers the first sentence of each document, it
+ may miss relevant sentences below the article's lead. In order to confirm the
+ importance of modeling the oracle, we also trained and evaluated the
+ \modelLS{} based approaches on first sentence only streams. Figure
+ \ref{fig:lsfsresults} shows the latency penalized results of the first
+ sentence only runs.  The \modelLS{} approaches still dominate \modelCos{}
+ and receive larger positive effects from the latency penalty despite also
+ being restricted to the first sentence. Clearly having a model (beyond
+ similarity) of what to select is helpful. Ultimately we do much better when
+ we can look at the whole document.
+  
+ \input{feature_based_salience_models/figures/lserrors.tex}
+
+  We also performed an error analysis to further understand how each system
+ operates.  \autoref{fig:lserrors} shows the errors made by each system on
+ the test streams.  Errors were broken down into four categories. \emph{Miss
+ lead} and \emph{miss body} errors occur when a system skips a sentence
+ containing a novel nugget in the lead or article body respectively. An
+ \emph{empty} error indicates an update was selected that contained no nugget.
+ \emph{Duplicate} errors occur when an update contains nuggets but none are
+ novel. 
+ 
+  Overall, errors of the miss type are most common and suggest future
+ development effort should focus on summary content identification.  About a
+ fifth to a third of all system error comes from missing content in the lead
+ sentence alone.
+ 
+  After misses, empty errors (false positives) are the next largest source of
+  error. \modelCos{} was especially prone to empty errors (41\% of its total
+  errors). \modelLS{} is also vulnerable to empties (19.9\%) but after
+ applying the similarity filter and restriting to first sentences, these
+ errors can be reduced dramatically (to 1\%).
+  
+  Surprisingly, duplicate errors are a minor issue in our evaluation. This is
+ not to suggest we should ignore this component, however, as efforts to
+ increase recall (reduce miss errors) are likely to require more robust
+ redundancy detection. 
+

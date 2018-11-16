@@ -1,19 +1,21 @@
 \subsection{Stream Summarization Task}
 
 In the most general sense, the stream summarization task requires a 
-summarization model to process a stream of text data and produce updates,
-i.e. extracted sentences, that describe the most important information in the
-stream. For our evaluations, we further ground this task in a crisis-monitoring
-scenario, as was used in the TREC Temporal Summarization track 
-\citep{aslam2015trec}.
+summarization model to process a stream of text data and produce text updates
+that describe the most important information in the
+stream as information passes through it. 
+For our evaluations, we further ground this task in a crisis-monitoring
+scenario, as was used in the Temporal Summarization (TS) track 
+of the Text Retrieval Conference (TREC)
+\citep{aslam2015trec,aslam2016trec}.
 
-The grounding scenario was disaster
+The scenario proposed by TREC was disaster
 summarization, where a participant model received a brief query string 
 $\query{}$ describing a natural or man-made disaster, and the model was 
 expected to process a time-ordered stream of documents relevant to the query, 
 extracting sentences that were likely to contain important facts about the
 event. Each query corresponded to a real-life disaster that was significant
-enough to have an associated entry in Wikipedia.
+enough to have an associated entry in Wikipedia. 
 
 
 
@@ -42,32 +44,33 @@ See \autoref{fig:eventsnuggets} for example queries and nuggets.
 
 \input{feature_based_salience_models/figures/events_and_nuggets.tex}
 
-We will refer to the set of extracted sentences as the update or extract
-summary interchangeably. Similarly, we will use the phrases ``extract a 
-sentence,''
-``select a sentence,'' or ``emit an update'' to mean the model extracted a 
-sentence in the 
-document stream and added it to our rolling update summary. 
+%We will refer to the set of extracted sentences as the update or extract
+%summary interchangeably. Similarly, we will use the phrases ``extract a 
+%sentence,''
+%``select a sentence,'' or ``emit an update'' to mean the model extracted a 
+%sentence in the 
+%document stream and added it to our rolling update summary. 
+
 If a sentence $\strsent$ 
 expresses the same piece of information as a nugget text $\nugget$ 
 we say that $\strsent$ contains $\nugget$ or $\nugget \in \strsent$.
-
-Models are rewarded when they find sentences that contain important and novel
-nuggets. Models are penalized for 
+Models are rewarded when they extract sentences that contain 
+novel nuggets. Models are penalized for 
 selecting sentences that are irrelevant (i.e. contain no nuggets) or 
-contain nuggets already covered by previous updates. 
-   The official Temporal Summarization track relied on two primary metrics to 
-evaluate updates summaries: the expected gain, or $\expectedGain$, and 
-comprehensiveness, or $\comp$, which are precision and recall like measures of nugget coverage respectively. Let $\updates \subseteq \strsents$ be the set 
+contain nuggets already covered by previously extracted sentences. 
+   The official TS track relied on two primary metrics to 
+evaluate a predicted extract summary: 
+the expected gain, or $\expectedGain$, and 
+comprehensiveness, or $\comp$, which are precision and recall like measures of nugget coverage respectively. Let $\updates$ be the set 
 of sentences extracted by the summarization model for a query and let 
 $\Nuggets{}$ be the set of nuggets for that same query. The set of nuggets
-recovered by the model is then $\predNuggets = \{\nugget \in \Nuggets :
-\exists \strsent \in \updates \textrm{ s.t. } \nugget \in \strsent \}$.
+recovered by the model is then $\predNuggets = \{\nugget \in \Nuggets \;|\;
+(\exists \strsent \in \updates)[\nugget \in \strsent] \}$.
 The expected gain and comprehensiveness are then defined as 
     \[ \expectedGain = \frac{|\predNuggets|}{|\updates|} 
             \quad \textrm{and} \quad 
         \comp = \frac{|\predNuggets|}{|\nuggets|} \]
-    respectively. 
+        respectively where $\Sze{\cdot}$ is the size of a set.
     An $\expectedGain{}$ of 1 would mean that every sentence in
     the update summary contained a novel nugget. $\comp{}$ is the 
     nugget recall, a score of 1 indicating that all nuggets were found
@@ -85,7 +88,7 @@ distracting.
 
  In most of our experiments, we lack annotations about what nuggets if 
  any are contained in a given sentence so we 
-  approximate the manual evaluation of the official Temporal Summarization
+  approximate the manual evaluation of the official TS
   track
    by automatically mapping sentences to nuggets if their semantic similarity
    \citep{guo2012simple}
@@ -93,7 +96,7 @@ distracting.
    values from zero to one, with values closer to one a more conservative
    estimate of performance. 
    We also concatenate the nugget texts to create a reference summary and
-   report Rouge scores \citep{lin2004rouge} for the update summary produced
+   report $\rouge$ scores \citep{lin2004rouge} for the update summary produced
     by the model.
 
 %?~\\
@@ -117,7 +120,7 @@ If we had clairvoyant knowledge of which nuggets were contained in each
 sentence in the document stream,
 this task would be trivial in that the greedy algorithm in 
 \autoref{alg:ts_greedy_oracle} would return an approximately optimal summary.
-Since we do not know this information at test time, we attempt approximate
+Since we do not know this information at test time, we attempt to approximate
 the if-statement in line 5 of the oracle by answering the following proxy 
 questions:
 \begin{enumerate}
@@ -125,12 +128,23 @@ questions:
     \item How similar is the sentence $\strsent$ with respect to the set of 
             previously selected updates $\hat{\strsent} \in \updates$?
 \end{enumerate}
-The generic stream summarization algorithm we aim to implement is presented
-in \autoref{alg:ts_greedy_generic}.
+As a rule we should only extract sentences that are relevant to the query
+and not too similar to sentences have previously extracted.
 
-The two models we propose to solve these more tractable problems come with
-different trade-offs. They both, however, rely on a feature-base 
-representation of the stream sentences to make salience and selection 
-predictions. In the next sub-section, we describe the different feature
+%The generic stream summarization algorithm without explicit nugget 
+%knowledge that we aim to implement is presented
+%in \autoref{alg:ts_greedy_generic}.
+
+The SAP model uses regression to estimate the salience and then relies on 
+a clustering algorithm to consider a non-redundant set of extract candidates.
+The LS model directly integrates redundancy as a feature in a salience model,
+in effect, answering the salience and similarity question simultaneously. 
+%The two models we propose to solve these more tractable problems come with
+%different trade-offs. They both, however, rely on a feature-based 
+%representation of the stream sentences to make salience and selection 
+%predictions. 
+
+%The 
+In the next subsection, we describe the different feature
 groups before describing each of the models used to perform the streaming
 summarization task.

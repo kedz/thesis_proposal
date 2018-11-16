@@ -1,18 +1,27 @@
 \begin{figure}
 \begin{algorithmic}[1] 
-\Procedure{APSalienceSummarize}{}
-  \State $\updates \gets \varnothing$ \Comment{Init. update summary.}
-  \For{$\strsents_t \in \strsents$} 
-    \State $\hat{\Salience} \gets \operatorname{salience}(\strsents_t, \query)$
+\Procedure{SapSummarize}{}
+  \State $\updates \gets \varnothing$ 
+  \Comment{Initialize an empty update summary.}
+
+  \For{$\strsents_t \in \strsents(\query)$} 
+    
+    \State $\predSaliences \gets \operatorname{salience}(\strsents_t, \query)$
         \Comment{Estimate sentence salience for each 
                  $\strsent \in \strsents_t$.}
-    \State $\Similarity \gets \operatorname{similarity}(
-           \strsents_t, \strsents_t)$ \Comment{Compute similarity 
-           between each $\strsent_i, \strsent_j \in \strsents_t$.}
-    \State $\exemplars \gets \operatorname{AffinityPropagation}(\hat{\Salience}, \Similarity)$ \Comment{Get exemplar sentences $\exemplars$ with AP.}
+
+     \State $\Similarity \gets \similarity{\strsents_t}{\strsents_t}$ 
+    \Comment{Compute similarity 
+       between each $\strsent_i, \strsent_j \in \strsents_t$.}
+    
+    \State $\exemplars \gets \sapcluster{\predSaliences}{\Similarity}$
+    \Comment{Get exemplar sentences $\exemplars$ with SAP.}
 
     \For{$\strsent \in \exemplars$}
-      \If{$\hat{\Salience}_\strsent > \lambda_1 \wedge \max \operatorname{similarity}(\updates, \strsent) > \lambda_2$}
+    \Comment{Filter low salience or high summary similarity exemplars.}
+      \If{$\predSaliences_\strsent > \salThresh \wedge 
+         \max_{\update \in \updates} 
+           \similarity{\update}{\strsent} < \simThresh$}
         \State $\updates \gets \updates \cup \{\strsent\}$
       \EndIf
     \EndFor
@@ -25,8 +34,13 @@
   \State \Return $\mathcal{U}$
 \EndProcedure
 \end{algorithmic}
-    \caption{Salience-biased AP clustering based streaming summarization 
-             algorithm.}
+\caption{Salience-biased Affinity Propagation (SAP) clustering based 
+   stream summarization algorithm. We process the stream in time
+   ordered batches 
+   of sentences $\strsents_1 \cup \cdots \cup \strsents_T = \strsents(\query)$
+   with each $\strsents_t = (\strsent_1^{(t)}, \ldots, 
+   \strsent_{\Sze{\strsents_t}}^{(t)})$ a time ordered sequence of sentences 
+   from the relevant document stream for query $\query$.  }
     \label{alg:ts_sap_algo}
 \end{figure}
 

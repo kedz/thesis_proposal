@@ -3,20 +3,20 @@
 Deep learning methods have become the defacto standard approach to many 
 NLP problems, especially when there exists plentiful labeled data.
 There has been a flurry of recent work on sentence extractive 
-single document summarization of news using variety of neural network 
+single document summarization of news using a variety of neural network 
 achitectures 
 \citep{cheng2016neural,nallapati2016classify,nallapati2016summarunner,narayan2018ranking} 
 thanks in part to the availibilty of a large corpus 
 (approximately 300k) of CNN and Daily Mail articles with human written bullet 
 point summaries \citep{hermann2015teaching}.
 Comparing models and defining best practices for model design has become 
-difficult as papers often propose fairly complicated models with a variety
+difficult as papers often propose complex models with a variety
 of design choices, making it difficult to determine what choices actually
 lead to the best performance. 
 
 In this section, we describe completed experiments teasing out the importance
 of different neural network designs for sentence level salience 
-\cite{kedzie2018deep}. 
+\citep{kedzie2018deep}. 
 In particular, we experiment with several methods for encoding a sequence
 of word embeddings into a sentence embedding, and then in turn, mapping
 a sequence of sentence embeddings to sentence salience predictions. We 
@@ -28,8 +28,9 @@ We also perform several diagnostic experiments on our deep learning based
 models and find several impedements to learning robust models of 
 sentence salience. In particular, the sentence position implicitly 
 encoded in the models dominates the learning signal. While sentence position
-is certainly an important feature in news, not all domains or tasks are likely
-have this the dominating feature; we would also like to be able to design
+is certainly an important feature in news, not all domains or tasks 
+will share this feature;
+ we would also like to be able to design
 models that make their salience decisions primarily on lexical/topical content.
 
 To that end, we propose a new deep learning based SDS model that directly 

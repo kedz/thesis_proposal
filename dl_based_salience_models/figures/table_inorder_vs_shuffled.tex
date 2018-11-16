@@ -1,0 +1,19 @@
+\begin{table*}[ht]
+\center
+
+\begin{tabular}{ccgL{.5cm}cm{.5cm}gL{.5cm}cm{.75cm}gL{.75cm}cm{.5cm}}
+    \toprule
+    \textbf{Ext.} &\textbf{Order}  & \multicolumn{2}{g}{\textbf{CNN/DM}} & \multicolumn{2}{c}{\textbf{NYT}} & \multicolumn{2}{g}{\textbf{DUC}} & \multicolumn{2}{c}{\textbf{Reddit}} & \multicolumn{2}{g}{\textbf{AMI}} & \multicolumn{2}{c}{\textbf{PubMed}}\\
+    \midrule
+    \multirow{2}{*}{Seq2Seq} & In-Order & \textbf{25.6} & & \textbf{35.7} && \textbf{22.8}& & \textbf{13.6} && 5.5 && \textbf{17.7} &\\
+                             & Shuffled & 21.7&\footnotesize{(3.9)} & 25.6 & \footnotesize{(10.1)} & 21.2 & \footnotesize{(1.6)} &\textbf{13.5} &\footnotesize{(0.1)} &\textbf{6.0} & \footnotesize{(-0.5)}&14.9 &\footnotesize{(2.8)}\\
+    \bottomrule
+\end{tabular}
+
+\caption{ROUGE-2 recall using models trained on in-order and shuffled
+documents. Extractor uses the averaging sentence encoder. 
+When both in-order and shuffled settings are bolded,
+there is no signifcant performance difference. Difference in scores shown in parenthesis.
+}
+\label{tab:shuffle}
+\end{table*}

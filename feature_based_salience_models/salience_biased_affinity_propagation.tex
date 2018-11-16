@@ -1,4 +1,5 @@
-\subsection{Model 1: Salience Biased Affinity Propagation Clustering}  
+\subsection{Model 1: Salience-Biased Affinity Propagation Clustering}  
+\label{sec:sapmodel}
 
 
   \input{feature_based_salience_models/figures/3_fig_sap_algo.tex}
@@ -26,8 +27,8 @@
 %  We use the semantic similarity method of \cite{guo2012simple} to compute
 %  similarity
 
-  We use an exemplar-based clustering algorithm,
-  called Affinity Propagation (AP) \citep{frey2007clustering}, 
+  We use an exemplar-based clustering algorithm
+  called Affinity Propagation (AP) \citep{frey2007clustering}
   to systematically combine these unary and pairwise factors into a joint 
   selection of cluster centers, called exemplars, that we consider as 
   candidate updates.
@@ -90,14 +91,14 @@
 
 
 
-  Given a sentence $\strsent \in \strsents$ we would like to predict it's 
-  salience with respect to a query $\query$. When we were developing this 
+  %Given a sentence $\strsent \in \strsents$ we would like to predict it's 
+  %salience with respect to a query $\query$. 
+  When we were developing this salience 
   model,
   we did not have access to many human judgements of query or nugget relevance,
   and so we relied on an automatic measure of sentence salience computable
- from the nugget data we had.
-
-Given a query $\query$, sentence text $\strsent$, and query's nugget texts 
+ directly from the nugget and sentence texts.
+Given a query $\query$, sentence text $\strsent$, and a query's nugget texts 
 $\nugget \in \mathcal{N}(q)$, we define
 the sentence salience $\salience$ as
 \[ 
@@ -200,21 +201,26 @@ a salience estimate $\hat{\salience}$ for each sentence in the test stream.
     Affinity Propagation (AP) is a factor-graph based clustering
     method that simultaneously selects the most representative data points 
     to be cluster centers, referred to as \emph{exemplars},  and maps 
-    the remaining data points to one of the exemplars 
+    the remaining data points to exactly one of those exemplars 
     \citep{frey2007clustering}. 
     The exemplar mappings determine the clusters.
     AP has a number of nice properties for extractive summarization.
-    First, as an exemplar based clustering method, the cluser center
-    is guaranteed to be an actual data point observed in the input.
-    Two, the number of clusters that result is adaptive and 
-    based on the energy of the factor graph configurations.
+    First, as an exemplar based clustering method, the cluster centers
+    are guaranteed to be an actual sentence observed in the input, and not 
+    an abstract mathematical object like a mean in the input 
+    feature space.
+    Additionally, the number of clusters that result is adaptive and 
+    based on the energy of the factor graph configurations; as we have to 
+    summarize many hours of stream data of varying density, we can avoid
+    having to heuristically propose a number of cluster centers that works
+    across a broad range of stream conditions.
 
     Given a set of $d$ datapoints $\discSet = \{x_1, \ldots, x_d\}$, 
     AP finds a set of
     exemplar datapoints $\exemplars \subset \discSet$ and an assignment
     $A : \discSet \rightarrow\exemplars$ of the 
     remaining points to one of the exemplars. Exemplars map to themselves,
-    i.e. for $x \in \exemplars,$ $A(x) = x$ The configuration of exemplars
+    i.e. for $x \in \exemplars,$ $A(x) = x$. The configuration of exemplars
     and exemplar assignments is represented as a factor graph, 
     with the following objective:
     
@@ -244,7 +250,7 @@ and it's exemplar. In the typical case the exemplar self-affinity factors are
 simply 
 set to a constant indicating all points are equally likely apriori to serve
 as exemplars. In our case, we have some prior beliefs about the importance of 
-a given datapoint as expressed by our salience predictions $\hat{\salience}_i$.
+a given datapoint as expressed by our salience predictions $\predSaliences_i$.
 Replacing the self-affinity potentials with our salience predictions, 
 the pairwise potentials with our semantic similarity function from the 
 previous section, and setting $\discSet$ to be a batch of sentences 
@@ -253,7 +259,9 @@ we arrive at the salience-biased affinity propagation
 objective:
 
  \[ \mathcal{L}(\exemplars, A) = \exp\left[
-    \sum_{\substack{\strsent \in \exemplars \\ \hat{\salience} = \operatorname{salience}(\strsent, \query)}} \hat{\salience}  + \sum_{\strsent \in \strsents_t \setminus \exemplars} \operatorname{similarity}\Big(\strsent, A(\strsent)\Big)  + \sum_{i=1}^{|\strsents_t|} \log\delta_i \right].
+%    \sum_{\substack{\strsent \in \exemplars \\ \hat{\salience} = \operatorname{salience}(\strsent, \query)}} \hat{\salience}  
+         \sum_{\strsent \in \exemplars} \predSaliences_{\strsent}
+     + \sum_{\strsent \in \strsents_t \setminus \exemplars} \similarity{\strsent}{A(\strsent)} + \sum_{i=1}^{|\strsents_t|} \log\delta_i \right].
 \] 
 When we estimate a sentence to be more salient it is more likely apriori
 to form a cluster center. When that sentence is also highly similar to other 
@@ -333,7 +341,7 @@ Stream Corpus. From these 24, we set aside
 three events to use as a development set. All
 system salience and similarity threshold parameters
 are tuned on the development set to maximize
-\textsc{Rouge-2} \textsc{F1} scores.
+\rougeN{2} \fmeasure{} scores.
 We train a salience model for each event using
 1000 sentences randomly sampled from the
 event's document stream.
@@ -345,16 +353,17 @@ other models.
 
 
     Since we lacked gold judgements about what sentences contain which nuggets
-    we perform an automatic evaluation using ROUGE \cite{lin2004rouge}. We 
+    we perform an automatic evaluation using \rouge{} \citep{lin2004rouge}. We 
     create reference summaries for each query by concatenating all 
     of it's nugget texts.
     Since there are no fixed summary lengths, and depending on the severity
     of the event, the reference summaries can vary greatly in length.
-    To account for this, we report ROUGE recall, precision and F-measure.
+    To account for this, we report \rouge{} recall, precision and \fmeasure{}
+    score.
 We also approximate the manual evaluation of the official TREC TS track
     by automatically mapping sentences to nuggets if their semantic similarity
     is a above a threshold. 
-    We report $\expectedGain,$ $\comp,$ and their F-measure
+    We report $\expectedGain,$ $\comp,$ and their \fmeasure{} score
     across a sweep of similarity threshold 
     values from zero to one, with values closer to one a more conservative
     estimate of performance.     
@@ -371,15 +380,15 @@ We also approximate the manual evaluation of the official TREC TS track
     salience, and sequentially adding each sentence to the update summary, 
     omitting
     any sentences with similarity to previous updates above a threshold.
-    This method is reference to as \ranksal{} for rank by salience.
+    This method is referred to as \ranksal{} for rank by salience.
     Finally, we compare against another clustering algorithm,
     hierarchical agglomerative clustering.
     In this method, sentences are first clustered, 
     and then centers are determined by the sentence
-    with  highest  cosine  similariy  to  the  cluster
+    with  highest  cosine  similarity  to  the  cluster
     mean. 
     Sentences are added to the update summary in time order, 
-    removing sentences that are highly similary to previous updates in the
+    removing sentences that are highly similarity to previous updates in the
     same manor as the \ranksal{} method. We refer to this method as 
     \hac.
 
@@ -392,7 +401,7 @@ We also approximate the manual evaluation of the official TREC TS track
 \autoref{tab:aps_rouge}  shows  our  results  for  system  output
 samples against the full summary of nuggets using \rouge. 
 This improvement is statistically significant  for  all  ngram  
-precision,  recall,  and  F-measures at the
+precision,  recall,  and \fmeasure{} scores at the
 $\alpha=.01$
 level using the Wilcoxon
 signed-rank test.
@@ -432,8 +441,7 @@ When looking at the $\comp$ of the
 summaries \ap{} outperforms \sap.  
 The compromise  encoded  in  the  \sap{}
 objective function, between being representative and
-being salient, is seen clearly here where the per-
-formance of the \sap{}
+being salient, is seen clearly here where the performance of the \sap{}
 methods is lower
 bounded by the salience focused  \ranksal{}  system and
 upper bounded by the clustering only AP system.

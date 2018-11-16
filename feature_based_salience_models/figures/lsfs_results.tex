@@ -1,0 +1,19 @@
+\begin{figure}
+  \center
+  \begin{tabular}{ l | l l l |}
+    &\multicolumn{3}{c}{latency-penalized}\\
+    & exp. gain     & comp. & $F_1$ \\
+    \hline
+    \small \modelCos{}  & $0.095$ & $\mathbf{0.236}$ & $0.128$ \\
+    \small \textsc{LS-FS}  & $0.164$ & $0.220$ & $0.157$ \\
+    \small \textsc{LS-Cos-FS} & 
+      $\mathbf{0.207}$ & $0.18~~$ & $\mathbf{0.163}$ \\
+  \end{tabular}
+  \caption{Average system performance. \textsc{LS-FS} and \textsc{LS-Cos-FS} 
+           runs are trained and evaluated on first sentences only (like the 
+           \textsc{Cos} system). Unpenalized results are omitted for space but
+           the rankings are consistent.}
+  \label{fig:lsfsresults}
+\end{figure}
+
+

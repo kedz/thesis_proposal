@@ -1,0 +1,85 @@
+%% Creator: Inkscape inkscape 0.48.4, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'rouge-timev2.eps' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{218.060547bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.99055459)%
+    \put(0,0){\includegraphics[width=\unitlength]{feature_based_salience_models/figures/rouge-timev2.eps}}%
+    \put(0.29114962,0.49718245){\makebox(0,0)[lb]{\smash{24
+6810
+0}}}%
+    \put(0.10328373,0.53216413){\makebox(0,0)[lb]{\smash{.}}}%
+    \put(0.11318818,0.53216413){\makebox(0,0)[lb]{\smash{00}}}%
+    \put(0.10328378,0.61996586){\makebox(0,0)[lb]{\smash{.}}}%
+    \put(0.11318823,0.61996586){\makebox(0,0)[lb]{\smash{10}}}%
+    \put(0.10328382,0.70776211){\makebox(0,0)[lb]{\smash{.}}}%
+    \put(0.11318827,0.70776211){\makebox(0,0)[lb]{\smash{20}}}%
+    \put(0.10328387,0.7955639){\makebox(0,0)[lb]{\smash{.}}}%
+    \put(0.11318832,0.7955639){\makebox(0,0)[lb]{\smash{30}}}%
+    \put(0.10328391,0.88336014){\makebox(0,0)[lb]{\smash{.}}}%
+    \put(0.11318837,0.88336014){\makebox(0,0)[lb]{\smash{4}}}%
+    \put(0.05076731,0.66461759){\rotatebox{90}{\makebox(0,0)[lb]{\smash{Prec.}}}}%
+    \put(0.70329801,0.69321973){\makebox(0,0)[lb]{\smash{Sap
+}}}%
+    \put(0.29115239,0.07574409){\makebox(0,0)[lb]{\smash{24
+6810}}}%
+    \put(0.31226533,0.01095586){\makebox(0,0)[lb]{\smash{dayssinceeventstart}}}%
+    \put(0.08512611,0.11072906){\makebox(0,0)[lb]{\smash{0}}}%
+    \put(0.10328694,0.11072906){\makebox(0,0)[lb]{\smash{.}}}%
+    \put(0.1131914,0.11072906){\makebox(0,0)[lb]{\smash{00}}}%
+    \put(0.10328699,0.19853082){\makebox(0,0)[lb]{\smash{.}}}%
+    \put(0.11319144,0.19853082){\makebox(0,0)[lb]{\smash{10}}}%
+    \put(0.10328703,0.28632708){\makebox(0,0)[lb]{\smash{.}}}%
+    \put(0.11319149,0.28632708){\makebox(0,0)[lb]{\smash{20}}}%
+    \put(0.10328708,0.37412333){\makebox(0,0)[lb]{\smash{.}}}%
+    \put(0.11319153,0.37412333){\makebox(0,0)[lb]{\smash{30}}}%
+    \put(0.10328713,0.46192324){\makebox(0,0)[lb]{\smash{.}}}%
+    \put(0.11319158,0.46192324){\makebox(0,0)[lb]{\smash{4}}}%
+    \put(0.05076731,0.22991311){\rotatebox{90}{\makebox(0,0)[lb]{\smash{Recall}}}}%
+  \end{picture}%
+\endgroup%

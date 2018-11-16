@@ -1,7 +1,7 @@
 Sections~\ref{sec:feature_salience}~and~\ref{sec:deep_learning_salience}
 have focused on identifying the most important content for summary inclusion,
-while punting somewhat on summary generation -- extractive summarization 
-minimizes significantly the burden of creating fluent text. 
+while punting somewhat on summary generation -- and for good reason, 
+extractive summarization minimizes the burden of creating fluent text. 
 Abstractive text generation adds significant challenges to summary creation, 
 but its benefits are many: the ability to achieve tighter compression ratios
 for space constrained scenarios \citep{fan2017controllable}, the potential
@@ -12,10 +12,10 @@ legally viable option for content aggregation services
 \citep{kassam2014google}.
 
 With this expressive power comes the danger that the generated text may
-misrepresent or misconstrue the source material. Trust in machine learning
+misconstrue the source material. Trust in machine learning
 models is increasingly being recognized as an important factor in user 
-adoption \citep{ribeiro2016should}, and mistakes of this kind will be extremely
-important for users relying summarization to make high stakes decisions.
+adoption \citep{ribeiro2016should}, and mistakes of this kind will be 
+a show stopper for downstream consumers of summarization. 
 
 \input{faithful_generation/figures/5_example1.tex}
 
@@ -29,7 +29,7 @@ a list of candidate utterances describing the evidence. The recognizer
 reranks the candidates based on the likelihood of predicting the 
 correct evidence.
 While we will experiment with a variety of loss functions to find something
-that works empirically well, we expect in principal to train the generator
+that works well empirically, we expect in principal to train the generator
 to maximize the expected likelihood of evidence under the recognizer.
 
 
@@ -52,3 +52,143 @@ In the remainder of this section, we formally define two faithful generation
 models, one for generating text from structured data and 
 one for generating text from  text data. We conclude by briefly describing some
 applications and datasets we will use to evaluate these modls.
+
+\subsection{Related Work}
+
+%In our proposed faithful generation framework, we use one model, the 
+%generator, to
+%create a text utterance, e.g. a summary of a document or a description
+%of a data table, and another model, the recognizer, to answer questions 
+%about the underlying document or table, using the utterance as evidence.
+%A good utterance, then, is one that allows the recognizer on average to
+%correctly answer those questions.
+
+The conceptual underpinnings of faithful generation trace back to two
+ideas in the NLP literature. The first is round-tripping in machine translation
+\citep{somers2005round,rapp2009back}, i.e. a good translation system should be able to translate
+a source language text to a target language text and then back to the source
+language with minimal corruption between the original source and the 
+back-translated source. \cite{andreas2016reasoning} have recently carried 
+this idea 
+over to explaining structured prediction tasks, where, e.g., 
+the structure is a 
+formal plan for a robotic agent; a rational speaker  generates the text
+description of the plan that is most likely to lead a rational listener 
+to correctly re-interpret the original plan. Faithful generation is similar:
+the generator (speaker) 
+ encodes an 
+input object
+(either text or data table) into 
+an intermediate text representation, and the recognizer (listener) then tries to 
+answer questions about the source using only the intermediate text.
+The main difference is that in faithful generation, we are interested not in
+a full reconstruction of the source from the intermediate representation, but
+rather, the utility of the intermediate representation on a downstream task, 
+e.g. question answering.
+
+
+The other conceptual precedent is that of discriminative reranking 
+of $n$-best lists \citep{collins2005discriminative,charniak2005coarse};
+a generative model produces the $n$ most likely latent structures, e.g. parses,
+and a discriminative model, which does not have the burden of modeling
+the observations, rescores this list.  This idea has been applied 
+to text generation as well. \cite{wen2015stochastic} and 
+\cite{novikova2017e2e} use a 
+sequence-to-sequence
+model with beam search to generate $n$-best texts from either a 
+dialogue plan or data table respectively,
+ and then use a separately trained
+classifier to downrank the beam candidates that do not correspond to the 
+underlying
+structured object.
+%statements (according to the data table).
+We argue that this is insufficient since we might want to consider 
+all beam candidates in a downstream task, e.g. a macro content planner stage.
+%that maximizes the  coherency of a sequence generated utterances.
+For this model to provide linguistically interesting realizations that are 
+still
+factually true requires expanding the beam size 
+which increases the computational and memory demands at test time. 
+In our faithful generation framework, we directly discourage the generator from
+ever allowing an untrue statement to be kept in the beam. This is done
+using the recognizer directly as a learning signal and backpropagating
+through the beam search process.
+
+Increasingly, summarization researchers are exploring
+ \textsc{Reinforce}-style
+policy gradient methods to optimize non-differentiable metrics like 
+\textsc{Rouge} \citep{paulus2017deep,arumae2018reinforced,kryscinski2018improving,narayan2018ranking,pasunuru2018multi}.
+The most related to our work is that of \cite{arumae2018reinforced} 
+and \cite{pasunuru2018multi}.
+\cite{arumae2018reinforced} 
+learn an extractive summarization model that maximizes
+performance of a question-answering model on cloze style questions created
+from the reference summaries. In our proposed method, the questions are 
+generated from the source document and we use abstractively generated 
+summaries as
+the input to the question answering model, a significantly harder task.
+\cite{pasunuru2018multi} learn an abstractive summarization model that
+optimizes the likelihood that the generated summary is entailed by the 
+ground-truth reference summary. The entailment likelihood is obtained from
+model trained on the SNLI \citep{bowman2015large} and MULTI-NLI 
+\citep{williams2018broad} datasets.
+This entailment measure is somewhat orthogonal to the faithful generation 
+objective, as our proposed
+approach directly evaluates the utility of the summary a faithful proxy
+for the underlying document, which is the ultimate goal of the 
+summarization task.
+
+
+Most reinforcement learning applied to abstractive summarization uses
+one Monte-Carlo sample from their policy distribution to estimate the 
+expected reward. We propose to optimize
+the entire beam search so that all beam candidates are viable in downstream
+tasks. In this way, faithful generation also resembles 
+minimum error rate training (MERT) \citep{och2003minimum} 
+and minimum Bayes-risk decoding (MBD)
+\citep{kumar2004minimum} in that we are reshaping a distribution of $n$-best
+beam candidates to optimize the expected value of an evaluation metric.
+We also plan on using reward shaping supervision from the recognizer
+model to localize reward signals \citep{mnih2014neural} to specific spans of 
+a candidate utterance
+that are most repsonsible for violating the input document. Localized
+reward shaping will help to penalize only the factually incorrect spans
+and preserve syntactic and structural choices that are independent of 
+such entailment considerations.
+
+
+Other notable approaches to improving the faithfulness of abstractive 
+generation include \cite{guo2018soft} who use a multi-task training objective 
+to learn a shared decoder that can alternatively summarize a document,
+generate a question about a document, or generate a logically entailed text 
+from a document.
+The latter task is relevant here, as the authors claim that this entailment
+generation objective encourages the decoder to produce only logical entailed
+summaries. This claim deserves further scrutiny as their human 
+evaluation only asked about \textit{relevance} and \textit{fluency} where
+the relevance criteria included topical relevance and redundancy in addition
+to factual accuracy, confounding any interpretation of the generated summaries
+as being more faithful to the source document.
+
+%~\\
+%This is done by learning from 
+%Our proposed method is to learn from the recognizer's signals
+%during training, i.e. backpropagating throught the beam search process
+%so that the beam does not need to to be pruned during test time, i.e. 
+%all surviving beam 
+%candidates should be factually true.
+
+
+
+%Similarly, minimum error rate training (MERT) \citep{och2003minimum} 
+%and minimum Bayes-risk decoding 
+%\citep{kumar2004minimum}
+%rerank $n$-best translations in order to directly optimize an evaluation
+%metric like \textsc{Bleu} \citep{papineni2002bleu}.
+
+%Faithiful generation can be recast in the MERT framework by considering
+%the evaluation metric to be the recognizer's classification accuracy on
+%table data or cloze accuracy on text data. This is perhaps most similar
+%to    
+
+

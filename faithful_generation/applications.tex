@@ -6,11 +6,17 @@ training the structured data model on at least two data-to-text tasks.
 The first is a biography generation task using biographical Wikipedia
 entries and structured data extracted from the corresponding Wikipedia page's
 info box \citep{lebret2016neural}. The second data-to-text task is a 
-basketball game summary generation task, where the structured data consists
-of game statistics (shots, penalties, etc.) \citep{wiseman2017challenges}.
+restaurant description generation task, where the structured data consists
+of data about restaurants (types of food offered, location, etc.) 
+\citep{novikova2017e2e}.
 For the text-to-text scenarios, we plan to perform faithful summary generation
-using the CNN/DailyMail,
-NYT, and Newsroom datasets 
+first using the TL;DR dataset \citep{volske2017tl} which contains over 2 
+million
+Reddit comments with summarizations. Since the comments being summarized
+are shorted than most news articles, we think this will be a more tractible
+starting point for validating the utility of the cloze task.
+Following this, we would like to apply this technique to
+the CNN/DailyMail, NYT, and Newsroom datasets 
 \citep{hermann2015teaching,sandhaus2008new,grusky2018newsroom}.
 
 

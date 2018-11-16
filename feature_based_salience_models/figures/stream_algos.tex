@@ -1,10 +1,10 @@
 \begin{figure}
-\begin{subfigure}{.47\textwidth}
+%\begin{subfigure}{.47\textwidth}
 \begin{algorithmic}[1] 
 \Procedure{OracleSummarize}{}
   \State $\updates \gets \varnothing$ \Comment{Init. update summary.}
   \State $\hat{\nuggets} \gets \varnothing$ \Comment{Init. found nuggets.}
-  \For{$\strsent \in \strsents$} 
+  \For{$\strsent \in \strsents(\query)$} 
     \If{$\exists \nugget$ s.t. $\nugget \in \strsent
             \wedge \nugget \notin \hat{\nuggets}$ }
       \State $\mathcal{U} \gets \mathcal{U} \cup \{\strsent\}$ 
@@ -14,32 +14,39 @@
   \State \Return $\mathcal{U}$
 \EndProcedure
 \end{algorithmic}
-    \caption{Greedy oracle streaming summarization algorithm.}
+%    \caption{Greedy oracle streaming summarization algorithm.}
     \label{alg:ts_greedy_oracle}
-\end{subfigure}
-~
-\begin{subfigure}{.48\textwidth}
-\begin{algorithmic}[1] 
-
-  \Procedure{GenericSummarize}{}
-  \State $\mathcal{U} \gets \varnothing$ \Comment{Init. update summary.}
-  \For{$\strsent \in \mathcal{S}$} 
-    \State $\hat{\salience} \gets \operatorname{salience}(\strsent, \query) $
-    \State $\similarity \gets \operatorname{similarity}(\strsent, \updates)$
-    \State $\extract \gets \operatorname{decide}(\hat{\salience}, \similarity)$
-    \If{$\extract = 1$}
-        \State $\updates \gets \updates \cup \{\strsent\}$
-    \EndIf
-  \EndFor
-  \State \Return $\updates$
-\EndProcedure
-\end{algorithmic}
-    \caption{Greedy generic streaming summarization algorithm.}
-    \label{alg:ts_greedy_generic}
-\end{subfigure}
-\caption{Oracle and generic greedy stream summarization algorithms. 
-$\mathcal{S}$ is a time-ordered set of sentences from the document stream 
-for query $\query$.}
+%\end{subfigure}
+%?~
+%?\begin{subfigure}{.48\textwidth}
+%?    \algnewcommand{\LeftComment}[1]{\Statex \(\triangleright\) #1}
+%?
+%?\begin{algorithmic}[1] 
+%?
+%?  \Procedure{GenericSummarize}{}
+%?  \State $\mathcal{U} \gets \varnothing$ \Comment{Init. update summary.}
+%?  \For{$\strsent \in \strsents(\query)$} 
+%?    \LeftComment{Predict salience.}
+%?    \State $\hat{\salience} \gets \operatorname{salience}(\strsent, \query) $
+%?    \Comment{Compute update similarities $\Similarity$.}
+%?%?    \State $\Similarity \gets \similarity{\strsent}{\updates)$
+%?%?    \State $\extract \gets \operatorname{decide}(\hat{\salience}, \Similarity)$
+%?%?    \If{$\extract = 1$}
+%?%?        \State $\updates \gets \updates \cup \{\strsent\}$
+%?%?    \EndIf
+%?  \EndFor
+%?  \State \Return $\updates$
+%?\EndProcedure
+%?\end{algorithmic}
+%?    \caption{Greedy generic streaming summarization algorithm.}
+%?    \label{alg:ts_greedy_generic}
+%?\end{subfigure}
+%\caption{Oracle and generic greedy stream summarization algorithms. 
+\caption{Clairvoyant oracle stream summarization algorithm. 
+    $\strsents(\query) = (\strsent_1, \ldots, \strsent_T)$ is a time-ordered
+    sequence of $T$ sentences from the 
+    relevant document stream for query $\query$.}
+    \label{alg:ts_greedy_oracle}
 \end{figure}
 
 

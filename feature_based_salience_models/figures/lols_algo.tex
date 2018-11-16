@@ -1,0 +1,29 @@
+\begin{figure}
+ \begin{algorithmic}[1]
+  \Procedure{LolsTraining}{}
+   \State Randomly initialize $\policyParams$.
+   \Repeat
+    \For{$\query \in \Queries$}
+     \State $\dataset \gets \varnothing$
+     \For{$\lsStep = 1, \ldots, T$}
+        \State Roll-in by executing $\modelPolicy$ for $\lsStep$ steps to 
+arrive at state $\lsState_\lsStep$.
+        \State Set roll-out policy $\rollOutPolicy = \oraclePolicy$ with probability $\lsChoiceParam$, otherwise $\modelPolicy$.
+       \For{$\lsAction \in \lsActionSpace$}
+            \State Use $\rollOutPolicy$ to complete trajectory to obtain cost
+            $\lsCost(\lsState_\lsStep, \lsAction)$
+            \State $\dataset \gets \dataset \cup \{ 
+            \big(\lsFeats(\lsState_\lsStep), 
+        \lsCost(\lsState_\lsStep, \lsAction), \lsAction \big) \}$
+        
+       \EndFor
+     \EndFor
+     \State $\policyParams = \policyParams - \gamma \nabla\objective(\policyParams)$
+    \EndFor
+   \Until{convergence}
+  \EndProcedure
+ \end{algorithmic}
+ \caption{The locally optimal learning to search (LOLS) training algorithm.
+ $\gamma$ is a learning rate.}
+ \label{alg:lols}
+\end{figure}

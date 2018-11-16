@@ -8,7 +8,7 @@ is constantly shifting. We cannot rely solely on word frequency because
 the counts of particular ngrams will be shifting throughout the document
 stream. Instead we compute several groups of sentence features that are
 specifically helpful for the query focused task. Because our models were
-developed over several years of the Temporal Summarization track, some
+developed over several years of the TS track, some
 features were not used or available to certain models. If a feature
 is only used in one model, we list that model's name in parenthesis next
 to the feature name.
@@ -28,8 +28,11 @@ to the feature name.
 The document stream that we will be operating over is incredibly noisy,
 full of automatically extracted article text from raw web pages in 
 dramatically different formatting. As a result, the underlying text is often
-full of wep page headers, headlines to other stories, and irrelevant link text.We this group of basic features to help identify typical content bearing
-sentences in the AP news style \citep{ap_style_guide}. These features 
+full of wep page headers, headlines to other stories, and irrelevant link text.
+We use these simple shallow surface features to characterize 
+``normal'' newswire sentences.
+%``normal'' . 
+These features 
 include sentence length, the average number of capitalized words,
 document position, sentence length in words, and the average number of 
 named entities. Length and position features have been used previously in
@@ -40,10 +43,11 @@ other learning based models of sentence salience
 we employ query match features that count frequency of query term matches
 in the sentence. We also do a simple query expansion using WordNet 
 \citep{miller1995wordnet}
-to find  synonyms, hypernyms, and hyponyms for the query event type and compute
+to find  synonyms, hypernyms, and hyponyms for the query \textit{event type}
+and compute
 a similar term match count with the expansion.
-Queries in the Temporal Summarization data are also labeled with even type.
-See \autoref{fig:eventtypes} for the list of query event types we used. 
+Queries in the TS data are manually labeled with event type;
+see \autoref{fig:eventtypes} for the list of query event types we used. 
 For the \emph{earthquake} query type, for example, we find the following terms:
 ``quake'', ``temblor'', ``seism'', and ``aftershock''.
 
@@ -93,7 +97,7 @@ Kneser-Ney model \citep{kneser1995improved} for both the general and type
 specific language models. 
 
 \paragraph{Geographic Relevance (SAP)} 
-The queries in the Temporal Summarization data are all grounded to physical
+The queries in the TS data are all grounded to physical
 events in the world and we would like to exploit that. For example, while
 there are sadly many reports of bombings or explosions at any given time 
 around the world, when summarizing the query ``boston marathon bombing'' 
@@ -104,12 +108,16 @@ we do not have ground truth location data for each event query, and some
 events like hurricanes can be on the move. We opt instead to extract all
 location mentions (using a named entity tagger) and get the lattitude
 and longitude coordinates
-of each mention using the Bing maps API \citep{bingmaps}. Location
+of each mention using the Bing Maps 
+API\footnote{\url{https://www.microsoft.com/en-us/maps/documentation}}.
+Location
 mentions within the same hour are clustered, and the cluster centers are 
 used as the canonical event locations for the query at that time. 
-To get features for each sentence in the stream, we find the location of
-the news article it came from and then compute average distance of the 
-article to the query event locations.
+For each document we compute the median distance of all location mentions
+to the event location cluster. We also compute the distance of the first
+location mention to the event location cluster. Sentences from the document
+share these two distance features.
+
 
 
 %?The disasters
@@ -144,16 +152,23 @@ stream will ebb and flow as the underlying event unfolds. With hurricanes
 for example, forecasters are usually watching a tropical storm as it grows
 and predicitng where it might make landfall. As a result, news about a major
 hurricane grows gradually, peaking after its main contact with land
-and gradually diminishing. An eartquake on the otherhand gives no warning,
+and gradually diminishing. An earthquake on the otherhand gives no warning,
 and there is a sudden spike in the query relevant document stream.
 %While we do not
 %do an extensive study of different event type shapes (which would certainly 
 %be very interesting), 
 We would like to take advantage of spiking or bursty
 activity in the document stream as a signal for our summarization system.
-We do this by maintaining \idf{} values for each hour of the document stream.
+We do this by maintaining inverse document frequency (\idf) values for each 
+hour of the document stream.
 We create 24 average \tfidf{} features for each sentence as if it had occurred
-in each of the previous 24 hours; large changes in any of the individual
+in each of the previous 24 hours. 
+I.e. we fix the observed sentence level 
+term frequencies
+and rescale them by \idf{} values cached from each of the previous 24 hours;
+a single feature value is obtained for each hour by averaging the sentence's 
+bag of rescaled \tfidf{} values.
+ Large changes in any of the individual
 features should be representative of a spike in the news.
 
 \paragraph{Document Frequency (L2S)} We also compute the hour-to-hour
@@ -182,7 +197,8 @@ the set of updates is empty (i.e. at the beginning of a run) and
 when either similarity is 0.
 
 \paragraph{Nugget Probability (L2S)}
-When developing the L2S model, we had access to a relatively large number of
+\label{par:nuggetprob}
+When developing the L2S model, we had access to a small collection of
 human sentence/nugget judgements from the 2014 Temporal Summarization 
 evaluation.
 We used
@@ -192,14 +208,15 @@ given the sentence text as a feature.
 
 
 \paragraph{Single Document Summarization Features (L2S)}
-Even though we are processing the stream one sentence at a time, we still
+Even though we are processing the stream one sentence at a time in the L2S
+model, we still
 have knowledge of the document that a sentence came from and so we can
 compute features that take into account the other sentences in the document.
 We used several unsupervised sentence ranking methods from the single 
 document summarization literature to get several sentence rank features.
 Inspired be the \textsc{SumBasic} summarizer \citep{nenkova2005impact}, we
 compute the average and sum of unigram probability of each sentence using 
-sentence's document unigram distribution. Inpsired by \citep{guo2013updating},
+sentence's document unigram distribution. Inpsired by \cite{guo2013updating},
 for each sentence we compute the average cosine distance to the remaining 
 sentences in it's enclosing document. Finally, we compute the document
 level centroid rank \citep{radev2000centroid} and LexRank 

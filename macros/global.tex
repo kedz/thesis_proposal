@@ -1,5 +1,7 @@
 %%% Latex Table Column Types %%%
 
+\newcolumntype{g}{>{\columncolor{black!5}}c}
+\newcolumntype{f}{>{\columncolor{black!5}}r}
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[2]{%
     >{\adjustbox{angle=#1,lap=\width-(#2)}\bgroup}%
@@ -12,6 +14,7 @@
 
 \newcommand{\fdef}[3]{#1 : #2 \rightarrow #3}
 \newcommand{\R}{\mathbb{R}}
+\newcommand{\Rnonneg}{\mathbb{R}^{\ge 0}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Npos}{\N^{+}}
 \newcommand{\Rn}[1]{\R^{#1}}
@@ -28,6 +31,7 @@
 
 \newcommand{\tfidf}{TF-IDF}
 \newcommand{\idf}{IDF}
+\newcommand{\meteor}{\textsc{Meteor}}
 \newcommand{\rouge}{\textsc{Rouge}}
 \newcommand{\rougeN}[1]{\textsc{Rouge-{#1}}}
 
@@ -49,27 +53,35 @@
 \newcommand{\predSalience}{\hat{y}}
 \newcommand{\saliences}{\mathbf{\salience}}
 \newcommand{\predSaliences}{\mathbf{\hat{\salience}}}
+\newcommand{\salThresh}{\lambda_1}
+\newcommand{\simThresh}{\lambda_2}
 
 \newcommand{\gp}{\mathcal{GP}}
 
 
 \newcommand{\Salience}{Y}
 %\newcommand{\similarity}{k}
-\newcommand{\Similarity}{K}
+\newcommand{\Similarity}{\mathbf{K}}
 \newcommand{\updates}{\mathcal{U}}
+\newcommand{\update}{u}
 \newcommand{\exemplars}{\mathcal{E}}
-\newcommand{\similarity}[2]{\operatorname{similarity}(#1, #2)}
+\newcommand{\similarity}[2]{\textsc{Similarity}(#1, #2)}
+\newcommand{\sapcluster}[2]{\textsc{AffinityPropagation}(#1, #2)}
 
 
 \newcommand{\comprehensiveness}{\textsc{Comprehensiveness}}
 \newcommand{\expectedGain}{\E\left[\textsc{Gain}\right]}
 \newcommand{\comp}{\textsc{Comp.}}
-\newcommand{\fmeasure}{\textsc{F1}}
+\newcommand{\fmeasure}{F1}
 
 \newcommand{\sap}{\textsc{Sap}}
 \newcommand{\ap}{\textsc{Ap}}
 \newcommand{\ranksal}{\textsc{Rs}}
 \newcommand{\hac}{\textsc{Hac}}
+
+\newcommand{\modelLS}{\textsc{L2s}}
+\newcommand{\modelLSCos}{\textsc{L2sCos}}
+\newcommand{\modelCos}{\textsc{Cos}}
 
 %\newcommand{\poi}{T}
 
@@ -91,3 +103,80 @@
 \newcommand{\beamDistr}{\beta}
 
 
+%%% Learning To Summarize
+\newcommand{\policy}{\pi}
+\newcommand{\policySpace}{\prod}
+\newcommand{\lsAction}{a}
+\newcommand{\lsActionSpace}{\mathcal{A}}
+\newcommand{\oraclePolicy}{\policy^{*}}
+\newcommand{\modelPolicy}{\hat{\policy}}
+\newcommand{\rollOutPolicy}{\policy^{out}}
+\newcommand{\lsState}{s}
+\newcommand{\lsStateSpace}{\mathcal{S}}
+\newcommand{\lsStep}{t}
+\newcommand{\lsTrans}{T}
+\newcommand{\lsSaliences}{\mathbf{y}}
+\newcommand{\lsSaliencesRollOut}{\mathbf{y}}
+\newcommand{\lsSaliencesRef}{\mathbf{y}^*}
+\newcommand{\lsStrucLoss}{\ell}
+\newcommand{\lsCost}{c}
+\newcommand{\lsChoiceParam}{\beta}
+\newcommand{\policyParams}{\mathbf{W}}
+\newcommand{\lsFeats}{\phi}
+
+%%% Deep Learning Models of Content Salience %%%
+
+\newcommand{\sent}{s}
+\newcommand{\Sents}{\mathcal{S}}
+\newcommand{\doc}{d}
+\newcommand{\lbl}{y}
+\newcommand{\Labels}{\mathbf{y}}
+\newcommand{\word}{w}
+\newcommand{\extracts}{\mathcal{E}}
+\newcommand{\budget}{c}
+\newcommand{\encoder}{\textsc{Encoder}}
+\newcommand{\extractor}{\textsc{Extractor}}
+\newcommand{\embproj}{W}
+\newcommand{\emb}{\omega}
+\newcommand{\embsize}{n}
+\newcommand{\sembsize}{m}
+\newcommand{\semb}{\mathbf{h}}
+\newcommand{\rsemb}{\overrightarrow{\semb}}
+\newcommand{\lsemb}{\overleftarrow{\semb}}
+\newcommand{\gru}{\textsc{Gru}}
+\newcommand{\rgru}{\overrightarrow{\gru}}
+\newcommand{\lgru}{\overleftarrow{\gru}}
+\newcommand{\cfeat}[2]{\mathbf{f}_{#1}^{( #2 )}}
+\newcommand{\relu}{\textsc{ReLU}}
+\newcommand{\winsize}{k}
+\newcommand{\winsizes}{K}
+\newcommand{\fmapsize}{F}
+\newcommand{\cfidx}{l}
+\newcommand{\cact}{a^{(\cfidx,\winsize)}}
+\newcommand{\cnnbias}{\mathbf{u}^{(\winsize)}}
+\newcommand{\cnnweight}{\mathbf{U}^{(\winsize)}}
+\newcommand{\cnnBiasSpace}{\mathbb{R}^{\fmapsize_\winsize}}
+\newcommand{\cnnWeightSpace}{\mathbb{R}^{\winsize \times \fmapsize_\winsize \times \embsize}}
+
+\newcommand{\extHid}{\mathbf{z}}
+\newcommand{\rExtHid}{\overrightarrow{\extHid}}
+\newcommand{\lExtHid}{\overleftarrow{\extHid}}
+\newcommand{\demb}{\mathbf{d}}
+\newcommand{\smemb}{\mathbf{s}}
+\newcommand{\posemb}{\mathbf{f}}
+\newcommand{\qrtemb}{\mathbf{c}}
+
+\newcommand{\enextHid}{\mathbf{e}}
+\newcommand{\deextHid}{\mathbf{d}}
+
+
+%%sent enc
+\newcommand{\enAvg}{\textsc{Avg}}
+\newcommand{\enRnn}{\textsc{Rnn}}
+\newcommand{\enCnn}{\textsc{Cnn}}
+
+%%% Wimpy Models %%%
+\newcommand{\elmo}{\textsc{Elmo}}
+\newcommand{\glove}{\textsc{Glove}}
+
+\newcommand{\bowvec}{\omega}

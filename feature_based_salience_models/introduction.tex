@@ -10,29 +10,34 @@ obtain average token perplexity scores for a sentence; the salience model
 only sees the average perplexity and is blissfully unaware of any lexical 
 features. 
 In this section we 
-describe our features in the context of stream summarization task, but the 
+describe our features in the context of a stream summarization task, but the 
 features are themselves fairly generic and likely obtainable in other task
 settings.
 
 A second but important issue is that salience judgments do not occur
 in isolation. As we add content to the summary, the salience
-of our remaining inputs is likely change based on redundancy and other factors.
+of our remaining inputs is likely to change based on redundancy and other 
+factors.
 Unfortunately, adding summary/sentence interaction features introduces an element of 
 exploration to training the model for now various summary configuration 
 and candidate sentence pairs must be considered.
 
-We propose two model based solutions to this. 
+Our two proposed feature-based summarization models deal with this
+issue in slightly different ways. 
 The first model, Salience-biased Affinity Propagation (SAP) 
 \citep{kedzie2015predicting}, combines 
-independent sentence level predictions into a clustering algorithm,
+independent sentence level salience predictions into a clustering algorithm,
 Affinity Propagation (AP) \citep{frey2007clustering}, that also 
 considers sentence similarity to jointly select salient and 
-non-redundant sentences for inclusion in the summary.
+non-redundant sentences for inclusion in the summary. In this model, for 
+a sentence to be selected it must have a high salience estimate, from a 
+trained salience regression model, and also be
+representative of other sentences in the input.
 
 Our second model, Learning-to-Summarize (L2S) \citep{kedzie2016real}, allows 
 us to freely incorporate summary/sentence interaction
 features, as we train the salience model using the learning-to-search regime
-\cite{daume2009search,chang2015learning}
+\citep{daume2009search,chang2015learning}
 where learning takes place using different exploration policies. Using 
 this method we can learn a salience model that makes good individual sentence
 selection choices (i.e. good local decisions) that also correlate to a good 

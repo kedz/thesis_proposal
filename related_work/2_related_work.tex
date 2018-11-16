@@ -1,240 +1,276 @@
 \section{Related Work}
 
-
-The complete range of methods and task variations covered by the summarization
-literature are too numerous to describe completely here. In the space 
-available, we give an overview of unsupervised and supervised learning
-approaches to estimating word and sentence importance. 
-We also give some background on the variety
-of summarization tasks, and the manner in which they are evaluated.
+(REWRITING THIS NOW)
 
 
-\subsection{Unsupervised Word Importance}
+\subsection{Faithful Generation}
 
+In our proposed faithful generation framework, we use one model, the 
+generator, to
+create a text utterance, e.g. a summary of a document or a description
+of a data table, and another model, the recognizer, to answer questions 
+about the underlying document or table, using the utterance as evidence.
+A good utterance, then, is one that allows the recognizer on average to
+correctly answer those questions.
 
-The most obvious signal available for estimating word importance is word 
-frequency, i.e. frequent word occurences (modulo stopwords) are likely 
-to be related the important topics of the document or document collection 
-\cite{topic_sigs}, and it is the chief ingredient in all of the following
-word importance estimators.
-Term weighting schemes from information retrieval
-have frequently been used, most commonly tf-idf 
-\cite{centroid,maybe_conroy,find_others}. 
-Various probabilistic weightings have also been considered, e.g. the
-observed document probability \cite{freq_sum} or the ratio of background
-corpus probabiltiy to document probability \cite{topic_sigs}.
-Information theoretic transformations of word frequency like the document
-level term entropy
-have also been found to be useful \cite{klsum,reference_less_summarization}.
-Latent semantic analyis (LSA), latent dirichlet allocation (LDA), and
-other matrix factorization schemes have been used to find a low dimensional
-``concept'' representation for each word, the sum of the concept contributions
-constituting the word importance score \cite{multiling_stuff}.
-Finally, various methods of transforming word co-occurences into a word graph
-have been used in conjunction with unsupervised graph ranking algorithms
-\cite{lexrank,conroy_multiling,zhao_2009}.
+The conceptual underpinnings of faithful generation trace back to two
+ideas in the NLP literature. The first is round-tripping in MT evaluation 
+\citep{somers2005round,rapp2009back}, i.e. a good summarization system should be able to translate
+a source language text to a target language text and then back to the source
+language with minimal corrpution between the original source and the 
+back-translated source.
+The other conceptual precedent is that of discriminative reranking 
+of $n$-best lists \citep{collins2005discriminative,charniak2005coarse};
+a generative model produces the $n$ most likely latent structures, e.g. parses,
+and a discriminative model, which does not have the burden of modeling
+the observations, rescores this list.
+Similarly, minimum error rate training (MERT) \citep{och2003minimum} 
+and minimum Bayes-risk decoding 
+\citep{kumar2004minimum}
+rerank $n$-best translations in order to directly optimize an evaluation
+metric like \textsc{Bleu} \citep{papineni2002bleu}.
 
-
-\subsection{Unsupervised Sentence Importance}
-
- Graph based ranking that has been used for word importance has similarly 
-been used to estimate sentence importance, where the graph consists of 
-sentence vertices and edge weights are computed using pairwise sentence 
-similarity \cite{textrank}. Another popular method is the centroid method
-\cite{centroid} where an average vector representation for a document set is 
-constructed and sentences are ranked by their similarity to the centroid object.
-Sentence clustering methods have also been applied. In all these methods, 
-sentences are tpyically represented as term vectors where the weights for 
-each term item are determined by one of the methods mentioned in word importance
-estimation methods. 
-
-
-\subsection{Supervised Word Importance}
-
-The growing availibilty of large text collections with summaries has also
-encouraged the development of many supervised methods for learning the word 
-importance 
-directly from the data. \cite{Regsum} use many of the unsuperivsed word  
-importance measures, (e.g. frequency, entropy, document position) to estimate
-the probabiltiy of a word occuring in a human abstract. Learning-to-rank
-has also been explored in a variety of contexts. For example in single
-document summarization, \cite{lapata} used convolutional neural networks
-learn rankings and while \cite{guo,macreadie} use a feature based model
-to rank sentences in a streaming summarization task.
-Word importance weights have also been learned in combinatorial optimization
-based approaches to summarization; in several integer linear program (ILP)
-formulations of the summarization problem unigram and bigram weights 
-are learned \cite{gillick,martens,berkely}, in addition to learning based
-submodular optimization approaches \cite{submod,svm}.
+Faithiful generation can be recast in the MERT framework by considering
+the evaluation metric to be the recognizer's classification accuracy on
+table data or cloze accuracy on text data. This is perhaps most similar
+to    
 
 
 
-
-\subsection{Supervised Sentence Methods}
-
-
-Structured prediction methods have also been explored. The most common is
-to model the sentence selection problem as an integer linear program (ILP)
-and learning typically happens in a large margin/structured svm framework 
-\cite{durret}. In addition to learning ngram feature weights, discourse,
-and redundancy features can also be modeled \cite{somebody}. 
-Deletion based compression 
-and phrase substitution have also been modeled using ILPs, where non-essential
-phrases can be discarded or shortened, and entity references rewritten, e.g.
-turning a pronominal reference into a nominal one.
-
-Sentence selection can be viewed as a submodular set optimization 
-(submodularity in set theory is analagous to convexity in functional analysis)
-where greedy selection algorithms can efficiently find the best subset of 
-sentences according to a set scoring function and budget constraints.
-Learning of the scoring function has been done by \cite{uwsipos} using 
-linear functions on ngram features. Feature weights can similarly be learned 
-in a large margin svm framework.
-
-
-Sentence selection can be modeled as a sequence tagging problem, e.g. using
-hidden Markov models \cite{conroy}.
-
-Dependencies between sentence selection can be difficult, and so in the
-spirit of naive Bayes, it can be fruitful to model sentence selection as 
-independent classification problems. For example, \cite{kupiec} use ....
-
-
-\cite{drago_nn} use a graph convolutional neural network on top of a sentence
-graph constructed from either discourse structure or sentence similarity.
-
-
-Learning to rank methods have been explored, see \cite{lapata}.
-
-\subsection{Text Generation}
-
-
-While there are a variety of text generation methods, we cover three main
-approaches, template based generation, sentence fusion, and 
-sequence-to-sequence models.
-
-
-
-\paragraph{Template-Based Generation} 
-
-
-\paragraph{Sentence Fusion} Sentence fusion attempts to combine two or
-more sentences into one. This is typically done by selecting one sentence
-as the backbone, and then aligning the remaing sentences to the backbone.
-Heuristics are used for backbone selection and alignment. This method
-is better suited to cases where there is much redundancy between candidate
-summary sentences since fusing radically different sentences is likely to
-yield misleading results.
-this approach is that it is difficult 
-
-
-
-Thanks to recent advances in neural machine translation (NMT), we now
-have flexible, high capacity models for generating free form text from
-an arbitrary sequence input. This has led to a host of work exploring 
-variety for attention based models to the summarization task \cite{everybody}.
-Adaptations to attention like copying have been found to be helpful for 
-handling out of vocabulary terms and controlling for repetitive outputs 
-\cite{seeandothers}.
-One difficulty with this approach is that is hard to control the output,
-spurring additional research in more controllable neural text generation.
-Length \cite{lc1,lc2}, sentiment \cite{contr}, and domain \cite{socher_I_think}
-have been explored, typically by treating the feature under control 
-as a learned embedding that is fed as an additional input into the generator.
-\cite{lapata} explore a method similar too our faithful text generation model,
-however we intend to explore some differences.
-
-
-
-
- 
-\subsection{Other stuff from other sections}
-Estimating the salience of words and phrases is core to the problem of 
-summarization. For example, \cite{luhn1958automatic} 
-noted how the most topically central words in a document occur not too much 
-but not
-too little, and that,
-``the presence in the region of highest frequency of many of the words
- previously described as too common to have the  type  of
- significance being sought would constitute
-`noise' in the system.''
-Typically, this has been done with heuristically derived word weights
-\citep{luhn1958automatic,sparck1972statistical} or feature-based, linear 
-models of sentence salience \citep{martins2009summarization,woodsend2010automatic,berg2011jointly,durrett2016learning}.
-
-However, the recent availability of large scale single-document summarization 
-data \citep{sandhaus2008new,hermann2015teaching,grusky2018newsroom}. 
-With these corpora, and other developments in word embedding representation 
-\citep{mikolov2013distributed,pennington2014glove},
-many researchers have been developing end-to-end models of both 
-abstractive \citep{rush2015neural,chopra2016abstractive,cheng2016neural,nallapati2016abstractive,see2017get,paulus2017deep} and extractive \citep{cheng2016neural,nallapati2016classify,nallapati2016summarunner,narayan2018ranking} summarization.
-While the spirit of ``let a thousand architectures bloom'' has spurred much
-creativity and performance gains, it has left us with little explainability
-about how such models work. 
-
-While different components of the neural architectures may be justified 
-by intuition, these methods are largely black boxes and it is not clear
-how they are making their sentence selection predictions. This is especially
-problematic in abstractive summarization, but it is also not well understood
-how extractive methods make their decisions either.
-
-
-
-
-~\\
-~\\
-
-
-
-
-
-Subsequently, many methods have been proposed for salience estimation
-in the context of summarization. Word weights have typically been derived
-in an unsupervised way from a large collection of in-domain text.
-The classic example here is Term Frequency-Inverse Document Frequency
-(\tfidf) weighting \citep{sparck1972statistical}, whose aim is similar in 
-spirit to Luhn's: important 
-words occur frequently in the current context (the term frequency component)
- but not so much that they occur in every document 
-(the inverse frequency component).
-
-While \tfidf weights (and others like BM25 \citep{bm25}) have been frequent
-ingredients in many summarization systems \citep{a,b,c,d,e}, they are 
-not specifically tuned to any one summarization task. Another prominent
-strand of research has been the learning of word or ngram specific weights
-typically for use in linear models of salience \citep{martins2009summarization,woodsend2010automatic,berg2011jointly,durrett2016learning}. 
-Given the small size of most summarization datasets at the time, one could question 
-the utility of learning ngram weights when it was unlikely that there 
-would be adequate data to learn broad coverage summarizers.
-
-%In this chapter we investigate neural network architectures for extractive
-%summarization, in the hopes of better understanding what is important 
-%for the underlying word and sentence representations to learn.
-%We start a description of completed experiments for sentence extractive
-%models of summarization \citep{kedzie2018deep}, and then complete the chapter with a description
-%of planned and ongoing word importance estimation techniques using deep
-%learning models.
-
-
-~~\\
-~\\
-
-
-
-
-
-
-Increasingly, researchers are returning to single document summarization,
-once thought to be too difficult for automatic summarization methods.
-This has been driven both by the availability of large corpora (the
-most popular corpus, CNN-DailyMail, has a little over 300,000 data points
-\citep{see2017get}) and by the development of general purpose 
-generative models of text from the neural machine translation community.
-Accordingly, the bulk of the research has used this corpus, (and the NYT
-corpus \citep{sandhaus2008new}) to focus on abstractive summarization
-research \citep{rush2015neural,chopra2016abstractive,cheng2016neural,nallapati2016abstractive,see2017get,paulus2017deep}. 
-There has been a smaller but similar proliferation of sentence
-extractive single document summarization papers on these corpora also using 
-neural network architectures \citep{cheng2016neural,nallapati2016classify,nallapati2016abstractive,narayan2018ranking}.
-
-
+%The complete range of methods and task variations covered by the summarization
+%literature are too numerous to describe completely here. In the space 
+%available, we give an overview of unsupervised and supervised learning
+%approaches to estimating word and sentence importance. 
+%We also give some background on the variety
+%of summarization tasks, and the manner in which they are evaluated.
+%
+%
+%\subsection{Unsupervised Word Importance}
+%
+%
+%The most obvious signal available for estimating word importance is word 
+%frequency, i.e. frequent word occurences (modulo stopwords) are likely 
+%to be related the important topics of the document or document collection 
+%\cite{topic_sigs}, and it is the chief ingredient in all of the following
+%word importance estimators.
+%Term weighting schemes from information retrieval
+%have frequently been used, most commonly tf-idf 
+%\cite{centroid,maybe_conroy,find_others}. 
+%Various probabilistic weightings have also been considered, e.g. the
+%observed document probability \cite{freq_sum} or the ratio of background
+%corpus probabiltiy to document probability \cite{topic_sigs}.
+%Information theoretic transformations of word frequency like the document
+%level term entropy
+%have also been found to be useful \cite{klsum,reference_less_summarization}.
+%Latent semantic analyis (LSA), latent dirichlet allocation (LDA), and
+%other matrix factorization schemes have been used to find a low dimensional
+%``concept'' representation for each word, the sum of the concept contributions
+%constituting the word importance score \cite{multiling_stuff}.
+%Finally, various methods of transforming word co-occurences into a word graph
+%have been used in conjunction with unsupervised graph ranking algorithms
+%\cite{lexrank,conroy_multiling,zhao_2009}.
+%
+%
+%\subsection{Unsupervised Sentence Importance}
+%
+% Graph based ranking that has been used for word importance has similarly 
+%been used to estimate sentence importance, where the graph consists of 
+%sentence vertices and edge weights are computed using pairwise sentence 
+%similarity \cite{textrank}. Another popular method is the centroid method
+%\cite{centroid} where an average vector representation for a document set is 
+%constructed and sentences are ranked by their similarity to the centroid object.
+%Sentence clustering methods have also been applied. In all these methods, 
+%sentences are tpyically represented as term vectors where the weights for 
+%each term item are determined by one of the methods mentioned in word importance
+%estimation methods. 
+%
+%
+%\subsection{Supervised Word Importance}
+%
+%The growing availibilty of large text collections with summaries has also
+%encouraged the development of many supervised methods for learning the word 
+%importance 
+%directly from the data. \cite{Regsum} use many of the unsuperivsed word  
+%importance measures, (e.g. frequency, entropy, document position) to estimate
+%the probabiltiy of a word occuring in a human abstract. Learning-to-rank
+%has also been explored in a variety of contexts. For example in single
+%document summarization, \cite{lapata} used convolutional neural networks
+%learn rankings and while \cite{guo,macreadie} use a feature based model
+%to rank sentences in a streaming summarization task.
+%Word importance weights have also been learned in combinatorial optimization
+%based approaches to summarization; in several integer linear program (ILP)
+%formulations of the summarization problem unigram and bigram weights 
+%are learned \cite{gillick,martens,berkely}, in addition to learning based
+%submodular optimization approaches \cite{submod,svm}.
+%
+%
+%
+%
+%\subsection{Supervised Sentence Methods}
+%
+%
+%Structured prediction methods have also been explored. The most common is
+%to model the sentence selection problem as an integer linear program (ILP)
+%and learning typically happens in a large margin/structured svm framework 
+%\cite{durret}. In addition to learning ngram feature weights, discourse,
+%and redundancy features can also be modeled \cite{somebody}. 
+%Deletion based compression 
+%and phrase substitution have also been modeled using ILPs, where non-essential
+%phrases can be discarded or shortened, and entity references rewritten, e.g.
+%turning a pronominal reference into a nominal one.
+%
+%Sentence selection can be viewed as a submodular set optimization 
+%(submodularity in set theory is analagous to convexity in functional analysis)
+%where greedy selection algorithms can efficiently find the best subset of 
+%sentences according to a set scoring function and budget constraints.
+%Learning of the scoring function has been done by \cite{uwsipos} using 
+%linear functions on ngram features. Feature weights can similarly be learned 
+%in a large margin svm framework.
+%
+%
+%Sentence selection can be modeled as a sequence tagging problem, e.g. using
+%hidden Markov models \cite{conroy}.
+%
+%Dependencies between sentence selection can be difficult, and so in the
+%spirit of naive Bayes, it can be fruitful to model sentence selection as 
+%independent classification problems. For example, \cite{kupiec} use ....
+%
+%
+%\cite{drago_nn} use a graph convolutional neural network on top of a sentence
+%graph constructed from either discourse structure or sentence similarity.
+%
+%
+%Learning to rank methods have been explored, see \cite{lapata}.
+%
+%\subsection{Text Generation}
+%
+%
+%While there are a variety of text generation methods, we cover three main
+%approaches, template based generation, sentence fusion, and 
+%sequence-to-sequence models.
+%
+%
+%
+%\paragraph{Template-Based Generation} 
+%
+%
+%\paragraph{Sentence Fusion} Sentence fusion attempts to combine two or
+%more sentences into one. This is typically done by selecting one sentence
+%as the backbone, and then aligning the remaing sentences to the backbone.
+%Heuristics are used for backbone selection and alignment. This method
+%is better suited to cases where there is much redundancy between candidate
+%summary sentences since fusing radically different sentences is likely to
+%yield misleading results.
+%this approach is that it is difficult 
+%
+%
+%
+%Thanks to recent advances in neural machine translation (NMT), we now
+%have flexible, high capacity models for generating free form text from
+%an arbitrary sequence input. This has led to a host of work exploring 
+%variety for attention based models to the summarization task \cite{everybody}.
+%Adaptations to attention like copying have been found to be helpful for 
+%handling out of vocabulary terms and controlling for repetitive outputs 
+%\cite{seeandothers}.
+%One difficulty with this approach is that is hard to control the output,
+%spurring additional research in more controllable neural text generation.
+%Length \cite{lc1,lc2}, sentiment \cite{contr}, and domain \cite{socher_I_think}
+%have been explored, typically by treating the feature under control 
+%as a learned embedding that is fed as an additional input into the generator.
+%\cite{lapata} explore a method similar too our faithful text generation model,
+%however we intend to explore some differences.
+%
+%
+%
+%
+% 
+%\subsection{Other stuff from other sections}
+%Estimating the salience of words and phrases is core to the problem of 
+%summarization. For example, \cite{luhn1958automatic} 
+%noted how the most topically central words in a document occur not too much 
+%but not
+%too little, and that,
+%``the presence in the region of highest frequency of many of the words
+% previously described as too common to have the  type  of
+% significance being sought would constitute
+%`noise' in the system.''
+%Typically, this has been done with heuristically derived word weights
+%\citep{luhn1958automatic,sparck1972statistical} or feature-based, linear 
+%models of sentence salience \citep{martins2009summarization,woodsend2010automatic,berg2011jointly,durrett2016learning}.
+%
+%However, the recent availability of large scale single-document summarization 
+%data \citep{sandhaus2008new,hermann2015teaching,grusky2018newsroom}. 
+%With these corpora, and other developments in word embedding representation 
+%\citep{mikolov2013distributed,pennington2014glove},
+%many researchers have been developing end-to-end models of both 
+%abstractive \citep{rush2015neural,chopra2016abstractive,cheng2016neural,nallapati2016abstractive,see2017get,paulus2017deep} and extractive \citep{cheng2016neural,nallapati2016classify,nallapati2016summarunner,narayan2018ranking} summarization.
+%While the spirit of ``let a thousand architectures bloom'' has spurred much
+%creativity and performance gains, it has left us with little explainability
+%about how such models work. 
+%
+%While different components of the neural architectures may be justified 
+%by intuition, these methods are largely black boxes and it is not clear
+%how they are making their sentence selection predictions. This is especially
+%problematic in abstractive summarization, but it is also not well understood
+%how extractive methods make their decisions either.
+%
+%
+%
+%
+%~\\
+%~\\
+%
+%
+%
+%
+%
+%Subsequently, many methods have been proposed for salience estimation
+%in the context of summarization. Word weights have typically been derived
+%in an unsupervised way from a large collection of in-domain text.
+%The classic example here is Term Frequency-Inverse Document Frequency
+%(\tfidf) weighting \citep{sparck1972statistical}, whose aim is similar in 
+%spirit to Luhn's: important 
+%words occur frequently in the current context (the term frequency component)
+% but not so much that they occur in every document 
+%(the inverse frequency component).
+%
+%While \tfidf weights (and others like BM25 \citep{bm25}) have been frequent
+%ingredients in many summarization systems \citep{a,b,c,d,e}, they are 
+%not specifically tuned to any one summarization task. Another prominent
+%strand of research has been the learning of word or ngram specific weights
+%typically for use in linear models of salience \citep{martins2009summarization,woodsend2010automatic,berg2011jointly,durrett2016learning}. 
+%Given the small size of most summarization datasets at the time, one could question 
+%the utility of learning ngram weights when it was unlikely that there 
+%would be adequate data to learn broad coverage summarizers.
+%
+%%In this chapter we investigate neural network architectures for extractive
+%%summarization, in the hopes of better understanding what is important 
+%%for the underlying word and sentence representations to learn.
+%%We start a description of completed experiments for sentence extractive
+%%models of summarization \citep{kedzie2018deep}, and then complete the chapter with a description
+%%of planned and ongoing word importance estimation techniques using deep
+%%learning models.
+%
+%
+%~~\\
+%~\\
+%
+%
+%
+%
+%
+%
+%Increasingly, researchers are returning to single document summarization,
+%once thought to be too difficult for automatic summarization methods.
+%This has been driven both by the availability of large corpora (the
+%most popular corpus, CNN-DailyMail, has a little over 300,000 data points
+%\citep{see2017get}) and by the development of general purpose 
+%generative models of text from the neural machine translation community.
+%Accordingly, the bulk of the research has used this corpus, (and the NYT
+%corpus \citep{sandhaus2008new}) to focus on abstractive summarization
+%research \citep{rush2015neural,chopra2016abstractive,cheng2016neural,nallapati2016abstractive,see2017get,paulus2017deep}. 
+%There has been a smaller but similar proliferation of sentence
+%extractive single document summarization papers on these corpora also using 
+%neural network architectures \citep{cheng2016neural,nallapati2016classify,nallapati2016abstractive,narayan2018ranking}.
+%
+%
