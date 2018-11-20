@@ -1,21 +1,24 @@
 \section{Introduction}
 
 Everyday we ask friends and colleagues to do it, to tell us about books, 
-newspaper articles, and other complex pieces of text, and, without more than a 
+newspaper articles, and other complex texts, and, without more than a 
 moment's reflection, they are able to compress their experience
-into succint statements in natural language that adequately sum up the thing
-being described. The ease with which we summarize belies the difficulty in 
-writing programs that do so automatically, and so it would appear that 
+into succint natural language statements that describe the
+subject of our request.
+The ease with which we summarize belies the difficulty of
+writing programs that do so, and so it would appear that 
 the robust
 ability to create summaries is, as of 2018, a uniquely human capability.
-This partially explains its allure to the artificial intelligence (AI)
+This partially explains summarization's allure to the artificial intelligence (AI)
 research community, which has in one way or another, attempted to aggregate
 and naturally compress text data since at least the 1950's 
 \citep{luhn1958automatic}.
 This makes automatic text summarization one of the longest-standing 
 application areas in the 
-field of natural language processing (NLP), with a history as long and varied
-as some of the more foundational tasks, e.g. parsing and tagging. 
+field of natural language processing (NLP), with a history as deep 
+as some of the more foundational tasks, e.g. syntactic parsing 
+\citep{yngve1955syntax} or 
+part-of-speech tagging \citep{harris1962string}. 
 
 While there are many variants, 
 the general summarization task is 
@@ -29,8 +32,9 @@ input. We refer to the former as \textbfit{salience estimation} and the latter
 as \textbfit{faithful generation}. 
 
 The completed and proposed methods of salience estimation cover a range of
-techniques including feature-based regression, clustering, learning-to-search,
-and deep learning. We experimentally verify the utility of our approaches
+techniques including regression, clustering, learning-to-search,
+and deep neural networks. 
+We experimentally verify the utility of our approaches
 across a variety of summarization tasks including stream summarization,
 single-document summarization, and multi-document summarization.
 The general research goal here is to develop flexible models for 
@@ -42,15 +46,15 @@ In \textbfit{extractive summarization},
 where the summary is constructed by copying and pasting phrases or sentences 
 from the input text, salience estimation can be used directly to create
 a summary. For example, a simple method of sentence extractive summarization
-would be to order the input sentences in decreasing salience and select the
+would be to order the input sentences by decreasing salience and select the
 top few sentences for the summary. In most cases, salience is not the only
 consideration for summary inclusion; redundancy, discourse coherence, fluency,
 and many other metrics of text quality can and have been used as content
 selection criteria. These measures are largely independent of salience 
 (with the noteable exception of redundancy) and so we do not explore them in 
-detail here). The details of our completed and proposed work on 
+detail here. The details of our completed and proposed work on 
 salience estimation can be found
-in \autoref{sec:feature_salience} and \autoref{sec:deep_learning_salience}.
+in sections \ref{sec:feature_salience} and \ref{sec:deep_learning_salience}.
 
 In \autoref{sec:feature_salience} we develop two feature-based models of 
 sentence
@@ -63,7 +67,7 @@ user provides a text based query describing the event
 The model must then 
 monitor a stream of news articles, extracting important sentences in the 
 document stream and present them to the user. The information must be 
-highly salient to the query event, as well as novel to the user, and timely
+highly salient to the query event, as well as novel and timely to the user 
 -- we do not want to bombard the user with irrelevant or repeated information,
 and our methods cannot take so long  that the extracted
 information is out of date.
@@ -78,42 +82,75 @@ articles. Intuitively, the goal here is to summarize a single news article,
 short story, or research paper by selecting a subset of the input sentences
 to serve as the summary. We also explore adaptation of these algorithms to 
 the sentence extractive \textbfit{multi-document summarization} (MDS) task, 
-where there is much less data, and only in the news genre.
-This is similarly straightforward, given a set of related news articles 
+where there is much less training data.
+This task is similarly straightforward, given a set of related documents 
 (typically ten), select a subset of the sentences to use as the summary of
 the document set.
 
-
-Salience estimation can also be used to guide \textbfit{abstractive 
-summarization} techniques, i.e. methods that produce novel
-summary text using a generative model. These types of models 
-must (at the very least) implicitly select important content for conditioning 
-their
-generative process. We propose a salience estimation component to 
-explicitly model this selection process in addition to a generative model 
-training regime which we briefly describe presently. (NOTE-TO-SELF: reorder this transition you dumb dumb.)
-
+Finally, section~\ref{sec:faithful_generation} describes our proposed 
+contributions to
+\textbfit{abstractive summarization}, i.e. methods that produce novel 
+summary text using a generative model. 
 Research in abstractive summarization is increasing, in part due to
 the success of general purpose sequence-to-sequence transduction models 
-in machine translation (MT) that have been ported to the summarization task.
-The ability of abstractive models to generate relatively fluent and 
-meaningful summaries is impressive. However, they are also especially prone 
-to generating generic statements that are not grounded by evidence in the 
-input. This seems to be a well known problem among researchers working
-in generation, but it has not received much attention in the literature.
+for machine translation (MT) that have been ported to the summarization task.
+The ability of abstractive models to generate fluent 
+summaries is impressive. However, they are also especially prone 
+to generating generic statements and hallucinated facts that are not grounded 
+by evidence in the input. This seems to be a well known problem among 
+researchers working
+in generation, but it has not received much direct attention in the literature.
 We are interested in this problem from both the perspectives of selecting
 the right evidence in the input for generation, a task for which we enlist
 our salience estimation methods, and also certifying that a generated text
 conforms to knowledge represented in the input or possesed by the model
 apriori. For the latter goal, we propose to model generation as a two player
 game, where one player, the generator, is tasked with producing a text
-utterance describing a piece of evidence (either text or structured data);
+utterance describing a piece of evidence (either text or table data);
 the second player, the recognizer, %change this name
 evaluates the plausibility of the utterance with respect to the evidence.
-This overall regime will consitute our method of faithful generation,
-to be outlined in more detail in \autoref{sec:faithful_generation}. We propose 
-evaluation both on an SDS task, as well as, two data-to-text generation 
-test beds \citep{lebret2016neural,wiseman2017challenges}.
+This overall regime will consitute our proposed method called
+ faithful generation.
+%to be outlined in more detail in \autoref{sec:faithful_generation}. 
+We propose 
+evaluation both on an abstractive SDS task \citep{volske2017tl}, 
+as well as, two data-to-text generation 
+test beds \citep{lebret2016neural,novikova2017e2e}.
+
+
+
+
+
+%Salience estimation can also be used to guide \textbfit{abstractive 
+%summarization} techniques, i.e. methods that produce novel
+%summary text using a generative model. These types of models 
+%must (at the very least) implicitly select important content for conditioning 
+%their
+%generative process. We propose a salience estimation component to 
+%explicitly model this selection process in addition to a generative model 
+%training regime which we briefly describe presently. (NOTE-TO-SELF: reorder this transition you dumb dumb.)
+%
+%Research in abstractive summarization is increasing, in part due to
+%the success of general purpose sequence-to-sequence transduction models 
+%in machine translation (MT) that have been ported to the summarization task.
+%The ability of abstractive models to generate relatively fluent and 
+%meaningful summaries is impressive. However, they are also especially prone 
+%to generating generic statements that are not grounded by evidence in the 
+%input. This seems to be a well known problem among researchers working
+%in generation, but it has not received much attention in the literature.
+%We are interested in this problem from both the perspectives of selecting
+%the right evidence in the input for generation, a task for which we enlist
+%our salience estimation methods, and also certifying that a generated text
+%conforms to knowledge represented in the input or possesed by the model
+%apriori. For the latter goal, we propose to model generation as a two player
+%game, where one player, the generator, is tasked with producing a text
+%utterance describing a piece of evidence (either text or structured data);
+%the second player, the recognizer, %change this name
+%evaluates the plausibility of the utterance with respect to the evidence.
+%This overall regime will consitute our method of faithful generation,
+%to be outlined in more detail in \autoref{sec:faithful_generation}. We propose 
+%evaluation both on an SDS task, as well as, two data-to-text generation 
+%test beds \citep{lebret2016neural,novikova2017e2e}.
 
 \subsection{Contributions}
 
@@ -179,12 +216,13 @@ provide a recipe book for identifying summary worthy information and
 generating text that respects truth statements about that information.
 The hope is that these methods will lead to more reliable summaries
 without sacrificing the expressiveness of the generation algorithm. 
-
-In the next section we describe related work (Section 2). Section 3 describes
-completed work on the feature-based approaches to sentence salience estimation.
-In section 4, we describe completed and ongoing work on deep learning models
+In the next section (\autoref{sec:feature_salience}) 
+we describe completed work on feature-based approaches to sentence salience estimation. 
+In section~\ref{sec:deep_learning_salience}, we describe completed and ongoing
+ work on deep neural network models
 of salience estimation. We describe our planned approaches to faithful 
-generation in section 5. Section 6 describes our research plan, before 
+generation in section \ref{sec:faithful_generation}. 
+Section~\ref{sec:research_plan} describes our research plan, before 
 we finally conclude.
 
 

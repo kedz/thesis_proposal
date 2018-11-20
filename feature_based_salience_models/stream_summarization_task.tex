@@ -1,5 +1,25 @@
-\subsection{Stream Summarization Task}
+\subsection{Stream Summarization Task and Related Work}
 
+In 2007, the Document Understanding Conference (DUC) piloted an ``update'' 
+summarization task \citep{dang2008overview} where summarization models
+were presented with an initial multi-document collection
+to summarize (similar to earlier DUC document sets for MDS), and then
+presented with another document set of related documents from a later time
+period. The evaluation criterion for the summary of the second 
+document set was modified to not only be responsive to the content of the
+document set but also to focus on novel information that was not present in 
+the intitial document collection, hence this second summary was referred to
+as the update summary. Subsequent workshops at the Text Analysis Conference
+(TAC) allowed researchers to explore the effect of background information
+and redundancy measures on the update summarization task (typically in an
+unsupervised manner) 
+\citep{chen2008tsinghua,he2008hitir,mohammad2008multiple,zhang2008ictcas} as well as as research
+into automatic evaluation measures to account for novelty 
+\citep{conroy2011nouveau}.
+
+Stream summarization can be understood as a generalization of the update
+summarization task, where the number of updates is determined by the 
+summarization model.
 In the most general sense, the stream summarization task requires a 
 summarization model to process a stream of text data and produce text updates
 that describe the most important information in the
@@ -9,8 +29,8 @@ scenario, as was used in the Temporal Summarization (TS) track
 of the Text Retrieval Conference (TREC)
 \citep{aslam2015trec,aslam2016trec}.
 
-The scenario proposed by TREC was disaster
-summarization, where a participant model received a brief query string 
+In the disaster summarization scenario proposed by TREC,
+ participant models received a brief query string 
 $\query{}$ describing a natural or man-made disaster, and the model was 
 expected to process a time-ordered stream of documents relevant to the query, 
 extracting sentences that were likely to contain important facts about the
@@ -61,21 +81,25 @@ contain nuggets already covered by previously extracted sentences.
    The official TS track relied on two primary metrics to 
 evaluate a predicted extract summary: 
 the expected gain, or $\expectedGain$, and 
-comprehensiveness, or $\comp$, which are precision and recall like measures of nugget coverage respectively. Let $\updates$ be the set 
-of sentences extracted by the summarization model for a query and let 
-$\Nuggets{}$ be the set of nuggets for that same query. The set of nuggets
-recovered by the model is then $\predNuggets = \{\nugget \in \Nuggets \;|\;
-(\exists \strsent \in \updates)[\nugget \in \strsent] \}$.
-The expected gain and comprehensiveness are then defined as 
-    \[ \expectedGain = \frac{|\predNuggets|}{|\updates|} 
-            \quad \textrm{and} \quad 
-        \comp = \frac{|\predNuggets|}{|\nuggets|} \]
-        respectively where $\Sze{\cdot}$ is the size of a set.
-    An $\expectedGain{}$ of 1 would mean that every sentence in
-    the update summary contained a novel nugget. $\comp{}$ is the 
-    nugget recall, a score of 1 indicating that all nuggets were found
-    in the update summary.
- 
+comprehensiveness, or $\comp$.
+$\expectedGain$ is the average number of novel nuggets contained in each
+sentence extracted by the model and can roughly be thought of as the 
+nugget precision. $\comp$ is simply the recall of a given query's nuggets.
+%, which are precision and recall like measures of nugget coverage respectively. Let $\updates$ be the set,
+%of sentences extracted by the summarization model for a query and let 
+%$\Nuggets{}$ be the set of nuggets for that same query. The set of nuggets
+%recovered by the model is then $\predNuggets = \{\nugget \in \Nuggets \;|\;
+%(\exists \strsent \in \updates)[\nugget \in \strsent] \}$.
+%The expected gain and comprehensiveness are then defined as 
+%    \[ \expectedGain = \frac{|\predNuggets|}{|\updates|} 
+%            \quad \textrm{and} \quad 
+%        \comp = \frac{|\predNuggets|}{|\nuggets|} \]
+%        respectively where $\Sze{\cdot}$ is the size of a set.
+%    An $\expectedGain{}$ of 1 would mean that every sentence in
+%    the update summary contained a novel nugget. $\comp{}$ is the 
+%    nugget recall, a score of 1 indicating that all nuggets were found
+%    in the update summary.
+% 
 Latency penalized metrics are also computed where
 the importance of a nugget decays over time. E.g. if a system
 recovers the nugget ``25 people were reported injured,'' several days
@@ -86,65 +110,98 @@ factor. Intuitively, latency penalized metrics capture the idea that stale
 information in a rapidly evolving disaster is less useful and possibly
 distracting.
 
- In most of our experiments, we lack annotations about what nuggets if 
- any are contained in a given sentence so we 
-  approximate the manual evaluation of the official TS
-  track
-   by automatically mapping sentences to nuggets if their semantic similarity
-   \citep{guo2012simple}
-   is a above a threshold. We report results across a sweep of threshold 
-   values from zero to one, with values closer to one a more conservative
-   estimate of performance. 
-   We also concatenate the nugget texts to create a reference summary and
-   report $\rouge$ scores \citep{lin2004rouge} for the update summary produced
-    by the model.
-
-%?~\\
-%?
-%?~\\
-%?Stream summarization is a very hard task compared to single and 
-%?multi-document summarization. In the multi-document case, the context for the 
-%?summarization is fixed, and the input documents are usually quite 
-%?topically focused, minimizing the prevalence of completely irrelevant 
-%?information. In fact, in most multi-document evaluation settings, the
-%?document collections were manually created leading to very topically
-%?coherent text collections. 
-%?\cite{baumel2016topic} for example found that the DUC
-%?query focused summarization datasets are so on topic that a summarization
-%?system could completely ignore the query and perform just as well as a
-%?query aware system.
-
-\input{feature_based_salience_models/figures/stream_algos.tex}
-
-If we had clairvoyant knowledge of which nuggets were contained in each
-sentence in the document stream,
-this task would be trivial in that the greedy algorithm in 
-\autoref{alg:ts_greedy_oracle} would return an approximately optimal summary.
-Since we do not know this information at test time, we attempt to approximate
-the if-statement in line 5 of the oracle by answering the following proxy 
-questions:
-\begin{enumerate}
-    \item How salient is sentence $\strsent$ with respect to query $\query$?
-    \item How similar is the sentence $\strsent$ with respect to the set of 
-            previously selected updates $\hat{\strsent} \in \updates$?
-\end{enumerate}
-As a rule we should only extract sentences that are relevant to the query
-and not too similar to sentences have previously extracted.
-
-%The generic stream summarization algorithm without explicit nugget 
-%knowledge that we aim to implement is presented
-%in \autoref{alg:ts_greedy_generic}.
-
-The SAP model uses regression to estimate the salience and then relies on 
-a clustering algorithm to consider a non-redundant set of extract candidates.
-The LS model directly integrates redundancy as a feature in a salience model,
+Previous approaches to this task have considered using hand tuned 
+query relevance and novelty thresholds \citep{xu2013hltcoe}, linear models of 
+salience and novelty with tuned thresholds for sentence selection
+\citep{guo2013updating}, and learning adaptive rank cutoffs 
+\citep{mccreadie2014incremental,mccreadie2015university}, and in general
+these approaches use cascades of threshold rules to extract sentences.
+By comparison, our proposed \sap{} model uses biased clustering to jointly 
+consider salience and redundancy when making sentence selection decisions.
+%regression to estimate the salience and then relies on 
+%a clustering algorithm to consider a non-redundant set of extract candidates.
+The \modelLS{} model directly integrates redundancy as a feature in a 
+salience model,
 in effect, answering the salience and similarity question simultaneously. 
+\sap{} was the top performer at the 2014 TS track and fifth place in 2015;
+\modelLS{} was the fourth-place performer in 2015.
+%These models led to the publication of two papers 
+%\citep{kedzie2015predicting,kedzie2016real}, in addition to participation 
+%in the TREC Temporal Summarization tracks where we were the top performer in
+%2014 and the fourth and fifth place performer in 2015 
+%\citep{aslam2015trec,aslam2016trec}. 
+
+
 %The two models we propose to solve these more tractable problems come with
 %different trade-offs. They both, however, rely on a feature-based 
 %representation of the stream sentences to make salience and selection 
 %predictions. 
 
 %The 
-In the next subsection, we describe the different feature
-groups before describing each of the models used to perform the streaming
-summarization task.
+%In the next subsection, we describe the different feature
+%groups before describing each of the models used to perform the streaming
+%summarization task.
+
+
+% In most of our experiments, we lack annotations about what nuggets if 
+% any are contained in a given sentence so we 
+%  approximate the manual evaluation of the official TS
+%  track
+%   by automatically mapping sentences to nuggets if their semantic similarity
+%   \citep{guo2012simple}
+%   is a above a threshold. We report results across a sweep of threshold 
+%   values from zero to one, with values closer to one a more conservative
+%   estimate of performance. 
+%   We also concatenate the nugget texts to create a reference summary and
+%   report $\rouge$ scores \citep{lin2004rouge} for the update summary produced
+%    by the model.
+%
+%%?~\\
+%%?
+%%?~\\
+%%?Stream summarization is a very hard task compared to single and 
+%%?multi-document summarization. In the multi-document case, the context for the 
+%%?summarization is fixed, and the input documents are usually quite 
+%%?topically focused, minimizing the prevalence of completely irrelevant 
+%%?information. In fact, in most multi-document evaluation settings, the
+%%?document collections were manually created leading to very topically
+%%?coherent text collections. 
+%%?\cite{baumel2016topic} for example found that the DUC
+%%?query focused summarization datasets are so on topic that a summarization
+%%?system could completely ignore the query and perform just as well as a
+%%?query aware system.
+%
+%%\input{feature_based_salience_models/figures/stream_algos.tex}
+%
+%If we had clairvoyant knowledge of which nuggets were contained in each
+%sentence in the document stream,
+%this task would be trivial in that the greedy algorithm in 
+%\autoref{alg:ts_greedy_oracle} would return an approximately optimal summary.
+%Since we do not know this information at test time, we attempt to approximate
+%the if-statement in line 5 of the oracle by answering the following proxy 
+%questions:
+%\begin{enumerate}
+%    \item How salient is sentence $\strsent$ with respect to query $\query$?
+%    \item How similar is the sentence $\strsent$ with respect to the set of 
+%            previously selected updates $\hat{\strsent} \in \updates$?
+%\end{enumerate}
+%As a rule we should only extract sentences that are relevant to the query
+%and not too similar to sentences have previously extracted.
+
+%The generic stream summarization algorithm without explicit nugget 
+%knowledge that we aim to implement is presented
+%in \autoref{alg:ts_greedy_generic}.
+
+%?The SAP model uses regression to estimate the salience and then relies on 
+%?a clustering algorithm to consider a non-redundant set of extract candidates.
+%?The LS model directly integrates redundancy as a feature in a salience model,
+%?in effect, answering the salience and similarity question simultaneously. 
+%?%The two models we propose to solve these more tractable problems come with
+%?%different trade-offs. They both, however, rely on a feature-based 
+%?%representation of the stream sentences to make salience and selection 
+%?%predictions. 
+%?
+%?%The 
+%?In the next subsection, we describe the different feature
+%?groups before describing each of the models used to perform the streaming
+%?summarization task.

@@ -2,7 +2,7 @@
 \label{sec:sapmodel}
 
 
-  \input{feature_based_salience_models/figures/3_fig_sap_algo.tex}
+%  \input{feature_based_salience_models/figures/3_fig_sap_algo.tex}
 
   Identifying potential updates from the document stream is hard in part
   because we may not have enough context to use word frequencies as a 
@@ -46,10 +46,11 @@
 %  as our replacement for the ngram-frequency based signal we would normally 
 %  use in traditional MDS;   
   
-  Finally, given a set of exemplar sentences $\exemplars$, we remove any
+  Finally, given a set of exemplar sentences, we remove any
   sentences whose similarity to any previous update is above a threshold.
-  The remaining exemplars are added to the update summary $\updates$.
-  The final algorithm is presented in \autoref{alg:ts_sap_algo}.
+  The remaining exemplars are added to the update summary.
+  See \cite{kedzie2015predicting} for the full algorithm.
+ % The final algorithm is presented in \autoref{alg:ts_sap_algo}.
 
 
 
@@ -130,30 +131,37 @@ We use a Gaussian process regression model \citep{rasmussen2004gaussian}
 to predict $\salience$ from $\strsent$ 
 \emph{without} knowledge of the nuggets. 
 For each feature group $g$ in \autoref{sec:features} we create a seperate
-radial basis function (RBF) kernel 
-\[
-  k_g(\strsent, \strsent^\prime) =\sigma^2_g
-     \exp\left(
- - \frac{|| \feats_g(\strsent) - \feats_g(\strsent^\prime)  ||^2}{2\ell_g}\right)
-\]
-where $\fdef{\feats_g}{\strsents}{\Rn{d_g}}$ maps sentences to a
-$d_g$-dimensional vector of features for group $g$ and $\sigma^2_g, \ell_g$
-are kernel parameters. The actual Gaussian process regressor is specified by 
+radial basis function (RBF) kernel for each feature group and the 
+ actual Gaussian process regressor is specified by 
 the summation kernel 
 $k(\strsent, \strsent^\prime) = \sum_g k_g(\strsent, \strsent^\prime)$
 of the individual group kernels.
 
-We fit a seperate regressor for each query $\query$ in our training set
-by sampling a set of 1000 sentences 
-$\sentvec = (\strsent_1, \ldots, \strsent_{1000})$ 
-drawn uniformly from $\strsents(\query)$ and computing their 
-corresponding salience scores 
-$\saliences = (\salience_1, \ldots, \salience_{1000})$. We fit the 
-kernel parameters with gradient descent to maximize the likelihood of
-$\saliences$.
-At prediction time for a test query, we 
-use the average prediction of each training query regressor to obtain
-a salience estimate $\hat{\salience}$ for each sentence in the test stream.
+
+%\[
+%  k_g(\strsent, \strsent^\prime) =\sigma^2_g
+%     \exp\left(
+% - \frac{|| \feats_g(\strsent) - \feats_g(\strsent^\prime)  ||^2}{2\ell_g}\right)
+%\]
+%where $\fdef{\feats_g}{\strsents}{\Rn{d_g}}$ maps sentences to a
+%$d_g$-dimensional vector of features for group $g$ and $\sigma^2_g, \ell_g$
+%are kernel parameters. 
+%The actual Gaussian process regressor is specified by 
+%the summation kernel 
+%$k(\strsent, \strsent^\prime) = \sum_g k_g(\strsent, \strsent^\prime)$
+%of the individual group kernels.
+
+%We fit a seperate regressor for each query $\query$ in our training set
+%by sampling a set of 1000 sentences 
+%$\sentvec = (\strsent_1, \ldots, \strsent_{1000})$ 
+%drawn uniformly from $\strsents(\query)$ and computing their 
+%corresponding salience scores 
+%$\saliences = (\salience_1, \ldots, \salience_{1000})$. We fit the 
+%kernel parameters with gradient descent to maximize the likelihood of
+%$\saliences$.
+%At prediction time for a test query, we 
+%use the average prediction of each training query regressor to obtain
+%a salience estimate $\hat{\salience}$ for each sentence in the test stream.
 
 
 
@@ -215,58 +223,79 @@ a salience estimate $\hat{\salience}$ for each sentence in the test stream.
     having to heuristically propose a number of cluster centers that works
     across a broad range of stream conditions.
 
-    Given a set of $d$ datapoints $\discSet = \{x_1, \ldots, x_d\}$, 
-    AP finds a set of
-    exemplar datapoints $\exemplars \subset \discSet$ and an assignment
-    $A : \discSet \rightarrow\exemplars$ of the 
-    remaining points to one of the exemplars. Exemplars map to themselves,
-    i.e. for $x \in \exemplars,$ $A(x) = x$. The configuration of exemplars
-    and exemplar assignments is represented as a factor graph, 
-    with the following objective:
-    
-    \[ \mathcal{L}(\mathcal{E}, A) 
-        = \exp\left[
-            \sum_{i=1}^d \operatorname{affinity}\Big(x_i, A(x_i)\Big) + 
-          \log \delta_i \right] \]
-    where $\delta_i = \begin{cases} 0 & \textrm{if $A(x_i) \neq x_i$ and $\exists j: j\neq i \wedge A(x_j)=x_i$} \\
-1 & \textrm{otherwise}\end{cases}$ is a constraint that enforces all clusters
- have one and only one exemplar and $\operatorname{affinity}:\discSet 
- \times \discSet \rightarrow \mathbb{R} $
- is a function describing the pairwise similarity of points in 
- $\discSet$.
- The max-product message passing algorithm,
- a form of loopy belief propagation, can be used to find a configuration
- that approximately maximizes the objective function \citep{dueck2009affinity}.
 
- We can refactor the first term in the exponent to be 
-\[ \sum_{x_i \in \exemplars} \operatorname{affinity}(x_i, x_i) +
- \sum_{x_j \in \mathcal{X} \setminus \exemplars} \operatorname{affinity}(x_j, A(x_j))
- \]
-where the first term is the sum of the affinity factors of the exemplars 
-to themselves,
-and the second term consists of  pairwise factors between each non-exemplar 
-datapoint 
-and it's exemplar. In the typical case the exemplar self-affinity factors are 
-simply 
-set to a constant indicating all points are equally likely apriori to serve
-as exemplars. In our case, we have some prior beliefs about the importance of 
-a given datapoint as expressed by our salience predictions $\predSaliences_i$.
-Replacing the self-affinity potentials with our salience predictions, 
-the pairwise potentials with our semantic similarity function from the 
-previous section, and setting $\discSet$ to be a batch of sentences 
-$\strsents_t \subset \strsents$,
-we arrive at the salience-biased affinity propagation
-objective:
-
- \[ \mathcal{L}(\exemplars, A) = \exp\left[
-%    \sum_{\substack{\strsent \in \exemplars \\ \hat{\salience} = \operatorname{salience}(\strsent, \query)}} \hat{\salience}  
-         \sum_{\strsent \in \exemplars} \predSaliences_{\strsent}
-     + \sum_{\strsent \in \strsents_t \setminus \exemplars} \similarity{\strsent}{A(\strsent)} + \sum_{i=1}^{|\strsents_t|} \log\delta_i \right].
-\] 
+ Typically, all inputs to AP clustering are equally likey apriori to
+ be selected as exemplars.
+ %case the exemplar self-affinity factors are 
+%simply 
+%set to a constant indicating all points are equally likely apriori to serve
+%as exemplars. 
+ In our case, we have some prior beliefs about the importance of 
+a given datapoint as expressed by our salience predictions $\predSalience_i$.
+By replacing the self-affinity potentials with our salience predictions
+and the pairwise potentials with our semantic similarity function from the 
+previous section %, and setting $\discSet$ to be a batch of sentences 
+%$\strsents_t \subset \strsents$,
+we obtain the salience-biased affinity propagation model.
 When we estimate a sentence to be more salient it is more likely apriori
 to form a cluster center. When that sentence is also highly similar to other 
 sentences in the batch it collects support from those sentences, further
 increasing it's likelihood of being assigned as an exemplar.
+ 
+
+
+%    Given a set of $d$ datapoints $\discSet = \{x_1, \ldots, x_d\}$, 
+%    AP finds a set of
+%    exemplar datapoints $\exemplars \subset \discSet$ and an assignment
+%    $A : \discSet \rightarrow\exemplars$ of the 
+%    remaining points to one of the exemplars. Exemplars map to themselves,
+%    i.e. for $x \in \exemplars,$ $A(x) = x$. The configuration of exemplars
+%    and exemplar assignments is represented as a factor graph, 
+%    with the following objective:
+%    
+%    \[ \mathcal{L}(\mathcal{E}, A) 
+%        = \exp\left[
+%            \sum_{i=1}^d \operatorname{affinity}\Big(x_i, A(x_i)\Big) + 
+%          \log \delta_i \right] \]
+%    where $\delta_i = \begin{cases} 0 & \textrm{if $A(x_i) \neq x_i$ and $\exists j: j\neq i \wedge A(x_j)=x_i$} \\
+%1 & \textrm{otherwise}\end{cases}$ is a constraint that enforces all clusters
+% have one and only one exemplar and $\operatorname{affinity}:\discSet 
+% \times \discSet \rightarrow \mathbb{R} $
+% is a function describing the pairwise similarity of points in 
+% $\discSet$.
+% The max-product message passing algorithm,
+% a form of loopy belief propagation, can be used to find a configuration
+% that approximately maximizes the objective function \citep{dueck2009affinity}.
+%
+% We can refactor the first term in the exponent to be 
+%\[ \sum_{x_i \in \exemplars} \operatorname{affinity}(x_i, x_i) +
+% \sum_{x_j \in \mathcal{X} \setminus \exemplars} \operatorname{affinity}(x_j, A(x_j))
+% \]
+%where the first term is the sum of the affinity factors of the exemplars 
+%to themselves,
+%and the second term consists of  pairwise factors between each non-exemplar 
+%datapoint 
+%and it's exemplar. In the typical case the exemplar self-affinity factors are 
+%simply 
+%set to a constant indicating all points are equally likely apriori to serve
+%as exemplars. In our case, we have some prior beliefs about the importance of 
+%a given datapoint as expressed by our salience predictions $\predSaliences_i$.
+%Replacing the self-affinity potentials with our salience predictions, 
+%the pairwise potentials with our semantic similarity function from the 
+%previous section, and setting $\discSet$ to be a batch of sentences 
+%$\strsents_t \subset \strsents$,
+%we arrive at the salience-biased affinity propagation
+%objective:
+%
+% \[ \mathcal{L}(\exemplars, A) = \exp\left[
+%%    \sum_{\substack{\strsent \in \exemplars \\ \hat{\salience} = \operatorname{salience}(\strsent, \query)}} \hat{\salience}  
+%         \sum_{\strsent \in \exemplars} \predSaliences_{\strsent}
+%     + \sum_{\strsent \in \strsents_t \setminus \exemplars} \similarity{\strsent}{A(\strsent)} + \sum_{i=1}^{|\strsents_t|} \log\delta_i \right].
+%\] 
+%When we estimate a sentence to be more salient it is more likely apriori
+%to form a cluster center. When that sentence is also highly similar to other 
+%sentences in the batch it collects support from those sentences, further
+%increasing it's likelihood of being assigned as an exemplar.
  
 
 
@@ -315,8 +344,8 @@ increasing it's likelihood of being assigned as an exemplar.
 KBA Stream Corpus \citep{frank2012building}, which contains hourly crawls
 of the web covering a roughly two year span from 2011 to 2013.
 Event queries and their nuggets were taken from the data prepared for 
-the 2013 and 2014 TREC Temporal Summarization tracks. This data
-contained 25 events and their query strings, period of interest, 
+the 2013 and 2014 TREC TS tracks. This data
+contained 25 events and their query strings, time period of interest, and
 event type. 
 Additionally, each event was associated with anywhere from 50 to several
 hundred timestamped nugget texts. 
@@ -400,7 +429,7 @@ We also approximate the manual evaluation of the official TREC TS track
 
 \autoref{tab:aps_rouge}  shows  our  results  for  system  output
 samples against the full summary of nuggets using \rouge. 
-This improvement is statistically significant  for  all  ngram  
+This improvement is statistically significant  for  all  \ngram{}
 precision,  recall,  and \fmeasure{} scores at the
 $\alpha=.01$
 level using the Wilcoxon

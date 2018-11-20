@@ -51,15 +51,20 @@ Markov decision process. We observe a sequence of states $\lsState_\lsStep \in
 \lsStateSpace$ which correpsond to observing the first $\lsStep$ sentences in 
 the stream along with the first $\lsStep-1$ extraction decisions. A policy 
 $\policy \in \policySpace$ maps states to
-actions where the action space $\lsActionSpace = \{0, 1\}$ contains two 
-actions with $0$ indicating ``skip the current sentence'' and $1$ 
-indicating ``extract the current sentence.'' A deterministic transition
-function $\fdef{\lsTrans}{\lsStateSpace \times \lsActionSpace}{\lsStateSpace}$.
-maps state-action pairs $(\lsState_\lsStep, \lsAction_\lsStep)$ to the next 
-state $\lsState_{\lsStep + 1}$, i.e. updating the observed
-sentences with the next, i.e. $(\lsStep + 1)$-th, sentence from the stream 
-and 
-updating the prefix of extraction variables with $\lsAction_\lsStep$.
+actions where the action space $\lsActionSpace = \{\lsAction_0, \lsAction_1\}$ contains two 
+actions with $\lsAction_0$ indicating ``skip the current sentence'' and 
+$\lsAction_1$ 
+indicating ``extract the current sentence.'' 
+Transitions between states are deterministic, i.e. the $\lsStep$-th 
+sentence in the stream is appended to the update summary if $\lsAction_1$
+was selected and the next stream sentence is presented to the summarizer.
+%A deterministic transition
+%function $\fdef{\lsTrans}{\lsStateSpace \times \lsActionSpace}{\lsStateSpace}$.
+%maps state-action pairs $(\lsState_\lsStep, \lsAction_\lsStep)$ to the next 
+%state $\lsState_{\lsStep + 1}$, i.e. updating the observed
+%sentences with the next, i.e. $(\lsStep + 1)$-th, sentence from the stream 
+%and 
+%updating the prefix of extraction variables with $\lsAction_\lsStep$.
 A trajectory $(\lsState_1, \lsAction_1), \ldots, (\lsState_n, \lsAction_n)$
 of state-action tuples
 implicitly defines an extract label sequence $\lsSaliences \in \{0, 1\}^n$
@@ -95,7 +100,7 @@ $\lsState_{\lsStep + 1}$.
 
 We also associate with $\lsSaliencesRollOut^{(\lsState_\lsStep, \lsAction)}$
 a non-negative cost $\lsCost(\lsState_\lsStep, \lsAction)$ which connects 
-global discrepancy of the resulting structured loss to the local action
+the global discrepancy of the resulting structured loss to the local action
 decisions via the following formula
 \[
     \lsCost(\lsState_\lsStep, \lsAction) = 
@@ -128,9 +133,9 @@ squared error of the sampled costs, i.e. we minimize the function
 \Big( \lsCost(\lsState_\lsStep, \lsAction) -  \policyParams_{\lsAction} \cdot \lsFeats(\lsState_\lsStep, \lsAction) \Big)^2 \]
 using stochastic gradient descent. 
 
-\input{feature_based_salience_models/figures/lols_algo.tex}
+%\input{feature_based_salience_models/figures/lols_algo.tex}
 
-The full LOLS training algorithm is presented in \autoref{alg:lols}.
+See \cite{kedzie2016real} for the full LOLS training algorithm.
 The benefit of using $\modelPolicy$ to obtain the roll-in trajectory 
 is that the oberved state spaces are more likely to be similar to ones visited
 on test data since compounding error in $\modelPolicy$ will also effect the 
@@ -148,16 +153,15 @@ in greater depth in \cite{chang2015learning}.
 We use a greedy oracle that selects sentences that contain novel
 nuggets. This oracle will achieve an optimal \comp{} score, i.e.
 it will obtain every possible novel nugget in the roll-out phase.
-However, it will not always achieve the maximum possible $\expectedGain$.
-For example, consider the sequence of sentences $s_1, s_2, s_3$, where
-nugget $n_1 \in s_1$, $n_2 \in s_2$, and $n_1,n_2 \in s_3$. The greedy oracle,
-proceeding sequentially would select sentences $s_1$ and $s_2$, and skip
-$s_3$, achieving an $\expectedGain$ of $\frac{|\{n_1, n_2\}|}{|\{s_1, s_2 \}|}
-= \frac{2}{2} = 1$. The maximum achievable $\expectedGain$ is obtained by 
-skipping
-the first two sentences and selecting sentence $s_3$ yielding $\frac{|\{n_1, n_2\}|}{|\{s_3 \}|} = \frac{2}{1} = 2$. In practice we are far from matching
-the greedy oracle and so it suffices for now as an aspirational target.
-
+%However, it will not always achieve the maximum possible $\expectedGain$.
+%For example, consider the sequence of sentences $s_1, s_2, s_3$, where
+%nugget $n_1 \in s_1$, $n_2 \in s_2$, and $n_1,n_2 \in s_3$. The greedy oracle,
+%proceeding sequentially would select sentences $s_1$ and $s_2$, and skip
+%$s_3$, achieving an $\expectedGain$ of $\frac{|\{n_1, n_2\}|}{|\{s_1, s_2 \}|}
+%= \frac{2}{2} = 1$. The maximum achievable $\expectedGain$ is obtained by 
+%skipping
+%the first two sentences and selecting sentence $s_3$ yielding $\frac{|\{n_1, n_2\}|}{|\{s_3 \}|} = \frac{2}{1} = 2$. In practice we are far from matching
+%the greedy oracle and so it suffices for now as an aspirational target.
 In order to implement a loss function $\lsStrucLoss$ we need a reference
 extract label sequence $\lsSaliencesRef$ for which to compare to the one 
 obtained by the model policy, $\predSaliences$. We set 
@@ -198,8 +202,9 @@ complete list of features.
 Many of our features are helpful for
  determining the importance of a sentence with respect to its document.
  However, they are more ambiguous for determining importance to the event as
- a whole. For example, it is not clear how to compare the document level
- PageRank of sentences from different documents. To compensate for this, we
+ a whole. %For example, it is not clear how to compare the document level
+% PageRank of sentences from different documents. 
+ To compensate for this, we
  leverage two features which we believe to be good global indicators of
  update selection: the summary content probability and the document
  frequency.  These two features are proxies for detecting (1) a good summary
@@ -221,7 +226,8 @@ in the stream stream corpus. Nuggets for the additional events were also
 collected. Additionally, pooled output from the 2015 TS performer submissions
 was manually labeled by NIST to obtain nugget relevance judgements. We used 
 these judgements to build the nugget probability feature 
-(see \autoref{par:nuggetprob}) and to add noisy labels to the corpus.
+%(see \autoref{par:nuggetprob}) 
+and to add noisy labels to the corpus.
  
 
  Because of the large size of the corpus and the limited size of the manual
@@ -331,18 +337,19 @@ these judgements to build the nugget probability feature
  \modelLS.
  We compare our proposed model against several baselines and extensions. 
 
- \paragraph{Cosine Similarity Threshold} One of the top performing systems 
+ %\paragraph{Cosine Similarity Threshold} 
+ One of the top performing systems 
  at TREC 2015 was a heuristic method that only
  examined article first sentences, selecting those that were below a cosine
  similarity threshold to any of the previously selected updates. We
  implemented a variant of that approach using the latent-vector
  representation used throughout this work \citep{guo2012simple}. 
  The development set was used to
- set the threshold. We refer to this model as \modelCos (Team
+ set the threshold. We refer to this model as \modelCos{} (Team
  \textsc{WaterlooClarke} at TREC 2015).
   
- \paragraph{Salience-biased Affinity Propagation}
- We also compare this model to a simplified varient of the \sap{} model.
+% \paragraph{Salience-biased Affinity Propagation}
+ We also compare this model to a simplified varient of the \sap{} model
 where we use the summary
 nugget probability feature as the salience estimator (the Gaussian process
 models were difficult to scale to the expanded dataset).  The time
@@ -353,7 +360,8 @@ models were difficult to scale to the expanded dataset).  The time
  previous updates (i.e. previous clustering outputs).    
  We refer to this method as \sap.  
 
- \paragraph{Learning2Search+Cosine Similarity Threshold} In this model, which we
+ %\paragraph{Learning2Search+Cosine Similarity Threshold} 
+ Our final baseline, which we
  refer to as \modelLSCos, we run \modelLS{} as before, but filter the
  resulting updates using the same cosine similarity threshold method as in
  \modelCos. The threshold was also tuned on the development set. 
@@ -395,30 +403,30 @@ models were difficult to scale to the expanded dataset).  The time
  similarity) of what to select is helpful. Ultimately we do much better when
  we can look at the whole document.
   
- \input{feature_based_salience_models/figures/lserrors.tex}
-
-  We also performed an error analysis to further understand how each system
- operates.  \autoref{fig:lserrors} shows the errors made by each system on
- the test streams.  Errors were broken down into four categories. \emph{Miss
- lead} and \emph{miss body} errors occur when a system skips a sentence
- containing a novel nugget in the lead or article body respectively. An
- \emph{empty} error indicates an update was selected that contained no nugget.
- \emph{Duplicate} errors occur when an update contains nuggets but none are
- novel. 
- 
-  Overall, errors of the miss type are most common and suggest future
- development effort should focus on summary content identification.  About a
- fifth to a third of all system error comes from missing content in the lead
- sentence alone.
- 
-  After misses, empty errors (false positives) are the next largest source of
-  error. \modelCos{} was especially prone to empty errors (41\% of its total
-  errors). \modelLS{} is also vulnerable to empties (19.9\%) but after
- applying the similarity filter and restriting to first sentences, these
- errors can be reduced dramatically (to 1\%).
-  
-  Surprisingly, duplicate errors are a minor issue in our evaluation. This is
- not to suggest we should ignore this component, however, as efforts to
- increase recall (reduce miss errors) are likely to require more robust
- redundancy detection. 
+% \input{feature_based_salience_models/figures/lserrors.tex}
+%
+%  We also performed an error analysis to further understand how each system
+% operates.  \autoref{fig:lserrors} shows the errors made by each system on
+% the test streams.  Errors were broken down into four categories. \emph{Miss
+% lead} and \emph{miss body} errors occur when a system skips a sentence
+% containing a novel nugget in the lead or article body respectively. An
+% \emph{empty} error indicates an update was selected that contained no nugget.
+% \emph{Duplicate} errors occur when an update contains nuggets but none are
+% novel. 
+% 
+%  Overall, errors of the miss type are most common and suggest future
+% development effort should focus on summary content identification.  About a
+% fifth to a third of all system error comes from missing content in the lead
+% sentence alone.
+% 
+%  After misses, empty errors (false positives) are the next largest source of
+%  error. \modelCos{} was especially prone to empty errors (41\% of its total
+%  errors). \modelLS{} is also vulnerable to empties (19.9\%) but after
+% applying the similarity filter and restriting to first sentences, these
+% errors can be reduced dramatically (to 1\%).
+%  
+%  Surprisingly, duplicate errors are a minor issue in our evaluation. This is
+% not to suggest we should ignore this component, however, as efforts to
+% increase recall (reduce miss errors) are likely to require more robust
+% redundancy detection. 
 

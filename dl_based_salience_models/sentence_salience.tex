@@ -66,21 +66,7 @@ updated upon observing each word embedding. In practice, we use a bidirectional
 RNN with a gated recurrent unit (GRU) as the particular instantiation of 
 the RNN cell \citep{cho2014learning}.
 Under the RNN encoder, a sentence embedding for a sentence $\sent$ is defined 
-as the concatenation of the final forward and backward GRU outputs,
-\begin{align}
-\encoder_{rnn}(\sent) = \Big[\overrightarrow{\semb}_{|\sent|}, \overleftarrow{\semb}_{1} \Big] & \\
-  \rsemb_0 = \mathbf{0};& \quad 
-  \rsemb_i = \rgru\left(\embproj(\word_i), \rsemb_{i-1}\right) \\
-  \lsemb_{|\sent| + 1} = \mathbf{0};& \quad 
-  \lsemb_i = \lgru\left(\embproj(\word_i), \lsemb_{i+1}\right) 
-\end{align}
-where $[\cdot]$ is the concatenation operator; $\rsemb_i$ and $\lsemb_i$ are
-hidden states of the forward and backward GRU cells respectively; and 
-$\rgru, \lgru : \mathbb{R}^\embsize \times \mathbb{R}^\sembsize 
-\rightarrow \mathbb{R}^\sembsize$ are the forward and backward GRU cell 
-operations.
-\cite{nallapati2016summarunner} use a bidirectional RNN for their sentence
-encoder.
+as the concatenation of the final forward and backward GRU outputs.
 
 \paragraph{Convolutional Neural Networks}
 Our final sentence encoder uses a convolutional neural network
@@ -88,28 +74,8 @@ Our final sentence encoder uses a convolutional neural network
 CNN's have grown increasingly popular in many NLP tasks 
 as a computationally efficient substitute for RNN-based architectures
 \citep{kim2014convolutional,lei2015molding,dauphin2017language}.
-Our architecture largely follows \cite{kim2014convolutional}: we apply a 
-series of one dimensional convoluions over a sentence's word embeddings
-using varying width convolutions. For each convolutional window size 
-$\winsize \in \winsizes \subset \mathbb{N}$, a convolutional filter creates 
-a feature vector $\cfeat{}{\winsize} \in \mathbb{R}^{\fmapsize_\winsize}$ 
-and the encoder output is the concatenation of the $|\winsizes|$ vectors. 
-The set of filter window sizes $\winsizes$ and the number of feature maps
-$\fmapsize_\winsize$ for each $\winsize \in \winsizes$ are 
-model hyperparameters.
-Formally, we define the CNN encoding of a sentence $\sent$ as 
-\begin{align}
-\encoder_{cnn}(\sent) & = \left[\cfeat{}{\winsize} : \winsize \in \winsizes \right]\\
-\cfeat{\cfidx}{\winsize} &= 
-     \max_{i \in 1,\dots, |\sent| - \winsize + 1} 
-       \relu\left(\cact_i \right) \\
-\cact_i &= \cnnbias_\cfidx
-    + \sum^{\winsize}_{j=1} \cnnweight_{\cfidx,j} \cdot \embproj(\word_{i + j -1})
-\end{align}
-where $\cnnbias \in \cnnBiasSpace$ and $\cnnweight \in \cnnWeightSpace$
-are learned convolutional filter weights and $\relu(x) = \max(0, x)$ 
-is the rectified linear unit \citep{nair2010rectified}. \cite{cheng2016neural}
-use a CNN for their sentence encoder.
+Our architecture largely follows \cite{kim2014convolutional}.
+
 
 \subsubsection{Sentence Extractors}
 
@@ -155,66 +121,7 @@ summary representation creates a dependence of $\Labels_i$ on all
 $\Labels_{<i}$.
 
 
-In more detail, first the bidirectional RNN is applied to the input 
-sentence embeddings,
-\begin{align}
-    \rExtHid_0 = \textbf{0}&\quad \quad \rExtHid_i = \rgru(\semb_i, \rExtHid_{i-1}) \\
-    \lExtHid_{\Sze{\doc} + 1} = \textbf{0}& \quad \quad \lExtHid_i = \lgru(\semb_i, \lExtHid_{i+1}).
-\end{align}
 
-Then a document embedding $\demb$ is created by averaging in the hidden
-RNN states and passing them through a feedforward layer: 
-\begin{align}
-    \demb = \tanh\left(\mathbf{b}_\doc + \mathbf{W}_\doc\frac{1}{\Sze{\doc}}
-    \sum_{i=1}^{\Sze{\doc}} \left[\rExtHid_i; \lExtHid_i\right] \right).
-\end{align}
-
-The RNN outputs are then passed through a separate fully connected layer to 
-create a sentece representation $\extHid_i$ where 
-\begin{align}
-    \extHid_i &= \relu\left(\mathbf{b}_z + \mathbf{W}_z \left[ \rExtHid,\lExtHid\right]\right)
-\end{align}
-
-The extraction probability is then determined by contributions from five 
-sources:
-\begin{align}
-    \textit{sentence salience} &\quad a^{(sent)}_i=\mathbf{W}^{(sent)} \extHid_i, \\
-    \textit{document salience}&\quad a^{(doc)}_i = \extHid_i^T\mathbf{W}^{(doc)} \demb, \\
-    \textit{summary novelty}&\quad a^{(nov)}_i = -\extHid_i^T\mathbf{W}^{(nov)} \smemb_i, \label{eq:srnov} \\
-    \textit{fine-grained position}&\quad a^{(fpos)}_i = \mathbf{W}^{(fpos)} 
-    \posemb_i, \\
-    \textit{coarse-grained position}&\quad a^{(cpos)}_i = \mathbf{W}^{(cpos)} 
-    \qrtemb_i,
-\end{align}
-where $\posemb_i$ and $\qrtemb_i$ are embeddings associated with the $i$-th sentence
-position and the quarter of the document containing sentence $i$ respectively.
-In \autoref{eq:srnov}, $\smemb_i$ is a representation of the summary after
-making the first $i-1$ predictions, and is 
-computed as the
-sum of the previous $\extHid_{<i}$ weighted by their extraction probabilities,
-\begin{align}
-    \smemb_i & = \tanh\left(\sum_{j=1}^{i-1} p(\Labels_j=1|\Labels_{<j},\semb_{1:\Sze{\doc}}) \cdot \extHid_j\right), \quad\quad \smemb_1 = \mathbf{0}.
-\end{align}
-Note that the presence of this term induces dependence of each 
-$\Labels_i$ to 
-all $\Labels_{<i}$. % similarly to the Cheng \& Lapata extractor.
-The final extraction probability is the logistic sigmoid of the
-sum of these terms plus a bias,
-\begin{align}
-    p(\Labels_i=1|\Labels_{<i}, \semb_{1:\Sze{\doc}}) &= \sigma\left(
-      a_i^{(sent)} + a_i^{(doc)} + a_i^{(nov)} 
-  + a_i^{(fpos)}  + a_i^{(cpos)} + b \right).
-    %p(\Labels_i=1|\Labels_{<i}, \semb_{1:\Sze{\doc}}) &= \sigma\left(\begin{array}{l}
- %     a_i^{(con)} + a_i^{(sal)} + a_i^{(nov)} \\
- % + a_i^{(pos)}  + a_i^{(qrt)} + b \end{array}\right).
-\end{align}
-The weight matrices $\mathbf{W}_\doc$, $\mathbf{W}_z$, $\mathbf{W}^{(sent)}$,
-$\mathbf{W}^{(sal)}$, $\mathbf{W}^{(nov)}$, $\mathbf{W}^{(fpos)}$,
-$\mathbf{W}^{(cpos)}$ and bias terms $\mathbf{b}_\doc$, $\mathbf{b}_z$, and 
-$b$ 
-are learned parameters;
-additionally, the GRUs have separate learned parameters.
-%
 
 \paragraph{RNN Extractor \citep{kedzie2018deep}}
     Our first proposed model is a very simple bidirectional
@@ -238,17 +145,6 @@ sigmoid activations corresponding to the sentence level extraction probabilities
 %\newcommand{\docSize}{|\doc|}
 %\newcommand{\logits}{o}
 
-\begin{align}
-    \rExtHid_0 = \mathbf{0} &\quad\quad   \rExtHid_i = \rgru(\semb_i, \rExtHid_{i-1}) \\
-    \lExtHid_{\Sze{\doc} + 1} = \mathbf{0}&\quad \quad    \lExtHid_i = \lgru(\semb_i, \lExtHid_{i+1}) \\
-    \mathbf{o}_i &= \relu\left(\mathbf{U} \cdot [\rExtHid_i; \lExtHid_i] + \mathbf{u} \right)\\
-    p(\Labels_i=1|\semb_{1:\Sze{\doc}}) &= \sigma\left(\mathbf{v}\cdot \mathbf{o}_i + v  \right)
-\end{align}
-where $\rgru$ and $\lgru$ indicate the 
-forward and backward GRUs respectively, and each have separate learned 
-parameters; $\mathbf{U}, \mathbf{v}$ and $u, v$ are learned weight and 
-bias parameters respectively.
-
 
 \paragraph{Cheng \& Lapata Extractor} 
  This extractor, proposed by 
@@ -264,25 +160,6 @@ outputs are used to predict each $\Labels_i$. The decoder input is weighted by t
 extraction
 probability, inducing the dependence of $\Labels_i$ on $\Labels_{<i}$.
 
-
-The basic architecture is a
-sequence-to-sequence
-model defined as follows:
-\begin{align}
-    \enextHid_0 = \textbf{0}& \quad \quad   \enextHid_i = \gru_{enc}(\semb_i, \enextHid_{i-1}) \\
-    \deextHid_1 = \gru_{dec}(\semb_*, \enextHid_{\Sze{\doc}}) &\quad\quad
-\deextHid_i = \gru_{dec}(p_{i-1} \cdot \semb_{i-1}, \deextHid_{i-1}) \label{eq:cl1} \\
-\mathbf{o}_i &= \relu\left(\mathbf{U} \cdot [\enextHid_i; \deextHid_i] + \mathbf{u} \right)\\
-p_i = p(\Labels_i=1|\Labels_{<i}, \semb_{1:\Sze{\doc}}) &= \sigma\left(\mathbf{v}\cdot \mathbf{o}_i + v  \right) 
-\end{align}
-where $\semb_*$ is a learned ``begin decoding'' sentence embedding;
-each GRU has separate learned 
-parameters; and $\mathbf{U}, \mathbf{v}$ and $u, v$ are learned weight and bias parameters.
-Note in \autoref{eq:cl1} that 
-the decoder side GRU input is the sentence embedding from the previous time
-step weighted by its probabilitiy of extraction ($p_{i-1}$) from the 
-previous step, inducing dependence of each output $\Labels_i$ on all previous 
-outputs $\Labels_{<i}$.
 
 
 
@@ -305,26 +182,6 @@ and fed into a multi-layer perceptron to compute the extraction probability.
 %See \autoref{fig:extractors}.b for a graphical layout.
 Unlike the Cheng \& Lapata extractor, the Seq2Seq extractor does not induce 
 dependencies between the extraction labels, i.e. they are conditionally independent.
-
-The architecture is defined as follows
-\begin{align}
-    \enextHid_0 = \textbf{0}& \quad \quad   \enextHid_i = \gru_{enc}(\semb_i, \enextHid_{i-1}) \\
-    \deextHid_0 = \gru_{dec}(\semb_*, \enextHid_{\Sze{\doc}}) &\quad\quad
-\deextHid_i = \gru_{dec}(\semb_{i}, \deextHid_{i-1}) \label{eq:cl1} \\
- \alpha_{i,j} = 
-   \frac{\exp \left(\deextHid_i \cdot \enextHid_j \right)}{
-   \sum_{j=1}^{\Sze{\doc}}\exp\left(\deextHid_i \cdot \enextHid_j\right)}
-& \quad\quad \bar{\enextHid}_i = \sum_{j=1}^{\Sze{\doc}} \alpha_{i,j} \enextHid_j \\
-\mathbf{o}_i &= \relu\left(\mathbf{U} \cdot [\bar{\enextHid}_i; \deextHid_i] + \mathbf{u} \right)\\
-p(\Labels_i=1|\semb_{1:\Sze{\doc}}) &= \sigma\left(\mathbf{v}\cdot \mathbf{o}_i + v  \right) 
-\end{align}
-where $\semb_*$ is a learned ``begin decoding'' sentence embedding;
-each GRU has separate learned 
-parameters; and $\mathbf{U}, \mathbf{v}$ and $u, v$ are learned weight and 
-bias parameters. In practice, we run this model in ``bidirectional mode'' 
-where seperate sequence-to-sequence model also run in the reverse direction,
-equations 28-29 are computed using the concatenation of the encoder/decoder
-outputs. 
 
 \subsubsection{Data}
 \input{dl_based_salience_models/figures/datasets.tex}

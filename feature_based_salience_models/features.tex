@@ -5,13 +5,15 @@
 
 The streaming summarization problem is difficult precisely because the context
 is constantly shifting. We cannot rely solely on word frequency because
-the counts of particular ngrams will be shifting throughout the document
+the counts of particular \ngram s will be shifting throughout the document
 stream. Instead we compute several groups of sentence features that are
-specifically helpful for the query focused task. Because our models were
+specifically helpful for the streaming nature of the task. 
+Because our models were
 developed over several years of the TS track, some
 features were not used or available to certain models. If a feature
 is only used in one model, we list that model's name in parenthesis next
-to the feature name.
+to the feature group. For more details see \cite{kedzie2015predicting}
+and \cite{kedzie2016real}.
 
 %We divide our features
 %into two groups: static and dynamic features. Static features do not take into
@@ -22,204 +24,227 @@ to the feature name.
 %into the learning-to-search approach is much easier.
 
 
-%\subsubsection{Static Features}
-\paragraph{Simple Surface Features} 
-
-The document stream that we will be operating over is incredibly noisy,
-full of automatically extracted article text from raw web pages in 
-dramatically different formatting. As a result, the underlying text is often
-full of wep page headers, headlines to other stories, and irrelevant link text.
-We use these simple shallow surface features to characterize 
-``normal'' newswire sentences.
-%``normal'' . 
-These features 
+\begin{itemize}
+    \item \textbf{Surface Features} These features 
 include sentence length, the average number of capitalized words,
 document position, sentence length in words, and the average number of 
-named entities. Length and position features have been used previously in
-other learning based models of sentence salience
-\citep{kupiec1995trainable,conroy2001using}.
-
-\paragraph{Query Features} To ensure the focus of the update summaries,
-we employ query match features that count frequency of query term matches
+named entities.
+    \item \textbf{Query Features} We employ query match features that count frequency of query term matches
 in the sentence. We also do a simple query expansion using WordNet 
 \citep{miller1995wordnet}
 to find  synonyms, hypernyms, and hyponyms for the query \textit{event type}
 and compute
 a similar term match count with the expansion.
-Queries in the TS data are manually labeled with event type;
-see \autoref{fig:eventtypes} for the list of query event types we used. 
-For the \emph{earthquake} query type, for example, we find the following terms:
-``quake'', ``temblor'', ``seism'', and ``aftershock''.
+    \item \textbf{Language Model Score} We compute the 
+        average token log likelihood under two 5-gram Kneser-Ney language 
+        models \citep{kneser1995improved}, one trained on newswire documents 
+        and one trained on a query 
+        \textit{event type} specifc sub-corpus of Wikipedia.
+    \item \textbf{Geographic Relevance (SAP)} We compute several estimates of the
+        distance of the events described in a sentence to the 
+        real world location of the event that corresponds to the query.
+    \item \textbf{Temporal Relevance (SAP)} We compute rolling average \tfidf{} 
+        scores for the last 24 hours to capture spikes in event activity.
+    \item \textbf{Document Frequency (L2S)} We compute the hour-to-hour
+        change in document
+        frequency of the document stream to measure periods of heightened
+        event activity. 
+    \item \textbf{Stream Language Model Score (L2S)} We compute the average 
+        unigram probability of several classes of words (non-stopwords, 
+        persons,
+        places, and locations) whose word counts are updated with each new 
+        document in the stream.
+    \item \textbf{Update Similarity (L2S)} We compute several measures of similarity
+        between the previously extracted sentences and a candidate sentence.
+    \item \textbf{Nugget Probability (L2S)} We compute the probability that a
+        sentence contains a nugget using a classifier trained on human 
+        judgements using \ngram{} features.
+    \item \textbf{Single Document Summarization Rankings (L2S)} We compute sentence
+        rankings under several unsupervised extractive single document 
+        summarization algorithms.
+\end{itemize}
 
 
-\begin{table}
-\begin{tabular}{r | l}
-\textbf{Event Type} & \textbf{Event Queries} \\
-\hline
-Storm & hurricane isaac, hurricane sandy, midwest derecho, typhoon bopha\\
-Earthquake & guatemala earthquake  \\
-Meteor Impact & russia meteor \\
-Accident & buenos aires train crash,  pakistan factory fire\\
-Riot & egyptian riots\\
-Protest & bulgarian protests, egyptian protests \\
-Hostages & in amenas hostage crisis \\
-Shooting & colorado shooting, sikh temple shooting\\
-Bombing & boston marathon bombing, hyderabad explosion \\
-Conflict & konna battle \\
-\end{tabular}
-\caption{TREC Temporal Summarization query event types with example queries.} 
-\label{fig:eventtypes}
-\end{table}
-
-\paragraph{Language Model Scores}
-
-We rely on a pair of language models to assess the likelihood of observing
-a given sentence in the document stream. The first language model is 
-intended to be a generic news model, trained on New York Times and 
-Associated Press sections of the Gigaword corpus \citep{graff2003english}. 
-This model serves a similar purpose as the simple surface features in helping
-to identify newswire-like sentences that are likely to contain informative
-content.
-The second model is query type specific and intended to focus the summarizer
-on sentences from the same domain of the query. For each query type, we 
-constructed an in-domain corpus of Wikipedia news articles belonging to
-categories and pages related to the event type. The corpus is 
-semi-automatically constructed: first a set of high-level categories are 
-selected and then all pages belonging to those initial categories or
-any sub-categories are automatically added. 
-For example, the language
-model for the event type ``earthquake'' is estimated
-from Wikipedia pages under the category Category:Earthquakes.
-For the actual summarization system features, we use the average token log
-likelihood under each model as a feature.
-We use the SRILM toolkit \citep{stolke2002srilm} to implement a 5-gram 
-Kneser-Ney model \citep{kneser1995improved} for both the general and type
-specific language models. 
-
-\paragraph{Geographic Relevance (SAP)} 
-The queries in the TS data are all grounded to physical
-events in the world and we would like to exploit that. For example, while
-there are sadly many reports of bombings or explosions at any given time 
-around the world, when summarizing the query ``boston marathon bombing'' 
-we are only really interested in news from a relatively proscribed 
-geographic area, in this case, Boston, Massachusets. Implementing 
-a geographic relevance signal is quite difficult in practice since 
-we do not have ground truth location data for each event query, and some
-events like hurricanes can be on the move. We opt instead to extract all
-location mentions (using a named entity tagger) and get the lattitude
-and longitude coordinates
-of each mention using the Bing Maps 
-API\footnote{\url{https://www.microsoft.com/en-us/maps/documentation}}.
-Location
-mentions within the same hour are clustered, and the cluster centers are 
-used as the canonical event locations for the query at that time. 
-For each document we compute the median distance of all location mentions
-to the event location cluster. We also compute the distance of the first
-location mention to the event location cluster. Sentences from the document
-share these two distance features.
-
-
-
-%?The disasters
-%?in our corpus are all phenomena that affect some
-%?part of the world. Where possible, we would like
-%?to capture a sentence’s proximity to the event, i.e.
-%?when a sentence references a location, it should be
-%?close to the area of the disaster.
-%?There are two challenges to using geographic
-%?features. First, we do not know where the event is,
-%?and second, most sentences do not contain references
-%?to a location. We address the first issue by
-%?extracting all locations from documents relevant to
-%?the event at the current hour and looking up their
-%?latitude and longitude using a publicly available
-%?geo-location service. Since the documents that are
-%?at least somewhat relevant to the event, we assume
-%?in aggregate the locations should give us a rough
-%?area of interest. The locations are clustered and
-%?we treat the resulting cluster centers as the event
-%?locations for the current time.
-%?The second issue arises from the fact that the
-%?majority of sentences in our data do not contain
-%?explicit references to locations, i.e. a sequence of
-%?tokens tagged as location named entities. Our intuition
-%?is that geographic relevance is important in
-%?the disaster domain, and we would like to take ad
-
-
-\paragraph{Temporal Relevance (SAP)} As we track a query over time, the document
-stream will ebb and flow as the underlying event unfolds. With hurricanes
-for example, forecasters are usually watching a tropical storm as it grows
-and predicitng where it might make landfall. As a result, news about a major
-hurricane grows gradually, peaking after its main contact with land
-and gradually diminishing. An earthquake on the otherhand gives no warning,
-and there is a sudden spike in the query relevant document stream.
-%While we do not
-%do an extensive study of different event type shapes (which would certainly 
-%be very interesting), 
-We would like to take advantage of spiking or bursty
-activity in the document stream as a signal for our summarization system.
-We do this by maintaining inverse document frequency (\idf) values for each 
-hour of the document stream.
-We create 24 average \tfidf{} features for each sentence as if it had occurred
-in each of the previous 24 hours. 
-I.e. we fix the observed sentence level 
-term frequencies
-and rescale them by \idf{} values cached from each of the previous 24 hours;
-a single feature value is obtained for each hour by averaging the sentence's 
-bag of rescaled \tfidf{} values.
- Large changes in any of the individual
-features should be representative of a spike in the news.
-
-\paragraph{Document Frequency (L2S)} We also compute the hour-to-hour
-percent change in document frequency of the stream. This
-feature helps gauge breaking developments in an unfolding
-event. As this feature is also heavily affected by the daily
-news cycle (larger average document frequencies in the morning
-and evening) we compute the 0-mean/unit-variance of this
-feature using the training streams to find the mean and variance
-for each hour of the day.
-
-\paragraph{Stream Language Models (L2S)}
-We construct several simple unigram language models that we update with 
-each new document that we see in the stream. Using these models 
-we compute the sum, average, and maximum token likelihood
-of the non-stop words
-in the sentence. We compute similar quantities restricted to
-the person, location, and organization named entities.
-
-\paragraph{Update Similarity (L2S)} The average and maximum cosine similarity
-of the current sentence to all previous updates is computed
-under both the \tfidf{} bag-of-words and latent vector
-representation \citep{guo2012simple}. 
-We also include indicator features for when
-the set of updates is empty (i.e. at the beginning of a run) and
-when either similarity is 0.
-
-\paragraph{Nugget Probability (L2S)}
-\label{par:nuggetprob}
-When developing the L2S model, we had access to a small collection of
-human sentence/nugget judgements from the 2014 Temporal Summarization 
-evaluation.
-We used
-these judgements to train an ngram based classifier to predict whether
-the sentence contained a nugget, and we use the probability of a nugget
-given the sentence text as a feature. 
-
-
-\paragraph{Single Document Summarization Features (L2S)}
-Even though we are processing the stream one sentence at a time in the L2S
-model, we still
-have knowledge of the document that a sentence came from and so we can
-compute features that take into account the other sentences in the document.
-We used several unsupervised sentence ranking methods from the single 
-document summarization literature to get several sentence rank features.
-Inspired be the \textsc{SumBasic} summarizer \citep{nenkova2005impact}, we
-compute the average and sum of unigram probability of each sentence using 
-sentence's document unigram distribution. Inpsired by \cite{guo2013updating},
-for each sentence we compute the average cosine distance to the remaining 
-sentences in it's enclosing document. Finally, we compute the document
-level centroid rank \citep{radev2000centroid} and LexRank 
-\citep{erkan2004lexrank} for each sentence.
-
+%\subsubsection{Static Features}
+%\paragraph{Simple Surface and Query Features} 
+%%The document stream that we will be operating over is incredibly noisy,
+%%full of automatically extracted article text from raw web pages in 
+%%dramatically different formatting. As a result, the underlying text is often
+%%full of wep page headers, headlines to other stories, and irrelevant link text.
+%%We use these simple shallow surface features to characterize 
+%%``normal'' newswire sentences.
+%%``normal'' . 
+%These features 
+%include sentence length, the average number of capitalized words,
+%document position, sentence length in words, and the average number of 
+%named entities. Length and position features have been used previously in
+%other learning based models of sentence salience
+%\citep{kupiec1995trainable,conroy2001using}.
+%To ensure the focus of the update summaries,
+%we employ query match features that count frequency of query term matches
+%in the sentence. We also do a simple query expansion using WordNet 
+%\citep{miller1995wordnet}
+%to find  synonyms, hypernyms, and hyponyms for the query \textit{event type}
+%and compute
+%a similar term match count with the expansion.
+%Queries in the TS data are manually labeled with event type;
+%see \autoref{fig:eventtypes} for the list of query event types we used. 
+%For the \emph{earthquake} query type, for example, we find the following terms:
+%``quake'', ``temblor'', ``seism'', and ``aftershock''.
+%
+%
+%\paragraph{Language Model Scores}
+%
+%We rely on a pair of language models to assess the likelihood of observing
+%a given sentence in the document stream. The first language model is 
+%intended to be a generic news model, trained on New York Times and 
+%Associated Press sections of the Gigaword corpus \citep{graff2003english}. 
+%This model serves a similar purpose as the simple surface features in helping
+%to identify newswire-like sentences that are likely to contain informative
+%content. The second model is query type specific and intended to focus the summarizer
+%on sentences from the same domain of the query. For each query type, we 
+%constructed an in-domain corpus of Wikipedia news articles belonging to
+%categories and pages related to the event type. 
+%%The corpus is 
+%%semi-automatically constructed: first a set of high-level categories are 
+%%selected and then all pages belonging to those initial categories or
+%%any sub-categories are automatically added. 
+%%For example, the language
+%%model for the event type ``earthquake'' is estimated
+%%from Wikipedia pages under the category Category:Earthquakes.
+%For the actual summarization system features, we use the average token log
+%likelihood under each model as a feature.
+%%We use the SRILM toolkit \citep{stolke2002srilm} to implement a 5-gram 
+%%Kneser-Ney model \citep{kneser1995improved} for both the general and type
+%%specific language models. 
+%
+%\paragraph{Geographic Relevance (SAP)} 
+%%The queries in the TS data are all grounded to physical
+%%events in the world and we would like to exploit that. For example, while
+%%there are sadly many reports of bombings or explosions at any given time 
+%%around the world, when summarizing the query ``boston marathon bombing'' 
+%%we are only really interested in news from a relatively proscribed 
+%%geographic area, in this case, Boston, Massachusets. Implementing 
+%%a geographic relevance signal is quite difficult in practice since 
+%%we do not have ground truth location data for each event query, and some
+%%events like hurricanes can be on the move. 
+%We extract all
+%location mentions (using a named entity tagger) and look up the lattitude
+%and longitude coordinates
+%of each mention using the Bing Maps 
+%API\footnote{\url{https://www.microsoft.com/en-us/maps/documentation}}.
+%Location
+%mentions within the same hour are clustered, and the cluster centers are 
+%used as the canonical event locations for the query at that time. 
+%For each document we compute the median distance of all location mentions
+%to the event location cluster. We also compute the distance of the first
+%location mention to the event location cluster. Sentences from the document
+%share these two distance features.
+%
+%
+%
+%%?The disasters
+%%?in our corpus are all phenomena that affect some
+%%?part of the world. Where possible, we would like
+%%?to capture a sentence’s proximity to the event, i.e.
+%%?when a sentence references a location, it should be
+%%?close to the area of the disaster.
+%%?There are two challenges to using geographic
+%%?features. First, we do not know where the event is,
+%%?and second, most sentences do not contain references
+%%?to a location. We address the first issue by
+%%?extracting all locations from documents relevant to
+%%?the event at the current hour and looking up their
+%%?latitude and longitude using a publicly available
+%%?geo-location service. Since the documents that are
+%%?at least somewhat relevant to the event, we assume
+%%?in aggregate the locations should give us a rough
+%%?area of interest. The locations are clustered and
+%%?we treat the resulting cluster centers as the event
+%%?locations for the current time.
+%%?The second issue arises from the fact that the
+%%?majority of sentences in our data do not contain
+%%?explicit references to locations, i.e. a sequence of
+%%?tokens tagged as location named entities. Our intuition
+%%?is that geographic relevance is important in
+%%?the disaster domain, and we would like to take ad
+%
+%
+%\paragraph{Temporal Relevance (SAP)} As we track a query over time, the document
+%stream will ebb and flow as the underlying event unfolds. With hurricanes
+%for example, forecasters are usually watching a tropical storm as it grows
+%and predicitng where it might make landfall. As a result, news about a major
+%hurricane grows gradually, peaking after its main contact with land
+%and gradually diminishing. An earthquake on the otherhand gives no warning,
+%and there is a sudden spike in the query relevant document stream.
+%To capture various event time-series shapes we maintain features for 
+%sentence level average \tfidf{} scores for the past 24 hours.
+%%While we do not
+%%do an extensive study of different event type shapes (which would certainly 
+%%be very interesting), 
+%%We would like to take advantage of spiking or bursty
+%%activity in the document stream as a signal for our summarization system.
+%%We do this by maintaining inverse document frequency (\idf) values for each 
+%%hour of the document stream.
+%%We create 24 average \tfidf{} features for each sentence as if it had occurred
+%%in each of the previous 24 hours. 
+%%I.e. we fix the observed sentence level 
+%%term frequencies
+%%and rescale them by \idf{} values cached from each of the previous 24 hours;
+%%a single feature value is obtained for each hour by averaging the sentence's 
+%%bag of rescaled \tfidf{} values.
+%% Large changes in any of the individual
+%%features should be representative of a spike in the news.
+%
+%\paragraph{Document Frequency (L2S)} We also compute the hour-to-hour
+%percent change in document frequency of the stream. This
+%feature helps gauge breaking developments in an unfolding
+%event. As this feature is also heavily affected by the daily
+%news cycle (larger average document frequencies in the morning
+%and evening) we compute the 0-mean/unit-variance of this
+%feature using the training streams to find the mean and variance
+%for each hour of the day.
+%
+%\paragraph{Stream Language Models (L2S)}
+%We construct several simple unigram language models that we update with 
+%each new document that we see in the stream. Using these models 
+%we compute the sum, average, and maximum token likelihood
+%of the non-stop words
+%in the sentence. We compute similar quantities restricted to
+%the person, location, and organization named entities.
+%
+%\paragraph{Update Similarity (L2S)} The average and maximum cosine similarity
+%of the current sentence to all previous updates is computed
+%under both the \tfidf{} bag-of-words and latent vector
+%representation \citep{guo2012simple}. 
+%We also include indicator features for when
+%the set of updates is empty (i.e. at the beginning of a run) and
+%when either similarity is 0.
+%
+%\paragraph{Nugget Probability (L2S)}
+%\label{par:nuggetprob}
+%When developing the L2S model, we had access to a small collection of
+%human sentence/nugget judgements from the 2014 Temporal Summarization 
+%evaluation.
+%We used
+%these judgements to train an ngram based classifier to predict whether
+%the sentence contained a nugget, and we use the probability of a nugget
+%given the sentence text as a feature. 
+%
+%
+%\paragraph{Single Document Summarization Features (L2S)}
+%Even though we are processing the stream one sentence at a time in the L2S
+%model, we still
+%have knowledge of the document that a sentence came from and so we can
+%compute features that take into account the other sentences in the document.
+%We used several unsupervised sentence ranking methods from the single 
+%document summarization literature to get several sentence rank features.
+%%Inspired be the \textsc{SumBasic} summarizer \citep{nenkova2005impact}, we
+%%compute the average and sum of unigram probability of each sentence using 
+%%sentence's document unigram distribution. Inpsired by \cite{guo2013updating},
+%%for each sentence we compute the average cosine distance to the remaining 
+%%sentences in it's enclosing document. Finally, we compute the document
+%%level centroid rank \citep{radev2000centroid} and LexRank 
+%%\citep{erkan2004lexrank} for each sentence.
+%
 

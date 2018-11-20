@@ -1,8 +1,9 @@
 Learning models of sentence salience in summarization is often difficult
 because summarization datasets are typically small (a few hundred training
 examples in many cases) and learning lexical 
-feature weights directly is likely to run into issues of coverage on the test
-set. To get around this problem, we rely on heavily lexicalized components 
+feature weights directly is likely to run into issues of shrinkage and 
+overfitting. 
+To get around this problem, we rely on heavily lexicalized components 
 trainable on unlabeled data to produce scores that serve as unlexicalized 
 features in our salience models. The canonical example of this is to use 
 a language model trained on in-domain but non-summarization data to 
@@ -30,8 +31,8 @@ independent sentence level salience predictions into a clustering algorithm,
 Affinity Propagation (AP) \citep{frey2007clustering}, that also 
 considers sentence similarity to jointly select salient and 
 non-redundant sentences for inclusion in the summary. In this model, for 
-a sentence to be selected it must have a high salience estimate, from a 
-trained salience regression model, and also be
+a sentence to be selected it must have a high salience estimate
+and also be
 representative of other sentences in the input.
 
 Our second model, Learning-to-Summarize (L2S) \citep{kedzie2016real}, allows 
@@ -44,6 +45,7 @@ selection choices (i.e. good local decisions) that also correlate to a good
 final summary (i.e. good global decisions). 
 
 In the next subsections, we will describe the stream summarization task
+and related work 
 in detail, before moving on to the sentence features, and finally the models
 and their evaluations.
 
