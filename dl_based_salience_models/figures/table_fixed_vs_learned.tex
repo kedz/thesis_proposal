@@ -1,31 +1,34 @@
 
 \begin{table*}[t]
 \center
-\begin{tabular}{ccgL{.5cm}cm{.5cm}gL{.75cm}cm{.75cm}gL{.75cm}cm{.5cm}}
+\begin{tabular}{ccgcgcgc}
     \toprule
-    \multirow{1}{*}{\textbf{Ext.}} &\multirow{1}{*}{\textbf{Emb.}}  & \multicolumn{2}{g}{\textbf{CNN/DM}} & \multicolumn{2}{c}{\textbf{NYT}} & \multicolumn{2}{g}{\textbf{DUC}} & \multicolumn{2}{c}{\textbf{Reddit}} & \multicolumn{2}{g}{\textbf{AMI}} & \multicolumn{2}{c}{\textbf{PubMed}}\\
+    \textbf{Ext.} & \textbf{Emb.} & \textbf{CNN/DM} & \textbf{NYT} & 
+    \textbf{DUC} & \textbf{Reddit} & \textbf{AMI} & \textbf{PubMed} \\
    %  &  & R-2 & R-2 & R-2 & R-2 & R-2 & R-2\\
    % \hline
     \midrule
-%    \multirow{2}{*}{RNN} & Fixed & \textbf{25.4} & & \textbf{34.7} & & \textbf{22.7} & & \textbf{11.4} & & \textbf{ 5.5} & & \textbf{17.0}\\
-%                         & Learn & 25.2& \footnotesize{(0.2)} & 34.3 &\footnotesize{(0.4)} & \textbf{22.6} & \footnotesize{(0.1)} & \textbf{11.3} & \footnotesize{(0.1)} & \textbf{ 5.3} & \footnotesize{(0.2)} & 16.4& \footnotesize{(0.6)}\\
-%    \hline
-    \multirow{2}{*}{Seq2Seq} & Fixed & \textbf{25.6} && \textbf{35.7}& & \textbf{22.8}& & \textbf{13.6} &&  5.5 && \textbf{17.7}\\
-   & Learn & 25.3 &\footnotesize{(0.3)} & \textbf{35.7}& \footnotesize{(0.0)} & \textbf{22.9} & \footnotesize{(-0.1)} & \textbf{13.8} &\footnotesize{ (-0.2)} & \textbf{ 5.8} & \footnotesize{(-0.3)} & 16.9 & \footnotesize{(0.8)}\\
-%    \hline
-%    \multirow{2}{*}{C\&L} & Fixed & \textbf{25.3} && \textbf{35.6} && \textbf{23.1} && \textbf{13.6} && \textbf{ 6.1} && \textbf{17.7}&\\
-%                      & Learn & 24.9 &\footnotesize{(0.4)} & 35.4 & \footnotesize{(0.2)} & \textbf{23.0} &\footnotesize{ (0.1)} & \textbf{13.4} &\footnotesize{ (0.2)} & \textbf{ 6.2} &\footnotesize{ (-0.1)} & 16.4 &\footnotesize{ (1.3)} \\
-%    \hline
-%\multirow{2}{*}{\begin{tabular}{c} Summa \\ Runner \end{tabular}} & Fixed & \textbf{25.4} && \textbf{35.4} && \textbf{22.3} && \textbf{13.4} && \textbf{ 5.6} & &\textbf{17.2}&\\
-%                                                                  & Learn & 25.1 &\footnotesize{(0.3)} & 35.2 &\footnotesize{(0.2)} & \textbf{22.2} & \footnotesize{(0.1)} & 12.6 & \footnotesize{(0.8)} & \textbf{ 5.8} & \footnotesize{(-0.2)} & 16.8&\footnotesize{ (0.4) }\\
+    \multirow{2}{*}{RNN} & Fixed & \textbf{25.4} & \textbf{34.7} & \textbf{22.7} & \textbf{11.4} & \textbf{ 5.5} & \textbf{17.0}\\
+    
+     & Learned & 25.2 & 34.3 & \textbf{22.6} & \textbf{11.3}  & \textbf{ 5.3} & 16.4 \\
+    \hline
+    \multirow{2}{*}{Seq2Seq} & Fixed & \textbf{25.6} & \textbf{35.7} & \textbf{22.8} & \textbf{13.6} & 5.5 & \textbf{17.7}\\
+   & Learned & 25.3 & \textbf{35.7} & \textbf{22.9} & \textbf{13.8} & \textbf{ 5.8} & 16.9 \\
+    \hline
+    \multirow{2}{*}{C\&L} & Fixed & \textbf{25.3} & \textbf{35.6} & \textbf{23.1} & \textbf{13.6} & \textbf{ 6.1} & \textbf{17.7}\\
+  & Learned & 24.9 & 35.4 & \textbf{23.0} & \textbf{13.4} & \textbf{ 6.2} & 16.4 \\
+    \hline
+\multirow{2}{*}{\begin{tabular}{c} Summa \\ Runner \end{tabular}} & Fixed & \textbf{25.4} & \textbf{35.4} & \textbf{22.3} & \textbf{13.4} & \textbf{ 5.6}  & \textbf{17.2}\\
+   & Learned & 25.1 & 35.2 & \textbf{22.2} & 12.6 & \textbf{ 5.8}  & 16.8 \\
     \bottomrule
 \end{tabular}
 
-\caption{ROUGE-2 recall across sentence extractors
+\caption{\textbf{Word Embedding Learning} 
+    \rougeN{2} recall across sentence extractors
     when using fixed pretrained embeddings or when embeddings are updated during training. In both cases embeddings
-    are initialized with pretrained GloVe embeddings. All extractors use the averaging 
-sentence encoder. When both learned and fixed settings are bolded,
-there is no signifcant performance difference. RNN extractor is omitted for space but is similar to Seq2Seq. Difference in scores shown in parenthesis.}
+    are initialized with pretrained GloVe embeddings using the averaging 
+sentence encoder. When both rows are bolded,
+there is no signifcant performance difference.}
 \label{tab:embeddings}
 \end{table*}
 

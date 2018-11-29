@@ -25,41 +25,41 @@ and \cite{kedzie2016real}.
 
 
 \begin{itemize}
-    \item \textbf{Surface Features} These features 
+    \item \textbf{Surface Features.} These features 
 include sentence length, the average number of capitalized words,
 document position, sentence length in words, and the average number of 
 named entities.
-    \item \textbf{Query Features} We employ query match features that count frequency of query term matches
+    \item \textbf{Query Features.} We employ query match features that count frequency of query term matches
 in the sentence. We also do a simple query expansion using WordNet 
 \citep{miller1995wordnet}
 to find  synonyms, hypernyms, and hyponyms for the query \textit{event type}
 and compute
 a similar term match count with the expansion.
-    \item \textbf{Language Model Score} We compute the 
+    \item \textbf{Language Model Score.} We compute the 
         average token log likelihood under two 5-gram Kneser-Ney language 
         models \citep{kneser1995improved}, one trained on newswire documents 
         and one trained on a query 
-        \textit{event type} specifc sub-corpus of Wikipedia.
-    \item \textbf{Geographic Relevance (SAP)} We compute several estimates of the
+        \textit{event type} specific sub-corpus of Wikipedia.
+    \item \textbf{Geographic Relevance (SAP).} We compute several estimates of the
         distance of the events described in a sentence to the 
         real world location of the event that corresponds to the query.
-    \item \textbf{Temporal Relevance (SAP)} We compute rolling average \tfidf{} 
+    \item \textbf{Temporal Relevance (SAP).} We compute rolling average \tfidf{} 
         scores for the last 24 hours to capture spikes in event activity.
-    \item \textbf{Document Frequency (L2S)} We compute the hour-to-hour
+    \item \textbf{Document Frequency (L2S).} We compute the hour-to-hour
         change in document
         frequency of the document stream to measure periods of heightened
         event activity. 
-    \item \textbf{Stream Language Model Score (L2S)} We compute the average 
+    \item \textbf{Stream Language Model Score (L2S).} We compute the average 
         unigram probability of several classes of words (non-stopwords, 
         persons,
         places, and locations) whose word counts are updated with each new 
         document in the stream.
-    \item \textbf{Update Similarity (L2S)} We compute several measures of similarity
+    \item \textbf{Update Similarity (L2S).} We compute several measures of similarity
         between the previously extracted sentences and a candidate sentence.
-    \item \textbf{Nugget Probability (L2S)} We compute the probability that a
+    \item \textbf{Nugget Probability (L2S).} We compute the probability that a
         sentence contains a nugget using a classifier trained on human 
         judgements using \ngram{} features.
-    \item \textbf{Single Document Summarization Rankings (L2S)} We compute sentence
+    \item \textbf{Single Document Summarization Rankings (L2S).} We compute sentence
         rankings under several unsupervised extractive single document 
         summarization algorithms.
 \end{itemize}

@@ -1,8 +1,9 @@
 \begin{figure*}
     \center
 \begin{tabular}{ l | l l l | l l l | l }
-   &\multicolumn{3}{c|}{unpenalized}&\multicolumn{3}{c|}{latency-penalized}&\\
-   & exp. gain     & comp. & $F_1$ & exp. gain     & comp. & $F_1$ & num. updates\\
+   &\multicolumn{3}{c|}{Unpenalized}&\multicolumn{3}{c|}{Latency-Penalized}&
+     Num. \\
+     & $\mathbb{E}[\textsc{Gain}]$     & \textsc{Comp.} & $F_1$ & $\mathbb{E}[\textsc{Gain}]$     & \textsc{Comp.} & $F_1$ & Updates \\
     \hline
 %\textsc{AP}         
 %    & $0.083$            & $0.09$                     & $0.078$ 
@@ -11,19 +12,19 @@
 \sap      
     & $\mathbf{0.119}^c$ & $0.09$                     & $0.094$ 
     & $0.105$            & $0.088$                    & $0.088$ 
-    & ~~~~$8.333$ \\
+    & ~~~~$8.3$ \\
 \modelCos
     & $0.075$            & $0.176^{s}$              & $0.099$ 
     & $0.095$            & $0.236^{s}$              & $0.128^{s}$ 
-    & $145.615^{s,f}$ \\
+    & $145.6^{s,f}$ \\
 \modelLS       
     & $0.097$            & $\mathbf{0.207}^{s,f}$   & $0.112$ 
     & $0.136^{c}$      & $\mathbf{0.306}^{s,c,f}$ & $0.162^{s}$
-    & ~~$89.872^{s,f}$ \\
+    & ~~$89.9^{s,f}$ \\
 \modelLSCos
     & $0.115^{c,l}$        & $0.189^{s}$ & ${\bf0.127}^{s,c,l}$
     & ${\bf0.162}^{s,c,l}$ & $0.276^{s}$ & ${\bf0.184}^{s,c,l}$
- & ~~$29.231^{s,c}$ \\
+ & ~~$29.2^{s,c}$ \\
 \end{tabular}
 \caption{
  Average system performance 
@@ -32,7 +33,9 @@
  competing algorithms using the 
   paired randomization test with the Bonferroni correction for multiple 
   comparisons ($s$: \sap, 
- $c$: \modelCos, $l$: \modelLS, $f$: \modelLSCos). 
+ $c$: \modelCos, $l$: \modelLS, $f$: \modelLSCos).  
+ $F_1$ is the harmonic mean of 
+          $\mathbb{E}[\textsc{Gain}]$ and \textsc{Comprehensiveness}.
 }
 \label{fig:lsresults}
 \end{figure*}

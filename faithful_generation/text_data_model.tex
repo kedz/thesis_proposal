@@ -1,8 +1,9 @@
-\subsection{Text Data Model}
+
+\subsection{Text-to-Text Model}
 For cases where the evidence is not structured data but text, e.g. 
-summarization, we can modify the structured data model slightly to obtain 
+summarization, we can modify the data-to-text model slightly to obtain 
 a workable faithful training regime. Our data will now consist of 
-4-tuples $\evidence, \utterance, \bar{\evidence}, \bar{\utterance} \in 
+4-tuples $(\evidence, \utterance, \bar{\evidence}, \bar{\utterance}) \in 
 \dataset$ where $\evidence$ is the input text to be summarized, 
 $\utterance$ is the reference
 abstractive summary, and $\bar{\evidence}, \bar{\utterance}$ are cloze
@@ -15,10 +16,9 @@ for summarization by selecting input phrases/sentences with high similarity
 to the reference summary, and redacting random content words. See 
 \autoref{fig:cloze_example} for an example from the CNN/DailyMail dataset.
 
-\input{faithful_generation/figures/example2.tex}
 
 
-We modify our recognizer defintion to the following:
+We modify our recognizer definition to the following:
 an utterance $\utterance$ is \textbf{faithful}
  to the evidence $\evidence$ under a recognizer $\rec$, 
 denoted $\faithful(\utterance,\evidence,\rec)$, if
@@ -29,8 +29,22 @@ denoted $\faithful(\utterance,\evidence,\rec)$, if
   \entropy_{\max} - \entropy_{\rec(\cdot|\bar{\evidence}, \utterance)} < \epsilon\]
 where the entropy terms are defined similarly to 
 \autoref{sec:struct_data_model} and the recognizer is now modified to map 
-cloze question/passage tuples $\bar{\evidence},\utterance$ to probabilties
+cloze question/passage tuples $\bar{\evidence},\utterance$ to probabilities
 of a cloze answer
 $\bar{\utterance}$. In practice multiple cloze question/answer pairs will
 be created for each input/summary pair. Training of the faithful generator
 will proceed similarly to the process outlined in \autoref{sec:struct_data_model}.
+
+We plan to perform faithful summary generation
+first using the TL;DR dataset \citep{volske2017tl} which contains over 2 
+million
+Reddit comments with summarizations. Since the comments being summarized
+are shorted than most news articles, we think this will be a more tractable
+starting point for validating the utility of the cloze task.
+Following this, we would like to apply this technique to
+the CNN/DailyMail, NYT, and Newsroom datasets 
+\citep{hermann2015teaching,sandhaus2008new,grusky2018newsroom} since
+these datasets are large enough to train abstractive summarizers.
+As in the data-to-text experiments, we will also include a human evaluation
+of the beam candidates to ensure that the training does indeed produce
+a distribution of faithful outputs.

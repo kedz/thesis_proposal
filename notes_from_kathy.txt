@@ -1,0 +1,40 @@
+title is too big, too much generation
+subtitle is good
+
+
+X 3rd graff first sentence say OUR methods
+
+X add bolded paragraph headers salience estimation & faithful gen
+X removed other bolded terms.
+
+X similarly straightforward -- dont say
+
+
+X well known problem among researchers -- delete
+
+X contribs: combine 2 & 3, unpack with bullets in the conclusion.
+
+
+glib? tone of blissfully unaware not appropriate
+
+if want to remove, We refer to this method...
+
+
+emphasize essential differences between prior extractor and our work
+
+hard to know where to look in the tables (maybe use color)
+
+fix document shuffling citation style.
+
+classy doesn't use tfidf (kathy claim) look at ani review paper.
+
+make clear that knapsack packing is orthogonal to what we are studying
+
+need more highlevel explanation of motivation on word importance.
+
+say we plan to experiment (what experiments will you run?)
+What if it fails?
+We think this will work, to test it out we will do.... if this doesnt work we will do yadada
+
+
+talk about intitial design about qa.

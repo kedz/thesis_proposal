@@ -3,7 +3,7 @@
 Everyday we ask friends and colleagues to do it, to tell us about books, 
 newspaper articles, and other complex texts, and, without more than a 
 moment's reflection, they are able to compress their experience
-into succint natural language statements that describe the
+into succinct natural language statements that describe the
 subject of our request.
 The ease with which we summarize belies the difficulty of
 writing programs that do so, and so it would appear that 
@@ -31,7 +31,7 @@ rendering that content in such a way as to not misrepresent the original
 input. We refer to the former as \textbfit{salience estimation} and the latter
 as \textbfit{faithful generation}. 
 
-The completed and proposed methods of salience estimation cover a range of
+\paragraph{Salience Estimation} Our completed and proposed methods of salience estimation cover a range of
 techniques including regression, clustering, learning-to-search,
 and deep neural networks. 
 We experimentally verify the utility of our approaches
@@ -40,9 +40,9 @@ single-document summarization, and multi-document summarization.
 The general research goal here is to develop flexible models for 
 identifying
 important words, phrases, and sentences that are likely to serve as 
-representitive members of the larger text in which they are found.
+representative members of the larger text in which they are found.
 
-In \textbfit{extractive summarization}, 
+In extractive summarization, 
 where the summary is constructed by copying and pasting phrases or sentences 
 from the input text, salience estimation can be used directly to create
 a summary. For example, a simple method of sentence extractive summarization
@@ -51,15 +51,15 @@ top few sentences for the summary. In most cases, salience is not the only
 consideration for summary inclusion; redundancy, discourse coherence, fluency,
 and many other metrics of text quality can and have been used as content
 selection criteria. These measures are largely independent of salience 
-(with the noteable exception of redundancy) and so we do not explore them in 
+(with the notable exception of redundancy) and so we do not explore them in 
 detail here. The details of our completed and proposed work on 
 salience estimation can be found
 in sections \ref{sec:feature_salience} and \ref{sec:deep_learning_salience}.
 
 In \autoref{sec:feature_salience} we develop two feature-based models of 
 sentence
-salience and evaluate them in a relatively novel \textbfit{stream 
-summarization} crisis-monitoring scenario
+salience and evaluate them in a relatively novel stream 
+summarization crisis-monitoring scenario
 \citep{starbird2013working,aslam2015trec,aslam2016trec}. In this task, a user is interested
 in tracking information about a disaster event (e.g. a hurricane). The
 user provides a text based query describing the event 
@@ -75,21 +75,22 @@ information is out of date.
 We develop and compare several deep learning based models of word and 
 sentence salience in \autoref{sec:deep_learning_salience} and evaluate them 
 primarily on
-sentence extractive \textbfit{single document summarization} (SDS). 
+sentence extractive single document summarization (SDS). 
 We perform this evaluation across
 a variety of genres including news, personal narratives, and medical journal
 articles. Intuitively, the goal here is to summarize a single news article, 
 short story, or research paper by selecting a subset of the input sentences
 to serve as the summary. We also explore adaptation of these algorithms to 
-the sentence extractive \textbfit{multi-document summarization} (MDS) task, 
+the sentence extractive multi-document summarization (MDS) task, 
 where there is much less training data.
-This task is similarly straightforward, given a set of related documents 
-(typically ten), select a subset of the sentences to use as the summary of
+In this task, an extractive summarization model is given a set of related 
+documents 
+(typically ten), and must select a subset of the sentences to use as the summary of
 the document set.
 
-Finally, section~\ref{sec:faithful_generation} describes our proposed 
+\paragraph{Faithful Generation} Finally, section~\ref{sec:faithful_generation} describes our proposed 
 contributions to
-\textbfit{abstractive summarization}, i.e. methods that produce novel 
+abstractive summarization, i.e. methods that produce novel 
 summary text using a generative model. 
 Research in abstractive summarization is increasing, in part due to
 the success of general purpose sequence-to-sequence transduction models 
@@ -97,19 +98,19 @@ for machine translation (MT) that have been ported to the summarization task.
 The ability of abstractive models to generate fluent 
 summaries is impressive. However, they are also especially prone 
 to generating generic statements and hallucinated facts that are not grounded 
-by evidence in the input. This seems to be a well known problem among 
-researchers working
-in generation, but it has not received much direct attention in the literature.
+by evidence in the input. %This seems to be a well known problem among 
+%researchers working
+%in generation, but it has not received much direct attention in the literature.
 We are interested in this problem from both the perspectives of selecting
 the right evidence in the input for generation, a task for which we enlist
 our salience estimation methods, and also certifying that a generated text
-conforms to knowledge represented in the input or possesed by the model
-apriori. For the latter goal, we propose to model generation as a two player
+conforms to knowledge represented in the input or possessed by the model
+\textit{a priori}. For the latter goal, we propose to model generation as a two player
 game, where one player, the generator, is tasked with producing a text
 utterance describing a piece of evidence (either text or table data);
 the second player, the recognizer, %change this name
 evaluates the plausibility of the utterance with respect to the evidence.
-This overall regime will consitute our proposed method called
+This overall regime will constitute our proposed method called
  faithful generation.
 %to be outlined in more detail in \autoref{sec:faithful_generation}. 
 We propose 
@@ -168,11 +169,10 @@ follows:
 %     learning to search (LOLS) algorithm.
 
  \item Several novel deep learning architectures for word and sentence 
-   salience, as well as a thorough evaluation of the linguistic and
+   salience, a thorough evaluation of the linguistic and
    structural features critical to learning in the SDS task across a 
-   variety of genres.
+   variety of genres, and adaptation to a news MDS task. 
 
- \item Adaptation of the deep learning based SDS models to a news MDS task. 
 
  \item A novel training regime for generative models of text, 
      called faithful generation, to ensure that the generated text does
@@ -212,7 +212,7 @@ follows:
 %faithful to some structured information. 
 
 Together, these contributions
-provide a recipe book for identifying summary worthy information and 
+provide a wide array of experiments and  methodology for identifying summary worthy information and 
 generating text that respects truth statements about that information.
 The hope is that these methods will lead to more reliable summaries
 without sacrificing the expressiveness of the generation algorithm. 

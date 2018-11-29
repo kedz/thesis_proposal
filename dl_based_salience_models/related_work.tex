@@ -1,0 +1,103 @@
+
+\subsection{Related Work}
+
+Estimating sentence salience for summarization has often been approached as a 
+sentence
+classification problem. Na{\"i}ve Bayes 
+\citep{kupiec1995trainable,teufel1997sentence,osborne2002using}, 
+maximum entropy 
+\citep{osborne2002using}, and support vector machine \citep{hirao2002ntt}
+classifiers have all been applied to predict whether a sentence should
+be included in an extract summary.
+Sentence position features were a strongly predictive signal in all of these 
+works.
+Lexical features were more varied in their use; e.g., 
+\cite{kupiec1995trainable} 
+checked for the presence of key phrases from a manually curated list,
+ \cite{osborne2002using} experimented with automatically extracted
+bigram features, 
+%of which only a small portion are actually discriminative,
+while \cite{hirao2002ntt} used average \tfidf{} weights to capture
+important lexical content.
+
+While the previous works all estimated sentence salience independently,
+a variety of structured prediction methods have also been explored
+to jointly estimate the salience of sentences in a document or 
+document cluster.
+These include
+hidden Markov models (HMMs) \citep{conroy2001text}, conditional random fields
+(CRFs)
+\citep{shen2007document}, large margin classifiers \citep{martins2009summarization}, and 
+structured support vector
+machines 
+\citep{berg2011jointly,sipos2012large,durrett2016learning}. 
+While positional or discourse features are important to all of these methods, 
+\cite{martins2009summarization}, \cite{berg2011jointly}, and \cite{durrett2016learning} 
+also learn lexical feature weights as part of their larger model.
+Graph random walk based ranking has been another
+prominent method for estimating salience of a collection of sentences 
+jointly 
+\citep{erkan2004lexrank,mihalcea2004textrank};
+typically the sentence graphs are constructed using the cosine similarity
+between a sentence's \tfidf{} weighted bag-of-words although other methods
+of weighting graph edges have been used. Additionally, independent
+sentence level priors about salience can also be incorporated by adjusting the 
+probability of restarting the random walk \citep{erkan1001using,liu2008personalized}.
+
+
+Deep learning methods have become the \textit{de facto} standard approach to many 
+NLP problems, especially when there exists plentiful labeled data.
+There has been a flurry of recent work on sentence extractive 
+single document summarization of news using a variety of neural network 
+architectures 
+\citep{cheng2016neural,nallapati2016classify,nallapati2016summarunner,narayan2018ranking}.
+These models have hierarchical representations of the document, using
+either
+recurrent neural networks (RNNs) or convolutional neural networks (CNNs)
+to encode word embeddings into sentence embeddings which are then fed into
+an RNN based sentence extractor. 
+Unlike prior structured approaches,
+finding the optimal label sequence in these models is intractable. However,
+the richer word and sentence representations often yield better performance
+even with a simpler inference method. 
+
+
+
+%thanks in part to the availibilty of a large corpus 
+%(approximately 300k) of CNN and Daily Mail articles with human written bullet 
+%point summaries \citep{hermann2015teaching}.
+%These models have typically built hierarchical representations of the text
+
+
+%Comparing models and defining best practices for model design has become 
+%difficult as papers often propose complex models with a variety
+%of design choices, making it difficult to determine what choices actually
+%lead to the best performance. 
+
+
+
+There is also prior  work on estimating word importance directly 
+(as opposed to learning word weights as a means to estimate sentence salience).
+%Much of the summarization literature does not learn word importance weights, 
+%but rather uses frequency derived proxies of importance instead 
+%\citep{conroy2001text,shen2007document,sipos2012large,nenkova2005impact}.
+%Other research has focused specifically on learning word importance weights
+%directly. 
+For example, \cite{yih2007multi} learn to predict the likelihood
+of a term appearing in a summary using a maximum entropy classifier with
+several document frequency and position features. \cite{hong2014improving}
+extend these features to consider word type (e.g. named-entity type),
+background information like the probability of the word occurring 
+in a large collection of New York Times abstracts, and whether or
+not the word occurs in an automatic summary (using an unsupervised summary
+method). There does not appear to be much literature on extending this work
+with deep learning, a gap we hope to fill with our proposed word level model. 
+Outside of summarization,
+\cite{sheikh2016learning} found that learning importance scores for 
+words in a weighted bag-of-words model outperformed \tfidf{} based approaches
+to text classification tasks like 
+sentiment and topic detection. 
+ 
+
+
+ 

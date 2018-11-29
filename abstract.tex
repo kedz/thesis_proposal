@@ -1,20 +1,61 @@
-Automatic text summarization is a long standing NLP problem that has recently 
-seen an uptick in interest due to flexible, high capacity deep learning based 
-sequence-to-sequence transduction models. 
-While many researchers are turning to complex neural networks to perform
-end-to-end summary generation, we argue that this unnecessarily obscures
-the underlying sub-tasks for summarization. Instead, we propose an alternative
-research agenda, focusing on two key summarization subtasks: 
-\textit{i)} estimating the general importance of text content for summary 
-inclusion, and \textit{ii)} generating text that is faithful, a notion we 
-formally define, to said important content. With respect to problem \textit{i)}
-we propose several novel methods for working in both low context, streaming
-news scenarios, as well as, standard single document summarization settings,
-including feature-based and deep learning models of content importance.
-On the latter problem, we study the utility of using extractive 
-summarization algorithms as a preprocessing stage for a sequence-to-sequence 
-based abstractive summarizer, and finally introduce a novel algorithm for
-generating text that is faithful, i.e. respects prior beliefs about structured 
-knowledge in a database, in an effort to provide stronger guarantees 
-about summary reliability.
+Automatic text summarization is one of the longest-standing 
+application areas in the 
+field of natural language processing (NLP), with a history as deep 
+as some of the more foundational tasks, e.g. syntactic parsing 
+\citep{yngve1955syntax} or 
+part-of-speech tagging \citep{harris1962string}. 
+While there are many variants, 
+the general summarization task is 
+to reduce a large input text into its most essential pieces of information,
+and in doing so reduce the amount of reading a human has to do. 
+In this thesis we focus on advances to two summarization subtasks:
+\textit{(i)} identifying the most import content for inclusion in the summary, 
+and \textit{(ii)}
+rendering that content in such a way as to not misrepresent the original 
+input. We refer to the former as \textbfit{salience estimation} and the latter
+as \textbfit{faithful generation}. 
+
+With respect to problem \textit{(i)}
+we propose two novel methods for working in low context, streaming
+news scenarios using feature-based regression, clustering, and 
+learning-to-search. Additionally, we develop several hierarchical models
+of sentence salience using deep neural networks. We perform
+analyses of different neural architecture choices in the context of 
+single document summarization across multiple genres along with ablation
+studies to understand what signals in the data are most important for
+model training. Based on these experiments, we find impediments to learning 
+useful lexical features at the sentence level, 
+and propose a novel word importance model
+with frequency and surprisal based feature embeddings to overcome these 
+limitations. We also propose a method of domain adaptation of this word 
+importance model 
+from single-document summarization to multi-document summarization.
+
+Finally, we introduce a novel framework for
+generating text that is faithful, i.e. respects prior knowledge or input data, 
+in an effort to provide stronger guarantees 
+about summary reliability and prevent the hallucination of facts. 
+In particular, we model generation as a two player
+game between a \textit{generator}, 
+a conditional language model that produces a 
+text utterance given an input (either text or table data), and 
+a \textit{recognizer}, a classifier that tries to accurately predict the 
+original input data from the generator's utterances. 
+We explore this framework in both data-to-text and text-to-text settings.
+In the data-to-text setting, the recognizer tries to predict the values of 
+fields from the conditioning table data, e.g. 
+predicting someone's occupation from a brief
+biographical description produced by the generator.
+In the text-to-text setting, the recognizer answers cloze style questions
+\citep{taylor1953cloze}
+about the input text, given an abstractive summary produced by the generator.
+The generator uses the recognizer as a learning signal to perform beam 
+search optimization \citep{wiseman2016sequence}; the goal here is to learn a generator that is capable of
+producing syntactically diverse utterances that respect the conditioning
+input data. We additionally discuss how this framework can be used as an 
+alternative method of controllable text generation, with the added benefit
+that we learn a recognizer model that can give confidence scores about
+the faithfulness of a given utterance.
+
+
 

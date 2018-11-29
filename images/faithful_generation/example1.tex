@@ -14,19 +14,22 @@
  ]
   %\draw[color=black] (0,7.25) rectangle (15,0);
 
-  \node[record] (r1) at (.05,4.41-.6*0) {\textbf{Name:} Karen Sp\"arck Jones};
-  \node[record] (r2) at (.05,4.41-.6*1) {\textbf{Born:} 26 August 1935};
-  \node[record] (r3) at (.05,4.41-.6*2) {\textbf{Died:} 4 April 2007};
+%  \node[record] (r1) at (.05,4.41-.6*0) {\textbf{Name:} Karen Sp\"arck Jones};
+  %\node[record] (r2) at (.05,4.41-.6*1) {\textbf{Born:} 26 August 1935};
+  \node[record] (r2) at (.05,4.41-.6*1) {\textbf{Name:} Karen Sp\"arck Jones};
+  %\node[record] (r3) at (.05,4.41-.6*2) {\textbf{Died:} 4 April 2007};
+  \node[record] (r3) at (.05,4.41-.6*2) {\textbf{Occupation:} Computer Scientist};
   \node[record] (r4) at (.05,4.41-.6*3) 
-        {\textbf{Occupation:} Computer Scientist};
-  \node[record] (r5) at (.05,4.41-.6*4) {\textbf{Nationality:} British};
+  {\textbf{Nationality:} British};
+       % {\textbf{Occupation:} Computer Scientist};
+ % \node[record] (r5) at (.05,4.41-.6*4) {\textbf{Nationality:} British};
   
-  \node at (2.25,4.75) {Structured Data};
+  \node at (2.25,4.75-.6) {Table Data};
   \node[rectangle,densely dotted,draw=black] (gen) at (5.4, 6) {Generator};
   \node[rectangle,densely dotted,draw=black] (rec) at (11.3, 6) {Recognizer};
   \node at (8.25, 5.65) {Beam Candidates};
   \node[text width=26mm,align=center] at (13.5,6.75) 
-    {Recovered Structured Data};
+    {Recovered Table Data};
 
  \node[beam] (b1) at (6.5,5.35) 
     {Karen Sp\"arck Jones was a British computer scientist.};
@@ -39,11 +42,11 @@
  \node[draw=black,fill=white,rectangle] at (6.4, 3.35) {\tiny 2};
  \node[draw=black,fill=white,rectangle] at (6.4, 1.35) {\tiny 3};
 
-    \draw[-] (r1.east) to [out=0,in=180] (5,2.975);
+ %   \draw[-] (r1.east) to [out=0,in=180] (5,2.975);
     \draw[-] (r2.east) to [out=-15,in=180] (5,2.975);
     \draw[->] (r3.east) to (4.5,2.975) to (5.5,2.975) to  (b2.west); 
     \draw[-] (r4.east) to [out=15,in=180] (5,2.975);
-    \draw[-] (r5.east) to [out=0,in=180] (5,2.975);
+  %  \draw[-] (r5.east) to [out=0,in=180] (5,2.975);
     \draw[->] (5.5,2.975) to [out=0,in=180] (b1.west);
     \draw[->] (5.5,2.975) to [out=0,in=180] (b3.west);
 

@@ -1,7 +1,7 @@
-  \subsection{Structured Data Model}
+  \subsection{Data-to-Text Model}
   \label{sec:struct_data_model}
 
-  Our structured data model consists of evidence/utterance tuples $(\evidence, \utterance)\in
+  Our data-to-text model consists of evidence/utterance tuples $(\evidence, \utterance)\in
   \dataset$.
    The evidence $\evidence = \{\evidence_1, \ldots, \evidence_m\}$
    is a sequence of $m$ categorical variables drawn from  
@@ -38,23 +38,26 @@ where $\entropy^{(i)}_{\max}$ is the maximum entropy for the $i$-th field,
 i.e. the entropy of the uniform distribution 
 $\log |\evidenceSpace_i|$, and $\entropy_{\rec_i(\cdot|\utterance)}$ 
 is the entropy of $\rec$ over the $i$-th field. In English, 
-an utterance is faithul to the evidence if the recognizer can correctly
+an utterance is faithful to the evidence if the recognizer can correctly
 predict the true evidence from the utterance (left statement) or, barring that,
 the recognizer cannot infer a value of the evidence with
 anything better than random chance (right statement).
 
-We evaluate the degree to which the generator is faithul with the quantity
-\[ \objective_\beamDistr(\evidence) = \E_{\utterance \sim \beamDistr(\evidence)} 
+We evaluate the degree to which the generator is faithful with the quantity
+\[ \objective_\beamDistr(\evidence) = \E_{\utterance \sim p(\cdot|\evidence;\theta)} 
  \Ind{\faithful(\utterance, \evidence, \rec)}, \]
-where $\beamDistr(\evidence) \propto \frac{\gen(\utterance|\evidence;\genParams)}{|\utterance|}$ is a the generator distribution renormalized by average token
-probability over the
-beam candidates $\utterance^{(1)},\ldots, \utterance^{(k)}$.
+where $p(\cdot|\evidence;\theta) $ is approximated using beam search.
+%\propto \frac{\gen(\utterance|\evidence;\genParams)}{|\utterance|}$ 
+%is a the generator distribution renormalized by average token
+%probability over the
+%beam candidates $\utterance^{(1)},\ldots, \utterance^{(k)}$.
 
-We implement the recognizer using CNN classifiers with parameters $\recParams$,
+We implement the recognizer as a collection of separate neural network 
+classifiers $q_i$  with parameters $\recParams_i$ for each data field,
  and fit the parameters  with 
-the average log likehood objective \[ \objective_\rec(\phi) = 
+the average log likelihood objective \[ \objective_\rec(\phi) = 
 \frac{1}{|\dataset|} \frac{1}{m} \sum_{\evidence, \utterance \in \dataset} \sum_{i=1}^m 
-\log \rec_i(\evidence_i|\utterance;\recParams).\] After training, the 
+\log \rec_i(\evidence_i|\utterance;\recParams_i).\] After training, the 
 recognizer is frozen and we do not update the parameters when fitting the 
 generator.
 
@@ -66,10 +69,23 @@ we then maximize the joint objective \[
 \frac{1}{|\dataset|} \sum_{\evidence, \utterance \in \dataset} 
 \Big[
 \log \gen(\utterance|\evidence;\genParams) + 
- \E_{\utterance \sim \beamDistr(\evidence)} 
+ \E_{\utterance \sim p(\cdot|\evidence;\theta)} 
  \Ind{\faithful(\utterance, \evidence, \rec)} \Big], 
 \]
-where the second term results in a minimum risk training (MRT) style gradient
+where the second term results in a \textsc{Reinforce} style gradient
 update \citep{edunov2018classical}.
+
+
+\input{faithful_generation/figures/example2.tex}
+
+We plan to validate the utility of this approach on two data-to-text tasks. 
+The first is a biography generation task using biographical Wikipedia
+entries and structured data extracted from the corresponding Wikipedia page's
+info box \citep{lebret2016neural}. The second data-to-text task is a 
+restaurant description generation task, where the structured data consists
+of data about restaurants (types of food offered, location, etc.) 
+\citep{novikova2017e2e}.
+Additionally, we will perform a human evaluation where we measure the accuracy
+of the beam candidates with respect to the table data.
 
 

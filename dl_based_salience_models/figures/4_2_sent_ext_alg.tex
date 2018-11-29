@@ -8,18 +8,19 @@
       \State $t \gets 0$
       \While{ $\sum_{i=1}^t \kappa_{\predLabels_i} < \beta$ and $t < n$}
         \State $t \gets t + 1$
-        \State $\predLabels_t \gets \operatorname{arg max}_{i \in \{1,\ldots, n\}}
+        \State $\hat{y}_t \gets \operatorname{arg max}_{i \in \{1,\ldots, n\}}
             \sum_{j=1}^{|\vocab|} \bow^{(t)}_{i,j}$
             \State $\bow_i^{(t+1)} \gets \max(0, \bow_i^{(t)} - \bow^{(t)}_{\predLabels_t} )\quad  \forall i \in \{1, \ldots, n \}$
         \State $\hat{\eta} \gets \hat{\eta} + \sum_{j=1}^{|\vocab|} \bow_{\predLabels_t,j}^{(t)}$
          
 
       \EndWhile
-        \State \Return $[\predLabels_1,\ldots,\predLabels_t], \hat{\eta}$ \Comment{Returns summary sentence indices and summary score.}
+      \State $\predLabels = (\hat{y}_1, \hat{y}_2, \ldots, \hat{y}_t)$
+        \State \Return $\predLabels, \hat{\eta}$ \Comment{Returns summary sentence indices and summary score.}
     \EndProcedure
   \end{algorithmic}
 \caption{Simple sentence extraction algorithm given
- the sentence BOW representations $\omega_i$, 
+ the sentence BOW representations $\omega_1, \omega_2, \ldots, \omega_n$, 
   a word budget $\beta$, and a vector $\kappa$ of sentence lengths (in words)
   as input.}
 \label{alg:wimp_ext_alg}

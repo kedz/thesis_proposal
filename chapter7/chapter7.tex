@@ -3,20 +3,79 @@
 In this thesis we have proposed to tackle two central problems for 
 summarization: selecting salient information for summary inclusion and
 generating text that is grounded in the underlying structured or text data. 
-Our experiments on the salience problem spans many different summarization
+Our experiments on the salience problem span many different summarization
 scenarios, including the very challenging stream summarization task.
 We also show how to incorporate salience estimation into two very different
 paradigms, exemplar based clustering and learning-to-search.
 We also contribute analysis as to the behavior of several deep learning models
 of sentence salience, and,  based on these experiments, propose a novel
 word importance estimation model, with applications to single and 
-multi-document summarization. We hope that these sections of the thesis
+multi-document summarization. Moreover, we plan to explore genre 
+adaption and integration with abstractive summarization to further 
+demonstrate the value of our approach.
+We hope that these sections of the thesis
 form a flexible collection of strategies useful to a broad range of 
-researchers in summarization. This work is diminished, however,
+researchers in summarization. 
+
+This work is diminished, however,
 if we do not
 have robust generation algorithms that do not hallucinate information.
 We believe the final chapter on faithful generation will prove a useful 
-paradigm for dealing with errorful generation outputs. We also believe
-that faithful generation can be useful on a variety of text generation tasks
-beyond just summarization, e.g. data-to-text generation.
+paradigm for dealing with errorful generation outputs. By experimenting
+on both data-to-text and text-to-text scenarios we hope to show the 
+utility of our approach across a variety of text generation scenarios. Additionally, we think faithful generation will
+prove to be a useful
+alternative method of controllable generation that adds more guarantees
+that the generated output conforms to the desired constraints.
+
+In the coming year we hope to provide evidence across a range
+of tasks that our paradigm makes substantial progress on these
+challenges in summarization and generation, culminating in the successful
+defense of this thesis.
+
+%?\begin{enumerate}
+%?
+%? \item Two novel feature-based models of sentence salience and an empirical
+%?    evaluation on a stream summarization task.
+%?% \item A novel approach to streaming summarization using a feature-based
+%?%     regression model of sentence salience and sentence selection using 
+%?%     exemplar-based clustering.
+%?
+%?% \item A novel approach to streaming summarization using the locally optimal
+%?%     learning to search (LOLS) algorithm.
+%?
+%? \item Several novel deep learning architectures for word and sentence 
+%?   salience, as well as a thorough evaluation of the linguistic and
+%?   structural features critical to learning in the SDS task across a 
+%?   variety of genres.
+%?
+%? \item Adaptation of the deep learning based SDS models to a news MDS task. 
+%?
+%? \item A novel training regime for generative models of text, 
+%?     called faithful generation, to ensure that the generated text does
+%?     not misrepresent the conditioning input. We develop faithful generation
+%?     models for both the data-to-text and text-to-text (i.e. summarization)
+%?     settings.
+%?
+%? \item A novel method of combining salience estimation based extractive 
+%?     summarization with abstractive generation in the faithful generation
+%?    paradigm.    
+%?
+%?%An experimental evaluation of several existing and novel deep learning
+%?%   architectures for word and sentence salience with 
+%?%A study on the design, strengths, and limitations of deep learning 
+%?%     models for content selection at the sentence and word level in 
+%?%     single document summarization. 
+%?
+%?% \item An experimental study of extractive content selection algorithms
+%?%     as input to abstractive summarization model.
+%?
+%?% \item A novel approach to generating text that is faithful to some
+%?%     structured information in a database.
+%?
+%?\end{enumerate}
+
+
+
+
 

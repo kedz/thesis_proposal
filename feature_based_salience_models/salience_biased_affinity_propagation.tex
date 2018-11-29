@@ -9,7 +9,7 @@
   reliable proxy for salience. 
   Our first proposed method accounts for this
   by
-  processesing the stream in hourly batches, i.e. we collect all the
+  processing the stream in hourly batches, i.e. we collect all the
   sentences from the last hour and then decide which sentences if any to
   add to the update summary. The trade-off we make is that fast breaking
   events may not immediately be covered by the summarizer. The benefit
@@ -34,7 +34,7 @@
   candidate updates.
   A sentence that has high overall similarity to
   the other sentences in the batch is likely to be an exemplar and
-  more so if it's salience estimation is high relative to the batch.
+  more so if its salience estimation is high relative to the batch.
 
 
 
@@ -130,9 +130,9 @@ into a dense, low-dimensional vector.
 We use a Gaussian process regression model \citep{rasmussen2004gaussian}
 to predict $\salience$ from $\strsent$ 
 \emph{without} knowledge of the nuggets. 
-For each feature group $g$ in \autoref{sec:features} we create a seperate
-radial basis function (RBF) kernel for each feature group and the 
- actual Gaussian process regressor is specified by 
+For each feature group $g$ in \autoref{sec:features} we create a separate
+radial basis function (RBF) kernel  and the 
+ actual Gaussian process is specified by 
 the summation kernel 
 $k(\strsent, \strsent^\prime) = \sum_g k_g(\strsent, \strsent^\prime)$
 of the individual group kernels.
@@ -224,7 +224,7 @@ of the individual group kernels.
     across a broad range of stream conditions.
 
 
- Typically, all inputs to AP clustering are equally likey apriori to
+    Typically, all inputs to AP clustering are equally likely \textit{a priori} to
  be selected as exemplars.
  %case the exemplar self-affinity factors are 
 %simply 
@@ -237,10 +237,10 @@ and the pairwise potentials with our semantic similarity function from the
 previous section %, and setting $\discSet$ to be a batch of sentences 
 %$\strsents_t \subset \strsents$,
 we obtain the salience-biased affinity propagation model.
-When we estimate a sentence to be more salient it is more likely apriori
+When we estimate a sentence to be more salient it is more likely \textit{a priori}
 to form a cluster center. When that sentence is also highly similar to other 
-sentences in the batch it collects support from those sentences, further
-increasing it's likelihood of being assigned as an exemplar.
+sentences in the batch, it collects support from those sentences, further
+increasing its likelihood of being assigned as an exemplar.
  
 
 
@@ -375,16 +375,16 @@ We train a salience model for each event using
 1000 sentences randomly sampled from the
 event's document stream.
 We perform a leave-one-out evaluation of each
-event. At test time, we predict a sentence’s
+event. At test time, we predict a sentence's
 salience using the average predictions of the 23
 other models.
 
 
 
-    Since we lacked gold judgements about what sentences contain which nuggets
+    Since we lacked gold judgments about what sentences contain which nuggets
     we perform an automatic evaluation using \rouge{} \citep{lin2004rouge}. We 
     create reference summaries for each query by concatenating all 
-    of it's nugget texts.
+    of its nugget texts.
     Since there are no fixed summary lengths, and depending on the severity
     of the event, the reference summaries can vary greatly in length.
     To account for this, we report \rouge{} recall, precision and \fmeasure{}
@@ -406,7 +406,7 @@ We also approximate the manual evaluation of the official TREC TS track
     this method as \ap.
     The second is to rank all sentences in each batch in order of decreasing
     predicted
-    salience, and sequentially adding each sentence to the update summary, 
+    salience, and sequentially add each sentence to the update summary, 
     omitting
     any sentences with similarity to previous updates above a threshold.
     This method is referred to as \ranksal{} for rank by salience.

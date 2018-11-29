@@ -3,11 +3,11 @@
 \subsection{Deep Learning Models of Sentence Salience}
 
  Given the diversity of neural architectural choices, a best practices
-for sentence extracive summarization has yet to emerge. In this section
+for sentence extractive summarization has yet to emerge. In this section
 we ask what architecture design choices matter for single document 
 summarization across a variety of domains.
 
-We begin by definining some terminology. A sentence is represented as an
+We begin by defining some terminology. A sentence is represented as an
 sequence of words $\sent = \word_1, \word_2, \ldots, \word_{|\sent|},$
 where each word is drawn from a finite vocabulary $\vocab$ and $|\sent|$ is
 the length of sentence $\sent$ in words. Similarly, a document $\doc =  
@@ -30,51 +30,72 @@ of each sentence, starting at the word level, and then composing an arbitrarily
 long sequence of word representations into a fixed length sentence 
 representation.
 First the individual words are 
-projected to fixed length vectors, or word embeddings, via a mapping
-$\embproj : \vocab
-\rightarrow \mathbb{R}^{\embsize}$. The sentence encoder network $\encoder :
-\{\mathbb{R}^{\embsize}\}^* \rightarrow \mathbb{R}^{\sembsize}$ is then 
+projected to fixed length vectors, or word embeddings. %, via a mapping
+%$\embproj : \vocab
+%\rightarrow \mathbb{R}^{\embsize}$. 
+The sentence encoder network %$\encoder :
+%\{\mathbb{R}^{\embsize}\}^* \rightarrow \mathbb{R}^{\sembsize}$ 
+is then 
 responsible for mapping word embedding sequences to fixed length sentence 
-embeddings. Finally, the sentence extractor network $\extractor : 
-\{\mathbb{R}^\sembsize\}^* \rightarrow \{0, 1\}^*$ produces a label 
+embeddings. Finally, the sentence extractor network %$\extractor : 
+%\{\mathbb{R}^\sembsize\}^* \rightarrow \{0, 1\}^*$ 
+produces a label 
 sequence $\Labels$.
 
 We explore several choices of encoder and extractor architecture from the 
 literature \citep{cheng2016neural,nallapati2016summarunner} as well as 
-propose our own designs \citep{kedzie2018deep}. In the next sections,
+propose our own designs \citep{kedzie2018deep}. For complete details of 
+the different model architectures please see our paper. In the next sections,
 we describe the different encoder and extractor architectures, before 
-discussing data, experiments, and evaluation.
+discussing data, experiments, and evaluation. 
 
 %the three sentence encoder architectures (\enAvg, 
 %\enRnn, and \enCnn) followed by four extractor architectures 
 %(\textit{rnn}, \textit{seq2seq}, \textit{sr}, and \textit{cl}).
 
 \subsubsection{Sentence Encoders}
-\paragraph{Averaging} This encoder simply averages a sentence's
-associated word embeddings:
-\[ \encoder_{avg}(\sent) = \frac{1}{|\sent|} \sum_{\word \in \sent} \embproj(\word). \]
-Other than the word embeddings, this encoder involves no learned parameters,
-and while it collapses word order, embedding averaging has consistently
-been found competitive with more sophisticated sentence embedding techniques
-\citep{iyyer2015deep,wieting2015towards,arora2016simple,wieting2017revisiting}.
+We explore three different sentence encoders commonly used in the literature.
+\begin{enumerate}
+    \item \textbf{Averaging Encoder}~~A sentence embedding is obtained by
+        averaging its associated word embeddings. 
+    \item \textbf{RNN Encoder} We run a bidirectional RNN over the sentence's
+        word embeddings, taking a concatenation of the final forward 
+        and backward output states as the sentence embedding.
+        We use a gated
+        recurrent unit \citep{cho2014learning} as the actual RNN cell.
+    \item \textbf{CNN Encoder} We use a CNN over a sentence's word embedding
+        to extract \ngram{} features. Our implementation is similar to 
+        \cite{kim2014convolutional}, i.e.  one dimensional convolutions of 
+        varying width \ngram{} feature detectors with max pooling.
+\end{enumerate}
 
 
-\paragraph{Recurrent Neural Networks} The second encoder architecture
-we experiment with is a recurrent neural network (RNN) over the word
-embeddings. An RNN maintains an internal ``hidden'' state that is sequentially
-updated upon observing each word embedding. In practice, we use a bidirectional
-RNN with a gated recurrent unit (GRU) as the particular instantiation of 
-the RNN cell \citep{cho2014learning}.
-Under the RNN encoder, a sentence embedding for a sentence $\sent$ is defined 
-as the concatenation of the final forward and backward GRU outputs.
 
-\paragraph{Convolutional Neural Networks}
-Our final sentence encoder uses a convolutional neural network
-(CNN) to encode salient n-gram windows into a fixed length vector. 
-CNN's have grown increasingly popular in many NLP tasks 
-as a computationally efficient substitute for RNN-based architectures
-\citep{kim2014convolutional,lei2015molding,dauphin2017language}.
-Our architecture largely follows \cite{kim2014convolutional}.
+%\paragraph{Averaging} This encoder simply averages a sentence's
+%associated word embeddings:
+%\[ \encoder_{avg}(\sent) = \frac{1}{|\sent|} \sum_{\word \in \sent} \embproj(\word). \]
+%Other than the word embeddings, this encoder involves no learned parameters,
+%and while it collapses word order, embedding averaging has consistently
+%been found competitive with more sophisticated sentence embedding techniques
+%\citep{iyyer2015deep,wieting2015towards,arora2016simple,wieting2017revisiting}.
+%
+%
+%\paragraph{Recurrent Neural Networks} The second encoder architecture
+%we experiment with is a recurrent neural network (RNN) over the word
+%embeddings. An RNN maintains an internal ``hidden'' state that is sequentially
+%updated upon observing each word embedding. In practice, we use a bidirectional
+%RNN with a gated recurrent unit (GRU) as the particular instantiation of 
+%the RNN cell \citep{cho2014learning}.
+%Under the RNN encoder, a sentence embedding for a sentence $\sent$ is defined 
+%as the concatenation of the final forward and backward GRU outputs.
+%
+%\paragraph{Convolutional Neural Networks}
+%Our final sentence encoder uses a convolutional neural network
+%(CNN) to encode salient n-gram windows into a fixed length vector. 
+%CNN's have grown increasingly popular in many NLP tasks 
+%as a computationally efficient substitute for RNN-based architectures
+%\citep{kim2014convolutional,lei2015molding,dauphin2017language}.
+%Our architecture largely follows \cite{kim2014convolutional}.
 
 
 \subsubsection{Sentence Extractors}
@@ -86,7 +107,9 @@ $\encoder(\doc) =$ $\encoder(\sent_1), \ldots, \encoder(\sent_{|\doc|}) =
 $\Labels$. 
 The sentence extractor is essentially a discriminative
 classifier $p(\Labels_{1:\Sze{\doc}} | \semb_{1:\Sze{\doc}})$.
-Previous neural network approaches to sentence extraction have assumed
+Prior neural network approaches 
+\citep{nallapati2016summarunner,cheng2016neural} 
+to sentence extraction have assumed
 an auto-regressive model, leading to a semi-Markovian
 factorization of the extractor probabilities
 $p(\Labels_{1:\Sze{\doc}} | \semb_{1:\Sze{\doc}})=\prod_{i=1}^{|\doc|} 
@@ -99,90 +122,128 @@ A simpler approach that does not allow interaction among the $\Labels_{1:n}$
 is to
 model $p(\Labels_{1:\Sze{\doc}}|\semb_{1:\Sze{\doc}}) = 
 \prod_{i=1}^{\Sze{\doc}} p(\Labels_i|\semb_{1:\Sze{\doc}})$,
-  which we explore in two proposed extractor models that we refer to as the RNN 
-  and Seq2Seq extractors.
+which we explore in two proposed extractor models.
+Overall, we experiment with four different sentence extractor architectures
+which we now describe briefly.
 
-\paragraph{SummaRunner Extractor}\citet{nallapati2016summarunner} proposed
-a sentence extractor, which we refer to as the SummaRunner Extractor,
-that factorizes the extraction probability into contributions 
-from different sources.
-First, a bidirectional RNN is run over the sentence embeddings\footnote{\citet{nallapati2016summarunner}
-    use an RNN sentence encoder with 
-this extractor architecture; in this work we pair the SummaRunner extractor
-with different encoders. } and the output is
-concatenated. A representation of the whole document is made by 
-averaging the RNN output. A summary representation is also constructed 
-by taking the sum of the previous RNN outputs weighted by their extraction
-probabilities. Extraction predictions are made using 
-the RNN output at the $i$-th prediction step, the document representation, and 
-$i$-th version of the summary representation, along with factors for 
-sentence location in the document. The use of the iteratively constructed
-summary representation creates a dependence of $\Labels_i$ on all 
-$\Labels_{<i}$.
+\begin{enumerate}
 
+    \item \textbf{SummaRunner Extractor \citep{nallapati2016summarunner}} 
+      The SummaRunner extractor is built 
+      around an RNN over sentence embeddings along 
+      with separate components to estimate contributions of document 
+      similarity, iterative summary similarity, and coarse and fine grained 
+      sentence position. Any one extraction decision $\Labels_i$ is 
+      dependent on all previously label decisions $\Labels_{<i}$.
+  \item \textbf{RNN Extractor (ours)} We propose a stripped down version
+      of SummaRunner using only an RNN over sentence embeddings 
+      without any of the  representations of document, summary,
+      or position. The RNN output is fed to a sigmoid layer to predict the
+      probability of extraction. All sentence extraction decisions are
+      independent once the hidden layers of the RNN have been computed. 
+  \item \textbf{Cheng \& Lapata Extractor \citep{cheng2016neural}}
+      This extractor is built around a sequence-to-sequence model with 
+      distinct encoder and decoder RNNs over sentence embeddings (the encoder
+      here is distinct from the sentence encoder over words).
+      In effect the model processes the document twice. Predictions are 
+      made using the previous timestep's decoder output, and the current 
+      timestep's encoder output. Decoder inputs are weighted by the previous
+      extraction probability, inducing a similar dependence structure 
+      to the SummaRunner model where any extraction decision $\Labels_i$
+      is dependent on all previous decsions $\Labels_{<i}$.
+ \item \textbf{Seq2Seq Extractor (ours)} Our simplified version of the 
+     Cheng \& Lapata extractor is a standard sequence-to-sequence model
+     \citep{bahdanau2014neural} with dot-product style attention
+     \citep{luong2015effective}. A concatenation of the decoder output and 
+     attention context are fed into a sigmoid layer to make predictions.
+     Like the RNN extractors, sentence extraction decisions are
+      independent once the RNN and attention layers have been computed.
+\end{enumerate}
 
+%that we refer to as the RNN
+%and Seq2Seq extractors.
 
-
-\paragraph{RNN Extractor \citep{kedzie2018deep}}
-    Our first proposed model is a very simple bidirectional
-RNN based tagging model, and can be thought of as a 
-bare bones version of the SummaRunner
-extractor. In this model, we pass the outputs of a bidirectional GRU over the 
-sentence embeddings into a multi-layer perceptron that terminates in a layer 
-of
-sigmoid activations corresponding to the sentence level extraction probabilities.
-%sentence encoder we use a GRU cell.
-%The forward and backward outputs of each sentence are passed through a 
-%multi-layer perceptron with a logsitic sigmoid output 
-%to predict the probability
-%of extracting each sentence. 
-%See \autoref{fig:extractors}.a for a graphical layout.
-%and \autoref{app:rnnextractor} for details.
-
-
-%\newcommand{\rExtHidden}{\overrightarrow{h}}
-%\newcommand{\lExtHidden}{\overrightarrow{h}}
-%\newcommand{\docSize}{|\doc|}
-%\newcommand{\logits}{o}
-
-
-\paragraph{Cheng \& Lapata Extractor} 
- This extractor, proposed by 
-\citet{cheng2016neural}, %, which we refer to as the Cheng \& Lapata Extractor,
-is built around a sequence-to-sequence model.
-First, each sentence embedding\footnote{\citet{cheng2016neural} used an CNN sentence encoder with 
-this extractor architecture; in this work we pair the Cheng \& Lapata extractor
-with several different encoders.} is
-fed into an encoder side RNN, with the final encoder state passed to the
-first step of the decoder RNN. On the decoder side, the same sentence 
-embeddings are fed as input to the decoder and both encoder and decoder 
-outputs are used to predict each $\Labels_i$. The decoder input is weighted by the previous 
-extraction
-probability, inducing the dependence of $\Labels_i$ on $\Labels_{<i}$.
-
-
-
-
-\paragraph{Seq2Seq Extractor \citep{kedzie2018deep}} 
-%One shortcoming of the RNN extractor is that long range
-%information from one end of the document may not easily be able to affect 
-%extraction probabilities of sentences at the other end. 
-Our second proposed model, the represents a more typical sequence-to-sequence
-architecture with dot product style attention \citep{luong2015effective},
-%mitigates this problem with an 
-%attention 
-%mechanism commonly
-used for neural machine translation \cite{bahdanau2014neural} and 
-abstractive summarization \cite{see2017get}. 
-The sentence embeddings are first
-encoded by a bidirectional $\gru$. A separate decoder $\gru$ transforms each 
-sentence into a query vector which attends to the encoder output. The
-attention weighted encoder output and the decoder $\gru$ output are concatenated
-and fed into a multi-layer perceptron to compute the extraction probability.
-%See \autoref{fig:extractors}.b for a graphical layout.
-Unlike the Cheng \& Lapata extractor, the Seq2Seq extractor does not induce 
-dependencies between the extraction labels, i.e. they are conditionally independent.
-
+%\paragraph{SummaRunner Extractor}\citet{nallapati2016summarunner} proposed
+%a sentence extractor, which we refer to as the SummaRunner Extractor,
+%that factorizes the extraction probability into contributions 
+%from different sources.
+%First, a bidirectional RNN is run over the sentence embeddings\footnote{\citet{nallapati2016summarunner}
+%    use an RNN sentence encoder with 
+%this extractor architecture; in this work we pair the SummaRunner extractor
+%with different encoders. } and the output is
+%concatenated. A representation of the whole document is made by 
+%averaging the RNN output. A summary representation is also constructed 
+%by taking the sum of the previous RNN outputs weighted by their extraction
+%probabilities. Extraction predictions are made using 
+%the RNN output at the $i$-th prediction step, the document representation, and 
+%$i$-th version of the summary representation, along with factors for 
+%sentence location in the document. The use of the iteratively constructed
+%summary representation creates a dependence of $\Labels_i$ on all 
+%$\Labels_{<i}$.
+%
+%
+%
+%
+%\paragraph{RNN Extractor \citep{kedzie2018deep}}
+%    Our first proposed model is a very simple bidirectional
+%RNN based tagging model, and can be thought of as a 
+%bare bones version of the SummaRunner
+%extractor. In this model, we pass the outputs of a bidirectional GRU over the 
+%sentence embeddings into a multi-layer perceptron that terminates in a layer 
+%of
+%sigmoid activations corresponding to the sentence level extraction probabilities.
+%%sentence encoder we use a GRU cell.
+%%The forward and backward outputs of each sentence are passed through a 
+%%multi-layer perceptron with a logsitic sigmoid output 
+%%to predict the probability
+%%of extracting each sentence. 
+%%See \autoref{fig:extractors}.a for a graphical layout.
+%%and \autoref{app:rnnextractor} for details.
+%
+%
+%%\newcommand{\rExtHidden}{\overrightarrow{h}}
+%%\newcommand{\lExtHidden}{\overrightarrow{h}}
+%%\newcommand{\docSize}{|\doc|}
+%%\newcommand{\logits}{o}
+%
+%
+%\paragraph{Cheng \& Lapata Extractor} 
+% This extractor, proposed by 
+%\citet{cheng2016neural}, %, which we refer to as the Cheng \& Lapata Extractor,
+%is built around a sequence-to-sequence model.
+%First, each sentence embedding\footnote{\citet{cheng2016neural} used an CNN sentence encoder with 
+%this extractor architecture; in this work we pair the Cheng \& Lapata extractor
+%with several different encoders.} is
+%fed into an encoder side RNN, with the final encoder state passed to the
+%first step of the decoder RNN. On the decoder side, the same sentence 
+%embeddings are fed as input to the decoder and both encoder and decoder 
+%outputs are used to predict each $\Labels_i$. The decoder input is weighted by the previous 
+%extraction
+%probability, inducing the dependence of $\Labels_i$ on $\Labels_{<i}$.
+%
+%
+%
+%
+%\paragraph{Seq2Seq Extractor \citep{kedzie2018deep}} 
+%%One shortcoming of the RNN extractor is that long range
+%%information from one end of the document may not easily be able to affect 
+%%extraction probabilities of sentences at the other end. 
+%Our second proposed model, the represents a more typical sequence-to-sequence
+%architecture with dot product style attention \citep{luong2015effective},
+%%mitigates this problem with an 
+%%attention 
+%%mechanism commonly
+%used for neural machine translation \cite{bahdanau2014neural} and 
+%abstractive summarization \cite{see2017get}. 
+%The sentence embeddings are first
+%encoded by a bidirectional $\gru$. A separate decoder $\gru$ transforms each 
+%sentence into a query vector which attends to the encoder output. The
+%attention weighted encoder output and the decoder $\gru$ output are concatenated
+%and fed into a multi-layer perceptron to compute the extraction probability.
+%%See \autoref{fig:extractors}.b for a graphical layout.
+%Unlike the Cheng \& Lapata extractor, the Seq2Seq extractor does not induce 
+%dependencies between the extraction labels, i.e. they are conditionally independent.
+%
 \subsubsection{Data}
 \input{dl_based_salience_models/figures/datasets.tex}
 We perform our experiments across six corpora from varying domains to 
@@ -190,54 +251,69 @@ understand how different biases within each domain can affect content
 selection. The corpora come from the news domain
 (CNN-DailyMail, New York Times, DUC), personal narratives domain (Reddit),
 workplace meetings (AMI), and medical journal articles (PubMed). See 
-\autoref{tab:data} for dataset statistics.
+\autoref{tab:dldata} for dataset statistics and \cite{kedzie2018deep} for a
+complete description of the preprocessing.
+The news datasets are fairly common in the summarization literature and
+allow us to consider performance across large, medium, and small dataset
+sizes. The PubMed dataset contains similarly formal and position dependent
+text as newswire, and it allows us to examine the effect of these features
+in another genre.
+The Reddit and AMI corpus are less dependent on sentence position
+than the
+other datasets, however their smaller size makes them less useful as 
+datasets for deep learning models. The AMI corpus is also transcribed speech
+which makes it a fairly unique summarization corpus.
 
-
-\paragraph{CNN-DailyMail} We use the preprocessing and training, validation, 
-and test splits
-of \cite{see2017get}.
-This corpus is a mix of news on different topics including politics,
-sports, and entertainment.
-
-\paragraph{New York Times}The New York Times (NYT) corpus \citep{sandhaus2008new} contains
- two types of abstracts for a subset of its articles. The first summary is
-an archival abstract and the 
-second is a shorter online teaser meant to entice a viewer of the webpage to
-click to read more. From this collection, we take all articles that have 
-a concatenated summary length of at least 100 words.
-We create training, validation, and test splits by partitioning on dates;
-we use the year 2005 as the validation data, with training and test partitions
-including documents before and after 2005 respectively.
-
-\paragraph{DUC} We use the single document summarization data from the 2001
-and 2002
-Document Understanding Conferences (DUC) \citep{over2002introduction}. We split the 2001 data into training
-and validation splits and reserve the 2002 data for testing.
-
-\paragraph{AMI} The AMI corpus \citep{carletta2005ami} 
-is a collection of real and staged office meetings
-annotated with text transcriptions, along with abstractive
-summaries. We use the prescribed splits. 
-
-\paragraph{Reddit} \citet{ouyang2017crowd} collected a corpus of personal 
-    stories shared
- on Reddit\footnote{\url{www.reddit.com}} along with multiple extractive 
- and abstractive summaries. We randomly split this data using roughly three and five percent of the data validation and test respectively.
-
-\paragraph{PubMed}{We created a corpus of 25,000 randomly sampled
-    medical journal articles from the PubMed Open Access 
-    Subset\footnote{\url{https://www.ncbi.nlm.nih.gov/pmc/tools/openftlist/}}.
-    We only included articles if they were at least 1000 words long and 
-    had an abstract of at least 50 words in length.
-We used the article abstracts as the ground truth human summaries.}
+%\paragraph{CNN-DailyMail} We use the preprocessing and training, validation, 
+%and test splits
+%of \cite{see2017get}.
+%This corpus is a mix of news on different topics including politics,
+%sports, and entertainment.
+%
+%\paragraph{New York Times}The New York Times (NYT) corpus \citep{sandhaus2008new} contains
+% two types of abstracts for a subset of its articles. The first summary is
+%an archival abstract and the 
+%second is a shorter online teaser meant to entice a viewer of the webpage to
+%click to read more. From this collection, we take all articles that have 
+%a concatenated summary length of at least 100 words.
+%We create training, validation, and test splits by partitioning on dates;
+%we use the year 2005 as the validation data, with training and test partitions
+%including documents before and after 2005 respectively.
+%
+%\paragraph{DUC} We use the single document summarization data from the 2001
+%and 2002
+%Document Understanding Conferences (DUC) \citep{over2002introduction}. We split the 2001 data into training
+%and validation splits and reserve the 2002 data for testing.
+%
+%\paragraph{AMI} The AMI corpus \citep{carletta2005ami} 
+%is a collection of real and staged office meetings
+%annotated with text transcriptions, along with abstractive
+%summaries. We use the prescribed splits. 
+%
+%\paragraph{Reddit} \citet{ouyang2017crowd} collected a corpus of personal 
+%    stories shared
+% on Reddit\footnote{\url{www.reddit.com}} along with multiple extractive 
+% and abstractive summaries. We randomly split this data using roughly three and five percent of the data validation and test respectively.
+%
+%\paragraph{PubMed}{We created a corpus of 25,000 randomly sampled
+%    medical journal articles from the PubMed Open Access 
+%    Subset\footnote{\url{https://www.ncbi.nlm.nih.gov/pmc/tools/openftlist/}}.
+%    We only included articles if they were at least 1000 words long and 
+%    had an abstract of at least 50 words in length.
+%We used the article abstracts as the ground truth human summaries.}
 
 \paragraph{Ground Truth Extract Summaries}
-Since we do not typically have ground truth extract summaries from which to
-create the labels $\Labels_i$, we construct gold label sequences 
-by greedily optimizing \rougeN{1} as in \cite{nallapati2016summarunner}.
+Typically, the reference summaries in our datasets are human written
+abstracts and therefore we cannot use them directly to learn a sentence 
+extractive summarization model.
+Instead, we use them to construct gold label sequences
+%Since we do not typically have ground truth extract summaries from which to
+%create the labels $\Labels_i$, we construct gold label sequences 
+by greedily optimizing \rougeN{1} with respect to the reference abstracts
+as in \cite{nallapati2016summarunner}.
 We choose to optimize for \rougeN{1} rather than 
 \rougeN{2} similarly to other optimization based approaches to summarization 
-\cite{sipos2012large,durrett2016learning,nallapati2016summarunner} 
+\citep{sipos2012large,durrett2016learning,nallapati2016summarunner} 
 which found this to be the easier target to learn.
 
 
@@ -249,16 +325,23 @@ which found this to be the easier target to learn.
 
  We are interested in two questions. The first, more pragmatic question, is
  what are the best configuration of encoder/extractor architectures?
- We answer this question by evaluating \rouge{} recall and \meteor{} 
-\citep{denkowski:lavie:meteor-wmt:2014}
- performance across our six collected datasets. We perform the standard
+ We answer this by evaluating \rouge{} recall
+performance across our six collected datasets.
+ We also used \meteor{} 
+\citep{denkowski:lavie:meteor-wmt:2014} but omit these numbers here
+for space since they
+show the same trends; see \cite{kedzie2018deep} for the complete results.
+  We perform the standard
  stochastic gradient descent based optimization (using the Adam
- update \citep{kingma2014adam}) of the weighted negative log likehood 
- \[ \mathcal{L}(\theta) = -\sum_{\doc, \Labels \in \mathcal{D}} 
-            \sum_i \omega(\Labels_i) 
-        \log p(\Labels_i|\Labels_{<i}, \encoder(\doc); \theta) \]
-        where $\theta$ are model parameters and $\omega(\Labels_i)$ upweights
-        the positive labels to account for the imbalanced label distribution.
+ update \citep{kingma2014adam}) of the weighted negative log likelihood 
+ of the gold extract labels to fit model parameters. We upweight the loss for positive labels (i.e.
+ extractions) since they are relatively sparse compared to the negative 
+ labels.
+% \[ \mathcal{L}(\theta) = -\sum_{\doc, \Labels \in \mathcal{D}} 
+%            \sum_i \omega(\Labels_i) 
+%        \log p(\Labels_i|\Labels_{<i}, \encoder(\doc); \theta) \]
+   %     where $\theta$ are model parameters and $\omega(\Labels_i)$ upweights
+   %     the positive labels to account for the imbalanced label distribution.
 
 % We lack human reference extract labels for our datasets and so we obtain
 % said lable sequences heuristically, by finding a label sequence $\Labels^*$
@@ -270,8 +353,8 @@ which found this to be the easier target to learn.
  We perform several experiments to find answers. 
  We hypothesize that the lexical semantics encoded at the word embedding
  level will be important to subsequent sentence representations, and
- perform a comparison on learning with and with out fine tuning of the 
- embeddings. In both cases, embeddings are initialized with Glove
+ perform a comparison on learning with and without fine tuning of the 
+ embeddings. In both cases, embeddings are initialized with \textsc{Glove}
  embeddings pretrained on Wikipedia and Gigaword \citep{pennington2014glove}.
  
  
@@ -286,7 +369,7 @@ which found this to be the easier target to learn.
  Our final experiments attempt to tease out the effect of structural features 
  from the lexical. In this experiment, we shuffle the sentence order at 
  training time. In this setup, we obfuscate features about which content 
- was introduced in the article first, an important and well known bias in 
+ was introduced in the article first, an important and well known bias in the
  news domain \citep{nenkova2005automatic}. 
 
  
@@ -298,9 +381,9 @@ which found this to be the easier target to learn.
 
 The results of our main experiment comparing 
 the different extractors/encoders are shown in 
-Table~\ref{tab:results}.
+Table~\ref{tab:results} (Overall Results).
 Overall, we find no major advantage when using the CNN and RNN sentence
-encoders over the averaging encoder. The best performing encoder/extractor pair either 
+encoders over the averaging encoder (see \textcolor{red}{red} Seq2Seq Avg. row). The best performing encoder/extractor pair either 
 uses the averaging 
 encoder (five out of six datasets) or the differences 
 are not statistically significant. %When only comparing within the 
@@ -322,15 +405,16 @@ are not statistically significant. %When only comparing within the
 
 When looking at extractors, the Seq2Seq extractor is either part of 
 the best performing system (three out of six datasets) or is not 
-statistically distinguishable from the best extractor. 
+statistically distinguishable from the best extractor (see again 
+\textcolor{red}{red} Seq2Seq Avg. row). 
 
 Overall, on the news and medical journal domains, the differences are 
 quite small with the 
 differences between worst and best systems on the CNN/DM dataset 
-spanning only .56 of a ROUGE point. While there is more performance variability
+spanning only .56 of a \rouge{} point. While there is more performance variability
  in the Reddit and AMI data, there is less distinction among systems: 
  no differences are significant on Reddit
-and every extractor has at least one configuration that is indistinguishable
+and every extractor has at least one encoder configuration that is indistinguishable
 from the best system on the AMI corpus. This is probably due to the small test
 size of these datasets.
 %\hal{this is probably at least partially because of test set size. maybe mention this.}
@@ -368,10 +452,11 @@ size of these datasets.
  Given that learning a sentence encoder (averaging has no learned parameters)
  does not yield significant improvement, it is natural to consider whether
  learning word embeddings is also necessary. 
- In \autoref{tab:embeddings} we compare the performance of different extractors
+ In \autoref{tab:embeddings} (Word Embedding Learning) we compare the 
+ performance of different extractors
  using the averaging encoder, when the word embeddings are held fixed or 
  learned during training. In both cases, word embeddings are initialized with
- GloVe embeddings trained on a combination of Gigaword and Wikipedia.
+ \textsc{Glove} embeddings trained on a combination of Gigaword and Wikipedia.
 % \hal{TRAINED ON WHAT? JUST THE DEFAULT ONES?}
  When learning embeddings, words occurring 
  fewer than three times in the training data are mapped to an unknown
@@ -384,14 +469,14 @@ fixed embeddings are as good or better than the learned embeddings.
 This is a somewhat surprising finding on the CNN/DM data since it is reasonably
 large, and learning embeddings should give the models more
 flexibility to identify important word features.\footnote{The AMI corpus is an exception here where learning \emph{does} lead to small
-performance boosts, however, only in the Seq2Seq extractor is this diference 
+performance boosts, however, only in the Seq2Seq extractor is this difference 
 significant; it is quite possible that this is an artifact of the very small
 test set size.}
 %\hal{why is it surprising?} \textcolor{green}{[[CK: Because learning embeddings should give the model more capacity to represent important patterns]]}
 This suggests that we cannot extract much generalizable learning signal 
 from the content other than what is already present from initialization. 
 Even on PubMed, where the language is quite different from the news/Wikipedia
-articles the GloVe embeddings were trained on, learning leads to 
+articles the \textsc{Glove} embeddings were trained on, learning leads to 
 significantly worse results.
 
 %The language of this corpus is quite different from the 
@@ -412,9 +497,9 @@ study, selectively removing nouns, verbs
 function words (adpositions, determiners, conjunctions).
 %Additionally, we ran ablation experiments
 %using part-of-speech (POS) tags. \hal{this needs to be justified. why is this experiment interesting?}
-All datasets were automatically tagged using
-the spaCy part-of-speech (POS)
-tagger\footnote{https://github.com/explosion/spaCy}.   
+%All datasets were automatically tagged using
+%the spaCy part-of-speech (POS)
+%tagger\footnote{https://github.com/explosion/spaCy}.   
 %\kathy{I'm still curious what would happen if you separately removed all conjunction tags and later remaining POS.}
 %We experimented with selectively removing 
 %\begin{itemize}
@@ -429,7 +514,7 @@ The embeddings of removed words were replaced with a zero vector,
 preserving the order and position of the non-ablated words in the sentence.
 Ablations were performed on training, validation, and test partitions,
 using the RNN extractor with averaging encoder.
-\autoref{tab:ablations} shows the results of the POS
+\autoref{tab:ablations} (POS Ablations) shows the results of the POS
 tag ablation experiments. 
 While removing any word class from the representation generally hurts 
 performance (with statistical significance), on the news domains,
@@ -457,10 +542,10 @@ on DUC 2002 and AMI.
 
  \input{dl_based_salience_models/figures/table_inorder_vs_shuffled.tex}
 \paragraph{Document Shuffling} Sentence position is a well known and 
-powerful feature for news summarization \cite{hong2014improving}, owing 
+powerful feature for news summarization \citep{hong2014improving}, owing 
 to the intentional lead bias in the news article writing\footnote{\url{https://en.wikipedia.org/wiki/Inverted_pyramid_(journalism)}}; it also explains the difficulty in beating
 the lead baseline for single-document summarization 
-\cite{nenkova2005automatic,rau:1999}.
+\citep{nenkova2005automatic,rau:1999}.
 In examining the generated summaries, we found
 most of the selected sentences in the news domain came from the lead paragraph
 %\hal{i feel like there must be citations to dig up here from like the 90s about lead summarization in news... it's also an intentional bias: maybe the right thing is to cite a style guide from a newsppaer that says to write this way}
@@ -481,7 +566,7 @@ the model trained on unshuffled data; if the models trained on shuffled data
 drop in performance, then this indicates the lead bias is the relevant factor.
 %in learning content selection.
 
-\autoref{tab:shuffle} shows the results
+\autoref{tab:shuffle} (Document Shuffling) shows the results
 of the shuffling experiments. 
 The news domains and PubMed suffer a significant drop in performance 
 when the document order is shuffled. By comparison, there is no significant difference between the shuffled and in-order models on 

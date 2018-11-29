@@ -1,26 +1,81 @@
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 
+
 \begin{figure}
 \centering
-\begin{tabular}{L{40mm}|L{40mm}|L{40mm}|L{20mm}}
-  \centering \textbf{Input Text} 
-& \centering \textbf{Reference Abstract}  
-& \centering \textbf{Cloze Question}  
-& \begin{center} \textbf{Cloze Answer} \end{center} \\
-\centering $(\evidence)$ & \centering $(\utterance)$ 
-& \centering $(\bar{\evidence})$ 
-& \begin{center}$(\bar{\utterance})$\end{center} \\
-\hline
+\begin{tabular}{|l|L{95mm}|}
+    \hline
+   \textbf{Input Text} ($x$) & 
 The BBC producer Oisin Tymon allegedly struck by Jeremy
 Clarkson will not press charges against the ``Top
-Gear'' host, his lawyer said Friday.\newline 
-~~~~~~~~\large{$\vdots\quad\vdots\quad\vdots$} &
+Gear'' host, his lawyer said $\ldots \ldots \ldots$\\
+\hline
+ \textbf{Reference Abstract} ($y$) & 
 Producer Oisin Tymon will not press charges against Jeremy
-Clarkson, his lawyer says. &
-The BBC producer $\blacksquare~\blacksquare$ allegedly struck by Jeremy
+Clarkson, his lawyer says.\\
+\hline
+ \textbf{Cloze Question} ($\bar{x}$) &
+ The BBC producer $\blacksquare~\blacksquare$ allegedly struck by Jeremy
 Clarkson will not press charges against the ``Top
-Gear'' host, his lawyer said Friday. & Oisin Tymon \\
+Gear'' host, his lawyer said. \\
+\hline
+ \textbf{Cloze Answer} ($\bar{y}$) &   Oisin Tymon \\
+\hline
 \end{tabular}
+
+
+
+%?\begin{figure}
+%?\centering
+%?\begin{tabular}{L{28mm}|L{47mm}|L{40mm}|L{20mm}}
+%?    \small
+%?    \textbf{Input Text} (x)
+%?    & \small \textbf{Reference Abstract} (y)
+%?    & \small \textbf{Cloze Question} (x) 
+%?    & \small \textbf{Cloze Answer} (y) \\
+%?%\centering $(\evidence)$ & \centering $(\utterance)$ 
+%?%& \centering $(\bar{\evidence})$ 
+%?%& \begin{center}$(\bar{\utterance})$\end{center} \\
+%?\hline
+%?\small
+%?The BBC producer Oisin Tymon allegedly struck by Jeremy
+%?Clarkson will not press charges against the ``Top
+%?Gear'' host, his lawyer said.\newline 
+%?~~~~~~~~\large{$\vdots\quad\vdots\quad\vdots$} &
+%?Producer Oisin Tymon will not press charges against Jeremy
+%?Clarkson, his lawyer says. &
+%?The BBC producer $\blacksquare~\blacksquare$ allegedly struck by Jeremy
+%?Clarkson will not press charges against the ``Top
+%?Gear'' host, his lawyer said. & Oisin Tymon \\
+%?\end{tabular}
+%?
+%?\caption{Example Summarization Cloze Question}
+%?\label{fig:cloze_example}
+%?\end{figure}
+%?
+%?
+%?
+%?\begin{figure}
+%?\centering
+%?\begin{tabular}{L{40mm}|L{40mm}|L{40mm}|L{20mm}}
+%?  \centering \textbf{Input Text} 
+%?& \centering \textbf{Reference Abstract}  
+%?& \centering \textbf{Cloze Question}  
+%?& \begin{center} \textbf{Cloze Answer} \end{center} \\
+%?\centering $(\evidence)$ & \centering $(\utterance)$ 
+%?& \centering $(\bar{\evidence})$ 
+%?& \begin{center}$(\bar{\utterance})$\end{center} \\
+%?\hline
+%?The BBC producer Oisin Tymon allegedly struck by Jeremy
+%?Clarkson will not press charges against the ``Top
+%?Gear'' host, his lawyer said Friday.\newline 
+%?~~~~~~~~\large{$\vdots\quad\vdots\quad\vdots$} &
+%?Producer Oisin Tymon will not press charges against Jeremy
+%?Clarkson, his lawyer says. &
+%?The BBC producer $\blacksquare~\blacksquare$ allegedly struck by Jeremy
+%?Clarkson will not press charges against the ``Top
+%?Gear'' host, his lawyer said Friday. & Oisin Tymon \\
+%?\end{tabular}
 
 \caption{Example Summarization Cloze Question}
 \label{fig:cloze_example}

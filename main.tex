@@ -1,13 +1,50 @@
 \documentclass[12pt]{article}
 
+\usepackage{graphics}
+\usepackage{epsfig}
+\usepackage{times}
+\usepackage{amsmath}
+
+
+
+% <http://psl.cs.columbia.edu/phdczar/proposal.html>:
+
+%
+
+% The standard departmental thesis proposal format is the following:
+
+%        30 pages
+
+%        12 point type
+
+%        1 inch margins all around = 6.5   inch column
+
+%        (Total:  30 * 6.5   = 195 page-inches)
+
+%
+
+% For letter-size paper: 8.5 in x 11 in
+
+% Latex Origin is 1''/1'', so measurements are relative to this.
+
+
+
+\topmargin      0.0in
+\headheight     0.0in
+\headsep        0.0in
+\oddsidemargin  0.0in
+\evensidemargin 0.0in
+\textheight     9.0in
+\textwidth      6.5in
 
 \input{packages.tex}
 
 %\let\emph\relax % there's no \RedeclareTextFontCommand
 \DeclareTextFontCommand{\textbfit}{\bfseries\em}
 
-\title{\textbf{What to Write and How to Write It}\\
-       \textit{\large Modeling Content Selection and Generation for Text Summarization}\\
+\title{\textbf{Salience Estimation and Faithful Generation}\\
+    \textit{\large Modeling Methods for Text Summarization and Generation}\\
+       %Content Selection and Generation for Text Summarization}\\
        ~\\
        ~\\\large\textbf{Thesis Proposal}}
 \author{~\\
@@ -16,7 +53,7 @@
         Columbia University\\
         \url{kedzie@cs.columbia.edu}}
 
-\date{December $10^{\textrm{th}}$, 2018}
+\date{November $28^{\textrm{th}}$, 2018}
 
 %\usepackage{unicode-math}
 %\setmathfont{XITS Math}
@@ -50,7 +87,7 @@
 
 \input{macros/global.tex}
 
-\input{list_of_definitions.tex}
+%\input{list_of_definitions.tex}
 
 \newpage
 
@@ -65,13 +102,12 @@
 \input{feature_based_salience_models/main.tex}
 \input{dl_based_salience_models/main.tex}
 \input{faithful_generation/main.tex}
-\pagebreak
 \input{chapter6/chapter6.tex}
 \input{chapter7/chapter7.tex}
 
 \bibliographystyle{plainnat}
 \bibliography{cites}
 
-\input{appendix.tex}
+%\input{appendix.tex}
 
 \end{document}

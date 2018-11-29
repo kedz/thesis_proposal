@@ -2,56 +2,122 @@
 
 
 \input{dl_based_salience_models/figures/4_2_wimp_model.tex}
-Our previous experiments revealed that lexical sematics were not the 
+
+
+
+
+%\begin{enumerate}
+%    \item explainability, can point to word importance scores
+%    \item adaptability to mds or other non position dependent problems
+%    \item augment with more direct supervision
+%    \item experiment with other word embedding features (prior work suggests
+%        they are important)
+%   \item ablation experiments
+%   \item use as input guidance to seq2seq generative model
+%\end{enumerate}
+%
+%\begin{enumerate}
+%    \item even if model doesn't work out we expect extra embedding features
+%        to be useful. Could create surprise embeddings from background
+%        corpus.
+%    \item word class ablated domain transfer
+%\end{enumerate}
+
+Our previous experiments revealed that lexical semantics were not the 
 main driver of learning in sentence extractive news summarization. 
-One could plausibly argue that it is a feature, not a bug, and that 
+One could plausibly argue that it is a feature, not a bug, that 
 the structural
 signals in news are intentional and not to be avoided. However, we think more 
-attention could be paid to estimating importance scores at the word level.
-We are motivated by potential application to abstractive generation: better
-word level importance estimation could help to remove all but the most 
-necessary content from the documents as a preprocessing stage before
-abstractive summarization. We are also encouraged by practices
-in multi-document news summarization, where word importance weights 
-are the main ingredient in sentence representations. 
+attention could be paid to estimating saliency at the word level.
+
+Direct estimation of word importance has the following benefits.
+First, it provides increased explainability that the previously
+considered sentence extractive models do not have. 
+Is a model predicting to extract because the sentence
+contains a discourse signaling phrase like ``in conclusion,''
+or is it the mention
+of an entity central to the story?
+The sentence extractor architectures
+can only show salience at the sentence
+level, making it hard to say anything specific about what
+words or phrases are contributing to this. 
+
+Moreover, the previous sentence level
+experiments revealed that different domains put salience
+on different word classes, e.g. adjectives and adverbs are particularly 
+important for Reddit but less so for news. The availability of word level
+importance scores would help us to judge what models are likely 
+to perform well on other domains based on which word
+classes they assign greater importance.
+
+By focusing on word level estimation, we can also explore embeddings
+of features that have previously been shown to be useful for word importance
+estimation like syntax \citep{rose2005relative} or information theoretic notions of surprise and 
+background information 
+\citep{lin2000automated,hong2014improving,louis2014bayesian}. These features
+have yet do be explored in conjunction with deep neural network models
+for summarization. With RNNs we can also combine these independent word
+level features with representations of the surrounding document context.
+
+Finally, word importance estimation can be used as a preprocessing 
+step for abstractive summarization \citep{gehrmann2018bottom}. We would
+like to expand upon prior work in this area by also using a predicted
+word importance distribution as a form of supervised attention, i.e.
+the cumulative attention of an encoder-decoder abstractive 
+summarization model should roughly match the distribution proposed by our word
+importance model.
 
 
-\newcommand{\classy}{\textsc{Classy}}
-\newcommand{\occams}{\textsc{Occams}}
 
-%\subsubsection{A brief discussion of \mlingsys.}
-
-\occams{} and its antecedent \classy{} have been consistent top performers in various
-summarization workshops \citep{conroyback,conroyclassy,davis2012occams}. 
-In general their main approach 
-is to represent each sentence as a sparse bag-of-words, where non-zero
-entries correspond to word importance weights for the words found in the 
-sentence. Typically, tf-idf weights are used for the importance scores.
-The term by sentence matrix representing the document or documents to be
-summarized is then factorized into two  matrices (typically with
-non-negative entries) representing term factors and sentence factors.
-The entries in the sentence factor matrix represent latent ``topics,'' 
-and apriori the importance of each sentence is the sum of its latent topic
-entries.
-
-Sentence selection can subsequently be performed using one of several methods.
-In the naive case, one can select the sentence with the highest vector norm, 
-substract the selected latent factors from the remaining sentence vectors
-(zeroing out any terms that become negative), and repeating until the
-summary length budget is reached. More sophisticated selection procedures
-involving multi-dimensional knapsack packing or submodular optimization 
-can be used, however these are not the focus of this work.
-
-One draw back to this approach is that the sentence factors and word 
-importance scores are unsupervised with respect to the final summarization
-objective; their utility to the summarization task is a happy coincidence.
-Additionally, the word importance scores are not assigned based on the 
-context in which the word appears.
-
-We propose to address these issues by learning word level importance 
-scores in the process of single document sentence extractive summarization.
-Additionally, we propose a method of adapting these scores from the 
-single document case to multi-document summarization.
+%One can look at
+%the probability of sentence extraction to get a sense of w
+%
+%
+%
+%We are motivated by potential application to abstractive generation: better
+%word level importance estimation could help to remove all but the most 
+%necessary content from the documents as a preprocessing stage before
+%abstractive summarization. We are also encouraged by practices
+%in multi-document news summarization, where word importance weights 
+%are the main ingredient in sentence representations. 
+%
+%
+%\newcommand{\classy}{\textsc{Classy}}
+%\newcommand{\occams}{\textsc{Occams}}
+%
+%%\subsubsection{A brief discussion of \mlingsys.}
+%
+%\occams{} and its antecedent \classy{} have been consistent top performers in various
+%summarization workshops \citep{conroyback,conroyclassy,davis2012occams}. 
+%In general their main approach 
+%is to represent each sentence as a sparse bag-of-words, where non-zero
+%entries correspond to word importance weights for the words found in the 
+%sentence. Typically, tf-idf weights are used for the importance scores.
+%The term by sentence matrix representing the document or documents to be
+%summarized is then factorized into two  matrices (typically with
+%non-negative entries) representing term factors and sentence factors.
+%The entries in the sentence factor matrix represent latent ``topics,'' 
+%and apriori the importance of each sentence is the sum of its latent topic
+%entries.
+%
+%Sentence selection can subsequently be performed using one of several methods.
+%In the naive case, one can select the sentence with the highest vector norm, 
+%substract the selected latent factors from the remaining sentence vectors
+%(zeroing out any terms that become negative), and repeating until the
+%summary length budget is reached. More sophisticated selection procedures
+%involving multi-dimensional knapsack packing or submodular optimization 
+%can be used, however these are not the focus of this work.
+%
+%One draw back to this approach is that the sentence factors and word 
+%importance scores are unsupervised with respect to the final summarization
+%objective; their utility to the summarization task is a happy coincidence.
+%Additionally, the word importance scores are not assigned based on the 
+%context in which the word appears.
+%
+%We propose to address these issues by learning word level importance 
+%scores in the process of single document sentence extractive summarization.
+%Additionally, we propose a method of adapting these scores from the 
+%single document case to multi-document summarization.
 
 \subsubsection{Proposed Model}
 
@@ -89,24 +155,26 @@ single document case to multi-document summarization.
 %~\\
 %~\\
 
-Let $\vocab$ be a finite vocabulary of words. A document $\doc$
-is a sequence of $m$ words $(\word_1, \word_2, \ldots, \word_m) \in \vocab^m$.
+ A document $\doc$
+is a sequence of $m$ words $(\word_1, \word_2, \ldots, \word_m) \in \vocab^m$
+where  $\vocab$ is a finite vocabulary.
 We define two mappings of words to dense vector representations.
 The first $\fdef{\wordFeatures}{\vocab}{\Rn{n_f}}$ maps words to 
 a concatenation of feature embeddings whose total dimension is of size $n_f$. 
 The various components of the feature embeddings include the word's \glove{} 
 embedding, as well as embeddings for sentence position, document frequency,
+topic signature, dependency role, 
 and other word features that have been shown to be useful for summarization.
 The second mapping
-$\fdef{\contextFeatures}{\vocab}{\Rn{n_c}}$ maps the word to it's contextual
+$\fdef{\contextFeatures}{\vocab}{\Rn{n_c}}$ maps the word to its contextual
 embedding; here this corresponds to the output of \elmo{} 
 \citep{peters2018deep} at that word's
 position in the document. 
 The importance score $\wordImportance_i$ of a word $\word_i$ is the output of 
-a feedforward layer 
+a feed-forward layer 
 \[ \wordImportance_i = \sigma\Big(\mathbf{v}^T \left[\begin{array}{c} \wordFeatures(\word_i) \\ \contextFeatures(\word_i) \end{array} \right] + b \Big) \]
     where $\mathbf{v} \in \Rn{n_f + n_c}$ and $b \in \R$ are learned weight
-and bias parameters, and $\sigma$ is the logistic sigmoid.
+and bias parameters, and $\sigma$ is the logistic sigmoid. 
 
 Next, we aggregate the flat token level scores $\wordImportance_i$ into a
 bag-of-words (BOW) 
@@ -117,45 +185,72 @@ representation of the $i$-th sentence with entries
 \[ \bow_{i,j} = \begin{cases} 
     0 & \textrm{if $\word_k \ne \vocab_j $ for all $k \in I_i $} \\ 
 \sum_{k \in I_i} \mathbbm{1}\{\word_k = \vocab_j \} \cdot \wordImportance_k  & \textrm{otherwise}     \end{cases} \]
-        for all $j \in \{1, \ldots, |\vocab|\}$.
-
+        for all $j \in \{1, \ldots, |\vocab|\}$. I.e. we create weighted
+BOW representations of the sentences using the word importance scores 
+as the weights (summing the scores if a word occurs multiple times in 
+the same sentence).
 
 \input{dl_based_salience_models/figures/4_2_sent_ext_alg.tex}
 
 
         With the BOW representations in hand, we perform sentence selection
         using the algorithm presented in \autoref{alg:wimp_ext_alg} to 
-        obtain a predicted extract indices $\predLabels$ and their associated
+        obtain  predicted extract indices $\predLabels$ and their associated
         overall summary score $\hat{\eta}$.
 
         We can optimize this model using a margin loss, where given a 
         gold extract sequence  $\labels$, we can compute the associated
         gold extract summary score $\eta$ and then minimize the following
-        loss function \[\mathcal{L}_{ext}(\predLabels, \labels;\theta) = \max\big(0, 1 + \hat{\eta} - \eta\big)\]
-        with respect to the parameters $\theta$ of the word importance 
+        loss function \[\mathcal{L}_{ext}(\predLabels, \labels;\boldsymbol{\theta}) = \max\big(0, 1 + \hat{\eta} - \eta\big)\]
+        with respect to the parameters $\boldsymbol{\theta}$ of the word importance 
         predictor.
-        If needed, we can also introduce a supervised learning signal to the 
+In order to minimize the margin loss,
+the  scores $\wordImportance_i$ must reflect the contributions
+of individual words to a sentence's rank for extraction, with words
+more predictive of summary inclusion
+receiving higher values.
+%sentences they occur in, and 
+%their 
+
+
+
+
+        Furthermore,  can also introduce a supervised learning signal to the 
         individual word importance scores by collecting labels $\zeta_i$ for
         each $\wordImportance_i$ such that $\zeta_i = 1$ if $\word_i$ occurs
-        and any human reference abstract and $0$ otherwise. The 
+        in any human reference abstract and $0$ otherwise. The 
         $\objective_{ext}$ would then be augmented with an additional cross
         entropy loss for the word level predictions:
-        \[ \mathcal{L}_{word}(\wordImportance, \zeta; \theta) = -\sum_{i=1}^m \zeta_i \log \wordImportance_i + (1 - \zeta_i) \log (1 - \wordImportance_i). \] 
+        \[ \mathcal{L}_{word}(\wordImportance, \zeta; \boldsymbol{\theta}) = -\sum_{i=1}^m \zeta_i \log \wordImportance_i + (1 - \zeta_i) \log (1 - \wordImportance_i). \] 
 
 
 
+\subsubsection{Proposed Experiments}
 
-        \paragraph{Adaptation to MDS} We also propose a simple 
+  Our main experiment will be to demonstrate that 
+the performance of this word level model matches or exceeds the performance
+of the sentence extractor models from the previous section. Even only matching 
+performance would be useful, since the word level model would add
+interpretability. 
+
+Additionally, we will further demonstrate the utility of  word level salience
+estimates 
+by using them as plug-in replacements for \tfidf{} weights or unigram 
+probabilities in unsupervised methods like  
+\textsc{LexRank} \citep{erkan2004lexrank} and \textsc{SumBasic} 
+\citep{nenkova2005impact}, i.e. using word importance should lead to 
+improvements in these  sentence extraction algorithms.
+
+We also propose adapting the word level model to the news MDS task. 
+We will do this in two ways. The first is to run \textsc{LexRank} and 
+\textsc{SumBasic} methods on the MDS data with our drop-in word salience
+scores. These methods have been successfully applied to MDS and we expect that
+they would benefit from supervised word importance scores.
+
+We also propose a simple 
         self attention-based modification to
-        the word importance aggregation step to help adapt this method
-        to multi-document summarization (MDS). \cite{conroy2013multilingual} 
-        found
-        that dimensionality reduction on the BOW representations improves
-        summarizer performance in the MDS setting (but not as much on
- single document
-        summarization). 
-
-
+        the word importance aggregation step to help adapt our margin
+learning framework to MDS. 
         We plan to experiment with the following importance 
         aggregation method. First, given the outputs of the contextual features
         $\mathbf{h}_i = \contextFeatures(\word_i)$, 
@@ -166,17 +261,24 @@ representation of the $i$-th sentence with entries
         Next we compute an attention weighted word importance score $\bar{\wordImportance}_i$ for each word in the input using the following formula,
         \[ \bar{\wordImportance}_i = \sum_{j=1}^m \wordImportance_j \cdot \Lambda_{i,j}.\]
         We then use the aggregated word importance scores 
-    $\bar{\wordImportance}_i$ inplace of their nonaggregated counterparts
-        in the creating the BOW representations $\omega_j$.
+    $\bar{\wordImportance}_i$ in place of their non-aggregated counterparts
+    in the creating the BOW representations $\boldsymbol{\omega}_j$.
 
         Our motivation is that by accumulating scores based on context
         similarity, words and topics that appear in multiple documents 
         will accumulate the bulk of the word importance scores, giving 
         an added boost to sentences that contain them. Implicitly, errant
         words from one document that are not on topic to the cluster will
-        effectively not contribute much to a sentences score, reducing the 
-        effectve dimension of the BOW vectors and regularizing individual
+        not contribute much to a sentences score, reducing the 
+        effective dimension of the BOW vectors and regularizing individual
         sentences to the document cluster's mean.
+          \cite{conroy2013multilingual} 
+        found
+        that dimensionality reduction on the BOW representations improves
+        summarizer performance in the MDS setting (but not as much on
+ single document
+        summarization). 
+
 
         
         Since we are training our models on single documents, we expect that
@@ -192,7 +294,24 @@ representation of the $i$-th sentence with entries
 %        and to hard attention assignments using Brown clustering.
 
 
+Finally, we would perform a similar series of ablation experiments as in
+our sentence salience paper, where we 
+remove various feature representations or scramble the document or sentence
+order, so that we might better understand what learning signals are most 
+important in the data. These experiments could inform additional genre 
+transfer experiments. E.g. we could train a word level model only on 
+adjectives and adverbs
+in the news domain and see if that model transfered better to the Reddit
+stories than the full news model.
 
+If our margin learning framework does not work out, we should still be able to
+gain some benefit from using additional word feature embeddings in our 
+existing sentence extractor models. 
+We could perform ablation experiments to see if richer word representations
+changed the focus of learning from the implicit structure features that
+were dominant previously. Additionally we could introduce a similar word
+level auxiliary objective to the sentence extractor models to provide
+additional interpretability, if not performance.
 
 
 

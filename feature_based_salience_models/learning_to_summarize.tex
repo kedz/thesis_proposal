@@ -6,7 +6,7 @@ incur latency penalties if important information enters the stream
 at the start of the hour.
 Ideally we would process new documents as soon as possible in order 
 to minimize the negative effects of latency. Second, the salience
-regressors were statically trained without exploration. If we had 
+regression models were statically trained without exploration. If we had 
 some sort of exploration during training, we could take advantage of 
 features between previous sentence selection decisions and the current
 state of the update summary (something we didn't model in \sap).
@@ -28,7 +28,7 @@ in keeping with the learning-to-search literature.
 %meaning that at test time errors are likely to snowball over time.
 
 The oracle policy $\oraclePolicy$ has knowledge of what nuggets, 
-if any, are present in each sentence in the document stream, and it's behavior
+if any, are present in each sentence in the document stream, and its behavior
 is quite simple: it processes the document stream sequentially and when it 
 encounters a sentence with a novel nugget, it adds that sentence to the update
 summary.
@@ -39,8 +39,8 @@ would be sub-optimal because the oracle is perfect and it would finish
 recovering all of the nuggets quite quickly and then do nothing for
 the remainder of the stream. In practice, our learned model is likely to
 make mistakes, missing the first few appearances of a nugget but hopefully
-recovering them as repetition in the stream makes them more likely to be 
-selected. Only following the oracle's first best pass would not help us learn
+we recover them as repetition in the stream makes them more likely to be 
+selected. If we only followed the oracle's first best pass, it would not help us learn
 to recover from errors.
 
 To make better use of the oracle, we adopt the locally optimal learning to
@@ -48,7 +48,7 @@ search (LOLS) regime \citep{chang2015learning}, one of a family of
 learning-to-search algorithms. In order to formally describe the algorithm, we
 first introduce some notation. We define the stream summarization task as a 
 Markov decision process. We observe a sequence of states $\lsState_\lsStep \in 
-\lsStateSpace$ which correpsond to observing the first $\lsStep$ sentences in 
+\lsStateSpace$ which correspond to observing the first $\lsStep$ sentences in 
 the stream along with the first $\lsStep-1$ extraction decisions. A policy 
 $\policy \in \policySpace$ maps states to
 actions where the action space $\lsActionSpace = \{\lsAction_0, \lsAction_1\}$ contains two 
@@ -86,17 +86,17 @@ two phases. Consider a case where the document stream consists of $n$
 sentences. The first phase, called 
 the \textit{roll-in}, uses the current model policy $\modelPolicy$ (which
 is initially random) to explore $\lsStep$ steps into the stream, i.e. starting
-from state $\lsState_1$, we repeatly apply $\modelPolicy$ and take it's 
+from state $\lsState_1$, we repeatedly apply $\modelPolicy$ and take its 
 predicted action, stopping at state $\lsState_\lsStep$. 
 In the second phase we complete the trajectory using either the oracle 
-$\oraclePolicy$ or $\modelPolicy$ (the probability $\lsChoiceParam$ of using 
+$\oraclePolicy$ or the model $\modelPolicy$ (the probability $\lsChoiceParam$ of using 
 $\oraclePolicy$ over $\modelPolicy$ is a hyperparameter). Let 
-$\rollOutPolicy$ be the roll-out policy, and let 
+$\rollOutPolicy$ be the roll-out policy (either $\oraclePolicy$ or $\modelPolicy$) , and let 
 $\lsSaliencesRollOut^{(\lsState_\lsStep, \lsAction)}$ be the extract label
 sequence implied by the completed trajectory of using $\modelPolicy$
 to navigate to $\lsState_\lsStep$, taking action $\lsAction$, 
 and then using $\rollOutPolicy$ to complete the trajectory from 
-$\lsState_{\lsStep + 1}$.
+$\lsState_{\lsStep + 1}$ to the end state (i.e. the end of the document stream).
 
 We also associate with $\lsSaliencesRollOut^{(\lsState_\lsStep, \lsAction)}$
 a non-negative cost $\lsCost(\lsState_\lsStep, \lsAction)$ which connects 
@@ -131,20 +131,22 @@ squared error of the sampled costs, i.e. we minimize the function
     \objective(\policyParams) =
     \frac{1}{|\dataset|} \sum_{\lsFeats(\lsState_\lsStep), \lsCost(\lsState_\lsStep, \lsAction), \lsAction \in \dataset}  
 \Big( \lsCost(\lsState_\lsStep, \lsAction) -  \policyParams_{\lsAction} \cdot \lsFeats(\lsState_\lsStep, \lsAction) \Big)^2 \]
-using stochastic gradient descent. 
+ with respect to $\policyParams$ using stochastic gradient descent. 
 
 %\input{feature_based_salience_models/figures/lols_algo.tex}
 
-See \cite{kedzie2016real} for the full LOLS training algorithm.
+See \cite{kedzie2016real} for the full training algorithm.
 The benefit of using $\modelPolicy$ to obtain the roll-in trajectory 
-is that the oberved state spaces are more likely to be similar to ones visited
+is that the observed state spaces are more likely to be similar to ones visited
 on test data since compounding error in $\modelPolicy$ will also effect the 
 states visited at training 
 time and thus minimizing train/test distribution mismatch. 
 Randomly selecting $\oraclePolicy$ versus $\modelPolicy$ is similarly 
 helpful for ensuring that the completed trajectory is somewhat realistic
-(i.e. when using $\modelPolicy$) but can also learn the behavior 
-of the more perfect oracle. The theoretical motivations of LOLS can be found
+(i.e. when using $\modelPolicy$) but suitable for imitation due to the 
+more optimal choices of the oracle.
+%of the more perfect oracle. 
+The theoretical motivations of LOLS can be found
 in greater depth in \cite{chang2015learning}.
 
 
@@ -246,7 +248,7 @@ and to add noisy labels to the corpus.
  augmenting the relevance judgments with these nugget match soft labels, we
  only include those that have a probability greater than 90\% under the
  classifier. Overall these additional labels increase the number of matched
- sentences by 1600\%.
+ sentences by 16 fold.
  
 % For evaluation, the summarization system only has access to the query and
 % the document stream, without knowledge of any nugget matches (manual or
@@ -329,7 +331,7 @@ and to add noisy labels to the corpus.
  one exists in the sample. 
 
  In order to avoid overfitting, we select the model iteration for each
- training fold based on its performance (in F-measure of $\expectedGain$ and
+ training fold based on its performance (in harmonic mean of $\expectedGain$ and
  $\comp$) on the development set.
 
 
@@ -341,15 +343,14 @@ and to add noisy labels to the corpus.
  One of the top performing systems 
  at TREC 2015 was a heuristic method that only
  examined article first sentences, selecting those that were below a cosine
- similarity threshold to any of the previously selected updates. We
+ similarity threshold to any of the previously selected updates \citep{clarke2015}. We
  implemented a variant of that approach using the latent-vector
  representation used throughout this work \citep{guo2012simple}. 
  The development set was used to
- set the threshold. We refer to this model as \modelCos{} (Team
- \textsc{WaterlooClarke} at TREC 2015).
+ set the threshold. We refer to this model as \modelCos{}.
   
 % \paragraph{Salience-biased Affinity Propagation}
- We also compare this model to a simplified varient of the \sap{} model
+ We also compare this model to a simplified variant of the \sap{} model
 where we use the summary
 nugget probability feature as the salience estimator (the Gaussian process
 models were difficult to scale to the expanded dataset).  The time
@@ -399,7 +400,7 @@ models were difficult to scale to the expanded dataset).  The time
  \ref{fig:lsfsresults} shows the latency penalized results of the first
  sentence only runs.  The \modelLS{} approaches still dominate \modelCos{}
  and receive larger positive effects from the latency penalty despite also
- being restricted to the first sentence. Clearly having a model (beyond
+ being restricted to the first sentence. Clearly having a salience model (beyond
  similarity) of what to select is helpful. Ultimately we do much better when
  we can look at the whole document.
   

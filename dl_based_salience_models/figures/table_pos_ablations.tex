@@ -4,19 +4,43 @@
     \toprule
     \multirow{1}{*}{\textbf{Ablation}}  & \multicolumn{1}{g}{\textbf{CNN/DM}} & \multicolumn{1}{c}{\textbf{NYT}} & \multicolumn{1}{g}{\textbf{DUC}} & \multicolumn{1}{c}{\textbf{Reddit}} & \multicolumn{1}{g}{\textbf{AMI}} & \multicolumn{1}{c}{\textbf{PubMed}}\\
     \hline
-    all words & \textbf{25.4}\textsuperscript{~} ~~~~~~~ & \textbf{34.7}\textsuperscript{~} ~~~~~~~~& 22.7\textsuperscript{~} ~~~~~~~~& \textbf{11.4}\textsuperscript{~} ~~~~~~~~& 5.5\textsuperscript{~} ~~~~~~~~~& \textbf{17.0}\textsuperscript{~} ~~~~~~~ \\
-    -nouns & 25.3\textsuperscript{$\dagger$} \footnotesize{(0.1)}& 34.3\textsuperscript{$\dagger$} \footnotesize{(0.4)}& 22.3\textsuperscript{$\dagger$} ~\footnotesize{(0.4)}& 10.3\textsuperscript{$\dagger$} \footnotesize{(1.1)} & 3.8\textsuperscript{$\dagger$} \footnotesize{(1.7)}& 15.7\textsuperscript{$\dagger$} \footnotesize{(1.3)}\\
-    -verbs & 25.3\textsuperscript{$\dagger$} \footnotesize{(0.1)}& 34.4\textsuperscript{$\dagger$} \footnotesize{(0.3)} & 22.4\textsuperscript{$\dagger$} ~\footnotesize{(0.3)}& 10.8\textsuperscript{~} ~\footnotesize{(0.6)} & 5.8\textsuperscript{~} \footnotesize{(-0.3)} & 16.6\textsuperscript{$\dagger$} \footnotesize{(0.4)}\\
-    -adj/adv & 25.3\textsuperscript{$\dagger$} \footnotesize{(0.1)}& 34.4\textsuperscript{$\dagger$} \footnotesize{(0.3)} & 22.5\textsuperscript{~} ~\footnotesize{(0.2)} & ~~9.5\textsuperscript{$\dagger$} \footnotesize{(1.9)} & 5.4\textsuperscript{~} ~\footnotesize{(0.1)} & 16.8\textsuperscript{$\dagger$} \footnotesize{(0.2)}\\
-    -function & 25.2\textsuperscript{$\dagger$} \footnotesize{(0.2)} & 34.5\textsuperscript{$\dagger$} \footnotesize{(0.2)} & \textbf{22.9}\textsuperscript{$\dagger$} \footnotesize{(-0.2)} & 10.3\textsuperscript{$\dagger$} \footnotesize{(1.1)}& \textbf{6.3}\textsuperscript{$\dagger$} \footnotesize{(-0.8)}& 16.6\textsuperscript{$\dagger$} \footnotesize{(0.4)}\\
+    all words & \textbf{25.4}\textsuperscript{~} & \textbf{34.7}\textsuperscript{~} & 22.7\textsuperscript{~} & \textbf{11.4}\textsuperscript{~} & 5.5\textsuperscript{~} & \textbf{17.0}\textsuperscript{~}  \\
+    -nouns & 25.3\textsuperscript{$\dagger$} & 34.3\textsuperscript{$\dagger$} & 22.3\textsuperscript{$\dagger$} & 10.3\textsuperscript{$\dagger$} & 3.8\textsuperscript{$\dagger$} & 15.7\textsuperscript{$\dagger$} \\
+    -verbs & 25.3\textsuperscript{$\dagger$} & 34.4\textsuperscript{$\dagger$} & 22.4\textsuperscript{$\dagger$} & 10.8\textsuperscript{~} & 5.8\textsuperscript{~} & 16.6\textsuperscript{$\dagger$} \\
+   -adj/adv & 25.3\textsuperscript{$\dagger$} & 34.4\textsuperscript{$\dagger$} & 22.5\textsuperscript{~} & ~~9.5\textsuperscript{$\dagger$} & 5.4\textsuperscript{~} & 16.8\textsuperscript{$\dagger$} \\
+   -function & 25.2\textsuperscript{$\dagger$} & 34.5\textsuperscript{$\dagger$}  & \textbf{22.9}\textsuperscript{$\dagger$} & 10.3\textsuperscript{$\dagger$} & \textbf{6.3}\textsuperscript{$\dagger$} & 16.6\textsuperscript{$\dagger$} \\
     \bottomrule
 \end{tabular}
 
-\caption{ROUGE-2 recall after removing nouns, verbs, adjectives/adverbs, and 
+\caption{\textbf{POS Tag Ablation} \rougeN{2} recall after removing nouns, 
+    verbs, adjectives/adverbs, and 
     function words. Ablations are
     performed using the averaging sentence encoder and the RNN
 extractor. 
 Bold indicates best performing system. $\dagger$ indicates significant 
-difference with the non-ablated system. Difference in score from \textit{all words} shown in parenthesis.}
+difference with the non-ablated system.}
 \label{tab:ablations}
 \end{table*}
+
+%\begin{table*}[ht]
+%\center
+%\begin{tabular}{cgcgcgc}
+%    \toprule
+%    \multirow{1}{*}{\textbf{Ablation}}  & \multicolumn{1}{g}{\textbf{CNN/DM}} & \multicolumn{1}{c}{\textbf{NYT}} & \multicolumn{1}{g}{\textbf{DUC}} & \multicolumn{1}{c}{\textbf{Reddit}} & \multicolumn{1}{g}{\textbf{AMI}} & \multicolumn{1}{c}{\textbf{PubMed}}\\
+%    \hline
+%    all words & \textbf{25.4}\textsuperscript{~} ~~~~~~~ & \textbf{34.7}\textsuperscript{~} ~~~~~~~~& 22.7\textsuperscript{~} ~~~~~~~~& \textbf{11.4}\textsuperscript{~} ~~~~~~~~& 5.5\textsuperscript{~} ~~~~~~~~~& \textbf{17.0}\textsuperscript{~} ~~~~~~~ \\
+%    -nouns & 25.3\textsuperscript{$\dagger$} \footnotesize{(0.1)}& 34.3\textsuperscript{$\dagger$} \footnotesize{(0.4)}& 22.3\textsuperscript{$\dagger$} ~\footnotesize{(0.4)}& 10.3\textsuperscript{$\dagger$} \footnotesize{(1.1)} & 3.8\textsuperscript{$\dagger$} \footnotesize{(1.7)}& 15.7\textsuperscript{$\dagger$} \footnotesize{(1.3)}\\
+%    -verbs & 25.3\textsuperscript{$\dagger$} \footnotesize{(0.1)}& 34.4\textsuperscript{$\dagger$} \footnotesize{(0.3)} & 22.4\textsuperscript{$\dagger$} ~\footnotesize{(0.3)}& 10.8\textsuperscript{~} ~\footnotesize{(0.6)} & 5.8\textsuperscript{~} \footnotesize{(-0.3)} & 16.6\textsuperscript{$\dagger$} \footnotesize{(0.4)}\\
+%    -adj/adv & 25.3\textsuperscript{$\dagger$} \footnotesize{(0.1)}& 34.4\textsuperscript{$\dagger$} \footnotesize{(0.3)} & 22.5\textsuperscript{~} ~\footnotesize{(0.2)} & ~~9.5\textsuperscript{$\dagger$} \footnotesize{(1.9)} & 5.4\textsuperscript{~} ~\footnotesize{(0.1)} & 16.8\textsuperscript{$\dagger$} \footnotesize{(0.2)}\\
+%    -function & 25.2\textsuperscript{$\dagger$} \footnotesize{(0.2)} & 34.5\textsuperscript{$\dagger$} \footnotesize{(0.2)} & \textbf{22.9}\textsuperscript{$\dagger$} \footnotesize{(-0.2)} & 10.3\textsuperscript{$\dagger$} \footnotesize{(1.1)}& \textbf{6.3}\textsuperscript{$\dagger$} \footnotesize{(-0.8)}& 16.6\textsuperscript{$\dagger$} \footnotesize{(0.4)}\\
+%    \bottomrule
+%\end{tabular}
+%
+%\caption{ROUGE-2 recall after removing nouns, verbs, adjectives/adverbs, and 
+%    function words. Ablations are
+%    performed using the averaging sentence encoder and the RNN
+%extractor. 
+%Bold indicates best performing system. $\dagger$ indicates significant 
+%difference with the non-ablated system. Difference in score from \textit{all words} shown in parenthesis.}
+%\label{tab:ablations}
+%\end{table*}

@@ -1,21 +1,12 @@
 
-
-Deep learning methods have become the defacto standard approach to many 
-NLP problems, especially when there exists plentiful labeled data.
-There has been a flurry of recent work on sentence extractive 
-single document summarization of news using a variety of neural network 
-achitectures 
-\citep{cheng2016neural,nallapati2016classify,nallapati2016summarunner,narayan2018ranking} 
-thanks in part to the availibilty of a large corpus 
-(approximately 300k) of CNN and Daily Mail articles with human written bullet 
-point summaries \citep{hermann2015teaching}.
-Comparing models and defining best practices for model design has become 
-difficult as papers often propose complex models with a variety
-of design choices, making it difficult to determine what choices actually
-lead to the best performance. 
-
-In this section, we describe completed experiments teasing out the importance
-of different neural network designs for sentence level salience 
+Increasingly, deep neural 
+network models are being used to perform sentence extractive summarization 
+tasks. While these models are very flexible and allow for easy hierarchical 
+representation learning, it is unclear what signals they are extracting
+from the data to make predictions.
+In this section, we describe our completed experiments teasing out the 
+importance
+of different neural network designs for sentence level salience estimation
 \citep{kedzie2018deep}. 
 In particular, we experiment with several methods for encoding a sequence
 of word embeddings into a sentence embedding, and then in turn, mapping
@@ -24,31 +15,54 @@ introduce several simplifications to existing models in the literature, and
 show their effectiveness on an SDS task across news, personal narratives,
 workplace meetings, and medical journal article genres.
 
-We also perform several diagnostic experiments on our deep learning based 
-models and find several impedements to learning robust models of 
+We also perform several diagnostic experiments 
+and find impediments to learning robust models of 
 sentence salience. In particular, the sentence position implicitly 
 encoded in the models dominates the learning signal. While sentence position
 is certainly an important feature in news, not all domains or tasks 
 will share this feature;
  we would also like to be able to design
-models that make their salience decisions primarily on lexical/topical content.
+models that make their salience decisions primarily on lexical or
+topical content.
 
+We believe that the sentence embedding representation is too coarse to
+make significant use of lexical information in the presence of less noisy
+position features, even when position is only implicitly represented by 
+the model.
 To that end, we propose a new deep learning based SDS model that directly 
 estimates individual word level salience scores, and a simple sentence 
-selection and margin loss framework for learning. In this model 
+selection and margin loss framework for learning. In this model,
 we augment the word embeddings (which only capture shallow lexical semantics)
 with embeddings representing other word features. Our initial experiments
 suggest that document frequency, and information theoretic accounts of 
-surprisal (e.g. topic signatures) are more useful for the summarization task
-than word window based embeddings.
+surprisal (e.g. topic signatures) are also useful for the summarization task. 
+We expect to show less dependence on the position features using
+the same ablation diagnostics we applied to our sentence level salience 
+models. 
+While previous work has estimated word importance using these features
+in a linear model 
+\citep{hong2014improving}, they were only able to take limited advantage of 
+context features, i.e. taking a weighted average of word features to
+the left and right. By contrast,
+ in our proposed model we can combine rich
+document specific contextual features, e.g. \textsc{Elmo} embeddings 
+\citep{peters2018deep}, in conjunction with these word features.
 
-We concluded this section with proposed domain adaptation experiments for
-modifying the word importance model to work on a news MDS task. 
-The MDS version of the model will have an importance score aggregation step
+Additionally, we plan to adapt this word level salience model to a news MDS task;
+if it is less dependent on sentence position, it should be more amenable 
+to MDS where lexical centrality to the document cluster is possibly
+the dominant learning signal.  
+%We concluded this section with proposed domain adaptation experiments for
+%modifying the word importance model to work on a news MDS task. 
+The MDS version of the model will use an importance score aggregation step
 where word level scores accrue additional importance across documents 
 using an attention mechanism.
 
 
+In the next subsections we first briefly cover related work on sentence
+and word level salience estimation before covering the 
+completed sentence level
+and proposed word level salience estimation experiments.
 %are the
 %This
 %work describes impedements to learning and word and sentence representations
