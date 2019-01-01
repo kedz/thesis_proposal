@@ -1,0 +1,189 @@
+
+\subsection{Deep Learning Models of Sentence Salience}
+
+\begin{frame}{Summarizer Architecture}
+  \begin{center}
+    \begin{tikzpicture}
+      \node at (0.4,-.75) {Sentence 1};
+      \node at (4.9,-.75) {Sentence 2};
+      \node at (8.9,-.75) {Sentence 3};
+      \node (w1) at (0,0) 
+      {\large $\uncover<2->{\textsc{Enc}\left(}w^{(1)}_1,
+         w^{(1)}_2, w^{(1)}_3\uncover<2->{\right)}$};
+
+      \node (w2) at (4.5,0) 
+      {\large $\uncover<2->{\textsc{Enc}\left(}w^{(2)}_1, 
+         w^{(2)}_2, w^{(2)}_3\uncover<2->{ \right)}$};
+      \node (w3) at (8.6,0) 
+      {\large $\uncover<2->{\textsc{Enc}\left(}w^{(3)}_1, 
+         w^{(3)}_2\uncover<2->{\right)}$};
+
+      \node (s1) at (3,2) {\large $\uncover<3->{s_1}$};
+      \node (s2) at (4,2) {\large $\uncover<3->{s_2}$};
+      \node (s3) at (5,2) {\large $\uncover<3->{s_3}$};
+      \uncover<3->{  
+        \draw[->,thick] (w1.north) -- (s1.south); 
+        \draw[->,thick] (w2.north) -- (s2.south);
+        \draw[->,thick] (w3.north) -- (s3.south);
+      }
+
+      \uncover<4->{
+        \node (ext) at (3.6,2) {\large $\textsc{Ext}\Big( 
+        \quad\quad\quad\;\;\;\;\;\;\;\;\;\;\; \Big)$};
+      }
+      \uncover<5->{
+        \node (y1) at (3,3.5) {\large $y_1$};
+        \node (y2) at (4,3.5) {\large $y_2$};
+        \node (y3) at (5,3.5) {\large $y_3$};
+        \draw[->,thick] (s1.north) -- (y1.south);
+        \draw[->,thick] (s2.north) -- (y2.south);
+        \draw[->,thick] (s3.north) -- (y3.south);
+      }
+
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Sentence Encoders}
+ \begin{columns}[t]
+  \column{.32\textwidth}
+   \centering
+   Averaging Encoder\\~\\
+   \includegraphics[]{images/section3/avg_encoder.pdf}\\
+  \column{.32\textwidth}
+   \centering
+   RNN Encoder\\~\\
+   \includegraphics[]{images/section3/rnn_encoder.pdf}\\
+  \column{.32\textwidth}
+   \centering
+   CNN Encoder\\~\\
+   \includegraphics[]{images/section3/cnn_encoder.pdf}\\
+ \end{columns}
+
+~\\
+We use pretrained (Wikipedia/Gigaword) Glove word embeddings.
+
+\end{frame}
+%
+%\begin{frame}{Sentence Extractor}
+%  \textbf{Previous Work}\\~\\
+%  ~~ -- \textbf{Cheng and Lapata Extractor} ~~ seq2seq inspired architecture 
+%                                               (Cheng and Lapata, 2016)\\
+%  ~~ -- \textbf{SummaRunner Extractor} ~~ RNN inspired architecture with 
+%                                          document and summary representations 
+%                                          (Nallapati et al., 2016)\\
+%  ~\\~\\
+%  \textbf{Our Extractors}\\~\\
+%  ~~ -- \alert<2>{\textbf{RNN Extractor}} ~~ Simplified version of SummaRunner \\
+%  ~~ -- \textbf{Seq2Seq Extractor} ~~ seq2seq (with attention) inspired 
+%                                      architecture \\
+%\end{frame}
+
+
+\begin{frame}{Sentence Extractors}
+ \begin{columns}[t]
+  \column{.4\textwidth}
+  \only<1,2,4>{
+   \centering
+   SummaRunner Extractor\\
+   (Nallapati et al. 2016)\\
+   \includegraphics[scale=.65]{images/section3/sr_extractor.pdf}\\
+   RNN Extractor (ours)\\
+   \includegraphics[scale=.65]{images/section3/rnn_extractor.pdf}
+}
+\only<3>{
+    Cheng \& Lapata Model
+    \begin{enumerate}
+        \item Offset encoder/decoder inputs, no attention
+        \item Complex interaction between previous extraction prediction and 
+            decoder input.
+    \end{enumerate}
+    ~\\~\\
+    Seq2Seq Model
+    \begin{enumerate}
+        \item Simple dot-product attention
+        \item \textbf{(Conditionally) independent} extraction decisions
+    \end{enumerate}
+}
+  \column{.6\textwidth}
+  \only<1,3,4>{
+   \centering
+   Cheng \& Lapata Extractor\\
+   (Cheng and Lapata, 2016)\\
+   \includegraphics[scale=.65]{images/section3/cl_extractor.pdf}\\
+   Seq2Seq Extractor (ours)\\
+   \includegraphics[scale=.65]{images/section3/s2s_extractor.pdf}
+   }
+   \only<2>{
+        SummaRunner Model
+        \begin{itemize}
+        \item Internal representations of document similarity and summary novelty
+        \item Explicit representation of position
+        \item Complex dependencies between extraction decisions
+        \end{itemize}
+~\\
+~\\
+        RNN Model
+        \begin{itemize}
+            \item \sout{Internal representations of document similarity and summary novelty}
+            \item \sout{Explicit representation of position}
+            \item \textbf{(Conditionally) independent} extraction decisions
+        \end{itemize}
+
+   }
+ \end{columns}
+
+\end{frame}
+
+
+\begin{frame}{Experiments}
+%
+    \alert<4>{\textbf{Main Experiment}}\\
+    Evaluate encoder/extractor pairs using ROUGE-2 recall.\\
+%
+  \begin{columns}
+    \begin{column}{0.3\textwidth}
+    \uncover<5->{\textbf{Additional Experiments}}    
+      \begin{itemize}
+        \uncover<5->{\item \alert<5>{fine-tuned embeddings}}
+        \uncover<6->{\item \alert<6>{word class ablations}}
+        \uncover<7->{\item \alert<7>{sentence order shuffling}}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.7\textwidth}
+        \input{emb_experiments_pic.tex} 
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Model Training}
+
+    Maximum Likelihood training using gold extract summaries.
+
+    \[\max_{\theta} \frac{1}{|\mathcal{D}|} \sum_{(s,y^*)\in \mathcal{D}} 
+    \log p(y^*| s) \]
+
+   
+    ~\\
+    ~\\
+    ~\\
+
+    Gold extract summaries $y^*$ created by greedily selecting the sentences that maximize ROUGE, as in Nallapati et al. (2016).
+
+\end{frame}
+
+\begin{frame}{Summary Generation}
+
+    \begin{enumerate}
+        \item Rank sentences $s_i$ in decreasing order by $p(y_i=1|h)$.
+            ~\\~\\
+            ~\\~\\
+
+
+        \item Create a summary by extracting the top ranked sentences until a word length budget.
+    \end{enumerate}
+
+\end{frame}
+
+\input{3_dl_models_of_salience/6_results.tex}

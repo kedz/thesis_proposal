@@ -1,0 +1,30 @@
+\begin{tabular}{ccgcg} 
+        & & \multicolumn{3}{c}{\textbf{Rouge-2 Recall}}\\
+  \toprule
+  \textbf{\textsc{Ext}} & \alert{\underline{\textbf{\textsc{Enc}}}}
+      & \textbf{Reddit} & \textbf{AMI} & \textbf{PubMed} \\
+  \midrule
+  \textsc{Lead}   
+     & --         &        $\mathbf{10.9}$ &        $2.0$ &   $9.3$  \\
+  \hline
+  \multirow{3}{*}{\textsc{Seq2Seq}}
+     &\textsc{Avg}&
+                   \alert{\textbf{13.6}}&\alert{\textbf{5.5}}&\alert{\textbf{17.7}} \\
+     &\textsc{Rnn}&
+                   \textbf{12.0}&\textbf{5.3}&        16.7  \\
+     &\textsc{Cnn}&
+                   \textbf{13.2}&        2.9&        16.9  \\
+     \hline
+  \multirow{3}{*}{\textsc{Cheng \& Lapata}}
+     &\textsc{Avg}&
+       \alert{\textbf{13.6}} & \alert{\textbf{6.1}}   & \alert{\textbf{17.7}}\\
+     &\textsc{Rnn}&       
+       \textbf{12.6} & \textbf{5.0}   & 16.7\\
+     &\textsc{Cnn}&       
+       \textbf{13.4} & 2.8               &  16.9      \\
+     \hline
+  \textsc{Oracle} 
+     & --         &       16.2    &    3.9     &       25.0   \\
+  \bottomrule
+\end{tabular}
+

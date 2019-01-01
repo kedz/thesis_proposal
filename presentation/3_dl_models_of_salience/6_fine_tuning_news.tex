@@ -1,0 +1,18 @@
+\begin{tabular}{ccccc}
+      & & \multicolumn{3}{c}{\textbf{Rouge-2 Recall}}\\
+      \toprule
+        \textbf{Ext} & \textbf{Emb}  & 
+           \textbf{CNN/DM} & 
+           \textbf{NYT} & 
+           \textbf{DUC} \\
+      \midrule
+      \multirow{2}{*}{\textsc{Seq2Seq}} 
+        & Fixed & \textbf{25.6} & \textbf{35.7} & \textbf{22.8} \\
+        & Fine-Tuned &         25.3  & \textbf{35.7} & \textbf{22.9} \\
+      \hline
+      \multirow{2}{*}{\textsc{Cheng \& Lapata}} 
+        & Fixed & \textbf{25.3} & \textbf{35.6} & \textbf{23.1} \\
+        & Fine-Tuned &         24.9  &         35.4  & \textbf{23.0} \\
+      \bottomrule
+  \end{tabular}
+

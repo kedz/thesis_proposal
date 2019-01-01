@@ -1,0 +1,220 @@
+
+
+\begin{frame}{Choice of Sentence \textbf{Encoder}: News}
+  \begin{center}
+  \input{3_dl_models_of_salience/6_encoder_results_news.tex}    
+  \end{center}
+  ~\\
+
+  Averaging is either the \alert{\textbf{best}} encoder or 
+  \textbf{statistically indistinguishable} from the best encoder!
+
+\end{frame}
+
+\begin{frame}{Choice of Sentence \textbf{Encoder}: Non-News}
+  \begin{center}
+    \input{3_dl_models_of_salience/6_encoder_results_nonnews.tex}    
+  \end{center}
+  ~\\
+
+  Averaging is either the \alert{\textbf{best}} encoder or 
+  \textbf{statistically indistinguishable} from the best encoder!
+\end{frame}
+
+\begin{frame}{Choice of Sentence \textbf{Extractor}: News}
+    
+ \begin{center}
+   \input{3_dl_models_of_salience/6_extractor_results_news.tex}
+ \end{center}
+ 
+ ~\\
+
+ \textsc{Seq2Seq} is the \alert{\textbf{best}} or \textbf{statistically 
+ indistinguishable} from the best system.
+
+ ~\\
+ \textsc{Rnn} extractor as good as \textsc{SummaRunner} or 
+ \textsc{Cheng \& Lapata} extractors on CNN/DailyMail data.
+
+  
+
+\end{frame}
+
+\begin{frame}{Choice of Sentence \textbf{Extractor}: Non-News}
+    
+ \begin{center}
+   \input{3_dl_models_of_salience/6_extractor_results_nonnews.tex}
+ \end{center}
+
+ ~\\
+
+ \textsc{Seq2Seq} is the \alert{\textbf{best}} or \textbf{statistically indistinguishable} from the best
+ system.
+
+
+\end{frame}
+
+
+
+\begin{frame}{Word Embedding Fine-Tuning: (News)}
+  \begin{center}
+    \input{3_dl_models_of_salience/6_fine_tuning_news.tex}
+ \end{center}
+
+ ~\\
+ 
+% Performance difference when using \textit{fixed} embeddings versus 
+% \textit{fine-tuned} embeddings.
+ 
+  ~\\
+
+%  Models are using the \textsc{Avg} encoder and are initialized with 
+%  Glove embeddings. 
+
+%  ~\\
+
+  \textbf{No statistically significant improvement} on news with fine-tuning!
+
+\end{frame}
+
+\begin{frame}{Word Embedding Fine-Tuning: Non-News}
+ \begin{center}
+  \input{3_dl_models_of_salience/6_fine_tuning_nonnews.tex}
+ \end{center}
+
+ ~\\
+ 
+% Performance difference when using \textit{fixed} embeddings versus 
+% \textit{fine-tuned} embeddings.
+ 
+ ~\\
+
+% All models are using the \textsc{Avg} encoder and are initialized with 
+% pretrained Glove embeddings from gigaword/wikipedia. 
+
+% ~\\
+ \textbf{Statistically significant improvement} with \textsc{Seq2Seq} on AMI
+ data. (Caveat: only speech dataset)\\
+
+~\\
+Otherwise, same trend as news, \textbf{no stat. sig. improvement} using fine-tuning.
+
+\end{frame}
+
+\begin{frame}{Word Class Ablation: ROUGE-2 Recall}
+ \begin{center}
+  \begin{tabular}{lcccccc}
+   \toprule
+   \multirow{1}{*}{\textbf{Ablation}} & 
+            \textbf{CNN/DM} & \textbf{NYT} & \textbf{DUC} &
+            \textbf{Reddit} & \textbf{AMI} & \textbf{PubMed} \\
+   \midrule
+     All Words & $\mathbf{25.4}$ & $\mathbf{34.7}$ & $22.7$ &
+                  $\mathbf{11.4}$ & $5.5$ & $\mathbf{17.0}$  \\
+   \uncover<2->{$-$ Nouns & $25.3$  & $34.3 $ & $22.3$  &
+   \alert<2>{$10.3$} & \alert<2>{$3.8$} & \alert<2>{$15.7$}} \\
+   \uncover<2->{$-$ Verbs & $25.3$  & $34.4 $ & $22.4$ &
+            $10.8$ & $5.8$ & $16.6$ }\\
+   \uncover<3->{$-$ Adj/Adv & 
+  $25.3$ & $34.4$ & $22.5$ &
+   \alert<3>{$9.5$} & $5.4$ & $16.8$} \\
+   \uncover<4->{$-$ Function & $25.2$ & $34.6$ & \alert<4>{$\mathbf{22.9}$} &
+   $10.3$ & \alert<4>{$\mathbf{6.3}$} & $16.6$ }\\
+   \bottomrule
+  \end{tabular}
+ \end{center}
+
+
+ %RNN extractor with Averaging encoder. 
+
+ %~\\
+
+
+ \uncover<2->{\textbf{-Nouns/Verbs} Doesn't decrease performance much on News. Non-News sees small performance drops. }
+
+~\\ 
+
+ \uncover<3->{\textbf{-Adj/Adv} Intensifiers are important in personal stories.
+ Signal climactic and important moments.}
+
+
+ ~\\
+
+ \uncover<4->{\textbf{-Function} Possibly noisy signals on small datasets.}
+
+
+
+ ~\\
+ \uncover<1-5>{\tiny{\textbf{Bold} is best performance.}}
+
+\end{frame}
+
+
+
+\begin{frame}{Shuffled vs In-Order (News)}
+
+ \begin{center}
+  \begin{tabular}{ccL{2cm}m{1cm}L{.75cm}} 
+   \toprule
+   \textbf{Ext.} & \textbf{Order} & 
+                           \textbf{CNN/DM} & \textbf{NYT} & \textbf{DUC} \\
+   \midrule
+%?   \multirow{2}{*}{RNN} 
+%?       & In-Order & 
+%?       \textbf{25.4} & \textbf{34.7} & \textbf{22.7} \\
+%?       & Shuffled & 
+%?               22.8 &          25.0  &         18.2  \\
+   \multirow{2}{*}{Seq2Seq}
+       & In-Order & 
+       \textbf{25.6} & \textbf{35.7} &  \textbf{22.8} \\
+       & Shuffled & 
+               21.7  &         25.6  &          21.2  \\
+   \bottomrule
+  \end{tabular}
+ \end{center}
+
+ ~\\
+
+ Shuffled model is trained on shuffled sentence order documents.
+
+ ~\\
+
+ Both models evaluated on in-order data.
+
+
+~\\ 
+ Large \textbf{performance drops} on news!
+
+\end{frame}
+
+\begin{frame}{Shuffled vs In-Order (Other)}
+
+ \begin{center}
+  \begin{tabular}{ccccc} 
+   \toprule
+   \textbf{Ext.} & \textbf{Order} & 
+                           \textbf{Reddit} & \textbf{AMI} & \textbf{PubMed} \\
+   \midrule
+   \multirow{2}{*}{Seq2Seq}
+       & In-Order & 
+       \textbf{13.6} &         5.5  &  \textbf{17.7} \\
+       & Shuffled & 
+       \textbf{13.5} & \textbf{6.0} &          14.9  \\
+   \bottomrule
+  \end{tabular}
+ \end{center}
+
+ ~\\
+
+ Shuffled model is trained on shuffled sentence order documents.
+
+ ~\\
+
+ Both models evaluated on in-order data.
+
+ ~\\
+
+ Small \textbf{performance increase} on AMI.
+
+\end{frame}
+

@@ -1,0 +1,55 @@
+\begin{frame}{Key Challenges to Summarization}
+
+\begin{itemize}
+
+    \item \textbf{Salience Estimation} --- determining the most important or essential 
+information in the input
+~\\
+~\\
+~\\
+~\\
+\item \textbf{Faithful Generation} --- guarranteeing that the resulting summary does not misrepresent the input or otherwise hallucinate facts.
+
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Contributions: Salience Estimation}
+
+\begin{itemize}
+
+    \item \textbf{Feature Based Models of Salience} 
+        \begin{itemize}
+            \item Incorporate salience regression with biased clustering.
+            \item Incorporate salience regression with exploration (learning to search).
+            \item Evaluation in \alert{Stream Summarization} task.
+        \end{itemize}
+        ~\\
+        ~\\
+    \item \textbf{Deep Learning Models of Salience}
+        \begin{itemize}
+            \item Several novel deep learning models of sentence and 
+                word salience.
+            \item Extensive ablation studies to determine important 
+                lexical/structural features for learning.
+           \item Model evaluation on \alert{Single Document Summarization} task
+           \item Domain adaption experiments to 
+               \alert{Multi-Document Summarization}
+        \end{itemize}
+
+\end{itemize}
+
+
+
+\end{frame}
+
+\begin{frame}{Contributions: Faithful Generation}
+ \begin{itemize}
+   \item Text generation is treated as a two player game between, i.e. a 
+       speaker  and listener. \\ ~\\
+   \item The speaker generates a summary from the input.\\ ~\\
+   \item The listener uses the summary to reconstruct parts of the input.
+ \end{itemize}
+
+\end{frame}

@@ -1,0 +1,178 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+\usepackage{ulem}
+\usepackage{cancel}
+\usepackage{pifont}
+\usefonttheme[onlymath]{serif}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{xspace}
+\usepackage{bbm}
+\usepackage{amsfonts}
+
+\newcolumntype{g}{>{\columncolor{black!5}}c}
+\newcolumntype{f}{>{\columncolor{black!5}}r}
+\newcolumntype{L}[1]{>{\columncolor{black!5}}m{#1}}
+\usepackage{tikz}
+\usetikzlibrary{shapes}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{decorations.pathmorphing}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\Plus}{\mathord{\begin{tikzpicture}[baseline=0ex, line width=3, scale=0.25]
+\draw (1,0) -- (1,2);
+\draw (0,1) -- (2,1);
+\end{tikzpicture}}}
+
+\newcommand{\PlusSmall}{\mathord{\begin{tikzpicture}[baseline=0ex, line width=2, scale=0.10]
+\draw (1,0) -- (1,2);
+\draw (0,1) -- (2,1);
+\end{tikzpicture}}}
+
+\newcommand{\Minus}{\mathord{\begin{tikzpicture}[baseline=0ex, line width=3, scale=0.25]
+\draw (0,1) -- (2,1);
+\end{tikzpicture}}}
+
+\newcommand{\MinusSmall}{\mathord{\begin{tikzpicture}[baseline=0ex, line width=2, scale=0.10]
+\draw (0,1) -- (2,1);
+\end{tikzpicture}}}
+
+\tikzset{weird fill/.style={append after command={
+   \pgfextra
+        \draw[sharp corners, fill=#1]% 
+    (\tikzlastnode.west)% 
+    [rounded corners=3pt] |- (\tikzlastnode.north)% 
+    [rounded corners=1pt] -| (\tikzlastnode.east)% 
+    [rounded corners=1pt] |- (\tikzlastnode.south)% 
+    [rounded corners=3pt] -| (\tikzlastnode.west);
+   \endpgfextra}}}
+
+
+
+
+\title[Thesis Proposal]{Thesis Proposal} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author[Chris Kedzie]{\textbf{Chris Kedzie}} % Your name
+\institute[Columbia U.] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+Columbia University \\ % Your institution for the title page
+\medskip
+\textit{kedzie@cs.columbia.edu} % Your email address
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+\titlepage 
+\end{frame}
+
+\input{1_intro/1_intro.tex}
+%\input{2_problem_definition/2_problem_definition.tex}
+
+\AtBeginSection[]{
+    \begin{frame}<beamer>
+        \frametitle{Talk Outline}
+        \tableofcontents[currentsection]
+    \end{frame}
+}
+\input{2_feature_based_models_of_salience/main.tex}
+\input{3_deep_learning_models_of_salience/main.tex}
+%\input{3_1_deep_learning_sentence_salience.tex}
+%\input{3_2_deep_learning_word_salience.tex}
+\input{4_fg/main.tex}
+\input{5_plan.tex}
+
+
+
+%\input{4_data/4_data.tex}
+%\input{5_experiments/5_experiments.tex}
+%\input{6_results/6_results.tex}
+
+
+
+\end{document} 

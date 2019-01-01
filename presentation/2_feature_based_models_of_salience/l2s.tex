@@ -1,0 +1,78 @@
+\subsection{Learning-to-Search Summarizer}
+
+\begin{frame}{Learning-to-Search Summarization}
+
+ \begin{itemize}
+   \item SAP model learned ``offline.'' 
+   \begin{itemize}
+     \item I.e. doesn't take into account future extraction decisions, or 
+           account for compounding error.
+     \item It's difficult to take into account summary features.
+   \end{itemize}
+   \item Learning-to-search (Daum\'e, Langford, and Marcu (2009)), effectively an exploration/data sampling scheme
+       can correct for this!
+ \end{itemize}
+
+    \begin{center}
+    \only<1-2>{
+        \uncover<2>{\includegraphics[scale=.7]{2_feature_based_models_of_salience/image_texs/l2s1/l2s1.pdf}}
+    }
+    \only<3>{
+    
+\includegraphics[scale=.7]{2_feature_based_models_of_salience/image_texs/l2s2/l2s2.pdf}}
+    \only<4>{
+\includegraphics[scale=.7]{2_feature_based_models_of_salience/image_texs/l2s3/l2s3.pdf}}
+\end{center}
+\end{frame}
+
+
+
+\begin{frame}{Experiments}
+
+    \begin{itemize}
+    \item Leave-One-Out evaluation
+        \begin{itemize}
+            \item 44 TREC 2015 Temporal Summarization events
+            \item 5 queries randomly selected for development set.
+            \item Leave-One-Out Evaluation on remaining 39 events.
+        \end{itemize}
+    \end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{System Comparisons}
+
+\textbf{Baselines}
+
+\begin{itemize}
+    \item \textbf{CosSim} --- Cosine Similarity Threshold
+    \begin{itemize}
+        \item Selects sentence if it's max similarity to any previous update is below a threshold.
+        \item Only examines first sentences of article. 
+    \end{itemize}
+~\\
+\item \textbf{AP} --- Affinity Propagation Clustering
+\item \textbf{SAP} ---  Salience Biased Affinity Propagation Clustering 
+    \end{itemize}
+
+\textbf{Our Models}
+
+\begin{itemize}
+    \item \textbf{L2S} --- learning to search model
+    \item \textbf{L2SCos} --- learning to search model with similarity threshold
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Results}
+\centering
+\only<1>{\includegraphics[scale=.45]{images/section2/uresults1.pdf}}
+\only<2>{\includegraphics[scale=.45]{images/section2/uresults2.pdf}}
+\only<3>{\includegraphics[scale=.45]{images/section2/uresults3.pdf}}
+\only<4>{\includegraphics[scale=.45]{images/section2/uresults4.pdf}}
+\only<5>{\includegraphics[scale=.45]{images/section2/uresults5.pdf}}
+
+\end{frame}
+
+

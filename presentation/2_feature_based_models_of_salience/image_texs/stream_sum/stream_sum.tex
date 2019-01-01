@@ -1,0 +1,76 @@
+\documentclass[tikz, margin=3mm]{standalone}
+\usepackage[colorlinks]{hyperref}
+
+\usetikzlibrary{fit}
+\usetikzlibrary{shapes.misc, positioning}
+\usetikzlibrary{shapes}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{decorations.pathmorphing}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\Plus}{\mathord{\begin{tikzpicture}[baseline=0ex, line width=3, scale=0.25]
+\draw (1,0) -- (1,2);
+\draw (0,1) -- (2,1);
+\end{tikzpicture}}}
+
+\newcommand{\PlusSmall}{\mathord{\begin{tikzpicture}[baseline=0ex, line width=2, scale=0.10]
+\draw (1,0) -- (1,2);
+\draw (0,1) -- (2,1);
+\end{tikzpicture}}}
+
+\newcommand{\Minus}{\mathord{\begin{tikzpicture}[baseline=0ex, line width=3, scale=0.25]
+\draw (0,1) -- (2,1);
+\end{tikzpicture}}}
+
+\newcommand{\MinusSmall}{\mathord{\begin{tikzpicture}[baseline=0ex, line width=2, scale=0.10]
+\draw (0,1) -- (2,1);
+\end{tikzpicture}}}
+
+\tikzset{weird fill/.style={append after command={
+   \pgfextra
+        \draw[sharp corners, fill=#1]% 
+    (\tikzlastnode.west)% 
+    [rounded corners=3pt] |- (\tikzlastnode.north)% 
+    [rounded corners=1pt] -| (\tikzlastnode.east)% 
+    [rounded corners=1pt] |- (\tikzlastnode.south)% 
+    [rounded corners=3pt] -| (\tikzlastnode.west);
+   \endpgfextra}}}
+
+
+
+
+\begin{document}
+    \begin{tikzpicture}[
+node distance = 8mm and 4mm,
+ block/.style = {rectangle, draw, thick,
+                 text width=12mm, align=center},
+   FIT/.style = {rectangle, draw, thick, inner ysep=12mm, inner xsep=6mm,
+                 fit=#1},
+                        ]
+
+%\draw[black] (0,0) rectangle (11,6);
+\node (file1) at (9,5.1) { \includegraphics[scale=.10]{text-document.png} };
+\node (file2) at (9,4.1) { \includegraphics[scale=.10]{text-document.png} };
+\node (file3) at (9,3.1) { \includegraphics[scale=.10]{text-document.png} };
+\node (system) at (8.9,1.5) { \includegraphics[scale=.07]{meat-grinder.png} };
+\node[text width=1cm]  at (7.5,5.1) {Document Stream};
+\draw[->,black,line width=1mm] (7.7,4.5) to (7.7,3.1); 
+
+\node[draw,rounded rectangle,blue,minimum width=1cm,line width=.5mm] at (7.75,1) 
+    {\large $\cdot$ \textbf{--}};
+
+\node[draw,rounded rectangle,blue,minimum width=1cm,line width=.5mm] at (5.75,1) 
+    {\large $\cdot$ \textbf{--}};
+\node[draw,rounded rectangle,blue,minimum width=1cm,line width=.5mm] at (3.75,1) 
+    {\large $\cdot$ \textbf{--}};
+\node[draw,rounded rectangle,blue,minimum width=1cm,line width=.5mm] at (1.75,1) 
+    {\large $\cdot$ \textbf{--}};
+
+\node (a) at (6,1.85) {Summary Updates};
+\draw[->,black,line width=1mm] (a.west) to (2.8,1.85);
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,25 @@
+\begin{tabular}{ccgcg}
+ & & \multicolumn{3}{c}{\textbf{Rouge-2 Recall}}\\
+\toprule
+\alert{\underline{\textbf{Ext}}} & \textbf{Enc} & 
+   \textbf{Reddit} & \textbf{AMI} & \textbf{PubMed} \\
+\midrule
+\textsc{Lead}    &  --          & 
+                   \textbf{10.9}  & 2.0  & 9.3 \\
+\hline
+\textsc{Rnn}     & \textsc{Avg} &  
+                   \textbf{11.4}  & \textbf{5.5}  & 17.0 \\
+\hline
+\textsc{Seq2Seq} & \textsc{Avg} & 
+           \alert{\textbf{13.6}} & \textbf{5.5} & \textbf{17.7} \\
+\hline
+\textsc{Cheng \&  Lapata} & \textsc{Avg} & 
+           \textbf{13.6} & \textbf{6.1} & \textbf{17.7} \\
+\hline
+\textsc{SummaRunner}  & \textsc{Avg} &  
+           \textbf{13.4} & \textbf{5.6} & \textbf{17.2} \\
+\hline
+    \textsc{Oracle} & -- & 16.2 &  3.9 &  25.0\\
+\bottomrule
+\end{tabular}
+

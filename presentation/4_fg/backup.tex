@@ -1,0 +1,23 @@
+\begin{frame}{Localized Error Signals}
+
+    \centering
+    \[ \begin{array}{rlrl}
+            \textrm{\textbf{Speaker:}} & y\sim p(\cdot|x) & \textrm{\textbf{Listener:}} & \hat{x} \sim \only<1-2>{q(\cdot|y)~} \only<3>{q(\cdot|a,y) }\\
+            \textbf{\textrm{Reward:}} & \only<1-2>{R(y)}\only<3>{R(y_i)} = \only<1-2>{q(x|y)~~~~~~~~~~~} 
+            \only<3>{ q(x|a,y) q(a_i|y)  }   &   \textbf{\textrm{Objective:}} & \mathcal{L} = \mathbb{E}_{y\sim p(\cdot|x)} \left[R(y)\right] \\
+    \end{array}\]
+    \only<1-2>{    $\textrm{\textbf{Approx. Gradient:}} \quad \nabla \mathcal{L} \approx \frac{1}{n} \sum_{i=1}^n R(y^{(i)}) \nabla \ln p(y^{(i)}|x) $\\}
+    \only<3->{    $\textrm{\textbf{Approx. Gradient:}} \quad \nabla \mathcal{L} \approx \frac{1}{n} \sum_{i=1}^n\sum_{j=1}^{|y^{(i)}|} R(y_j^{(i)}) \nabla \ln p(y_j^{(i)}|y_{<j}^{(i)},x) $\\}
+            ~\\
+            ~\\
+            ~\\
+    \uncover<2->{
+    \only<1-2>{
+    \includegraphics[scale=.9]{4_fg/image_texs/learning/learning.pdf}
+    }
+    \only<3->{
+    \includegraphics[scale=.9]{4_fg/image_texs/learning/learning2.pdf}
+    }}
+
+\end{frame}
+

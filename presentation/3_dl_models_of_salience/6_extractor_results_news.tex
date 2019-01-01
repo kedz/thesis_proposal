@@ -1,0 +1,24 @@
+\begin{tabular}{ccgcg}
+ & & \multicolumn{3}{c}{\textbf{Rouge-2 Recall}}\\
+ \toprule
+ \alert{\underline{\textbf{Ext}}} & \textbf{Enc} & 
+   \textbf{CNN/DM} & \textbf{NYT} & \textbf{DUC} \\
+ \midrule
+ \textsc{Lead}    &  --          & 
+                   24.4  & 32.3  & 21.5 \\
+ \hline
+ \textsc{RNN}     & \textsc{Avg} &  
+                   25.4  & 34.7  & 22.7 \\
+ \hline
+ \textsc{Seq2Seq} & \textsc{Avg} & 
+           \alert{\textbf{25.6}} & \alert{\textbf{35.7}} & \textbf{22.8} \\
+ \hline
+ \textsc{Cheng \&  Lapata} & \textsc{Avg} & 
+                    25.3 & \textbf{35.6} & \textbf{23.1} \\
+ \hline
+ \textsc{SummaRunner}  & \textsc{Avg} &  
+                    25.4 & 35.4 & 22.3 \\
+ \hline
+    \textsc{Oracle} & -- & 36.2 &  48.9 &  31.8\\
+ \bottomrule
+\end{tabular}

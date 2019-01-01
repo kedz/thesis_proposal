@@ -1,0 +1,48 @@
+\subsection{Stream Summarization}
+\begin{frame}{Stream Summarization}
+
+    {
+        \begin{center}
+    \includegraphics[scale=.8]{2_feature_based_models_of_salience/image_texs/stream_sum/stream_sum.pdf}
+\end{center}
+}
+
+Data from TREC Temporal Summarization Track, 2013-2015\\
+Query focused crisis monitoring scenario \\
+E.g., summarize a stream of news about Hurricane Sandy
+
+\end{frame}
+
+\begin{frame}{Queries and Nuggets}
+
+    TREC data included event queries, i.e. real life natural and man-made
+    disasters/crises.\\
+    E.g. ``Hurricane Sandy,'' ``Boston Marathon Bombing''\\
+~\\
+No reference summaries, but reference \textit{nuggets}: ~\\
+~\\
+
+        \begin{tabular}{l}
+         \textbf{Nuggets for event query ``hurricane sandy''} \\
+        \hline
+    $[\textrm{10/23 ~8:20pm}]$ Sandy strengthened from a tropical depression into\\
+    ~~~~~~~~~~~~~~~~~~~~~~a tropical storm \\
+    $[\textrm{10/23 ~8:20pm}]$ 2 pm Oct 23 Sandy moving north-northeast at 4 
+    knots \\
+    $[\textrm{10/23 ~8:53pm}]$ forecast track uncertain \\
+    $[\textrm{10/25 12:20am}]$ In Jamaica damage was extensive\\
+\end{tabular}
+
+\end{frame}
+
+\begin{frame}{Sentence Salience for Stream Summarization} 
+ \begin{itemize}
+    \item Let $S(q)$ be the ordered sequence of sentences from the relevant 
+        document stream for query $q$. ~\\~\\
+   \item Let $\mathcal{N}(q)$ be the set of nuggets for query $q$. ~\\~\\
+   \item \textbf{Salience} $y$ of a sentence $s\in S(q)$ is computed:  \[y = \max_{n \in \mathcal{N}(q)} 
+       \textsc{Similarity}(s,\only<1>{n}\only<2>{\alert{\cancel{n}}})\]  where $\textsc{Similarity}(\cdot, \cdot)$
+      is the semantic similarity method of Guo and Diab, 2012.~\\~\\
+\item<2>{\alert{No nugget knowledge at test time. Learn to predict $p(\hat{y}|s,q)$. }}
+    \end{itemize}
+\end{frame}

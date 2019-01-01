@@ -1,0 +1,48 @@
+\documentclass[tikz, margin=3mm]{standalone}
+\usepackage[colorlinks]{hyperref}
+
+\usetikzlibrary{fit,
+                positioning}
+
+\begin{document}
+    \begin{tikzpicture}[
+node distance = 8mm and 4mm,
+ block/.style = {rectangle, draw, thick,
+                 text width=12mm, align=center},
+   FIT/.style = {rectangle, draw, thick, inner ysep=12mm, inner xsep=6mm,
+                 fit=#1},
+                        ]
+
+\draw[white] (0,0) rectangle (11,6);
+\node (speakerrobot) at (2,3.1) { \includegraphics[scale=.025]{speaker.jpg} };
+\node (listenerrobot) at (9,3) { \includegraphics[scale=.12]{listener.jpeg} };
+\node (speaker) at (2,2) { Speaker };
+\node (listener) at (9,2) { Listener };
+\node[text width=5cm] (string) at (5.5,1) { \textit{
+My story is a lot like yours, only more interesting 'cause it involves robots.} };
+\node (datain) at (3.5,5) { \texttt{0010001101011} };
+\node  at (3.5,5.5) { Data };
+\node  at (7.5,5.5) { Reconstructed Data };
+\node  at (5.5,2.) { Generated Text };
+\node (dataout) at (7.5,5) { \texttt{ 001000{\color{red}?}101011} };
+\draw[->,black,line width=1mm]  (speaker) to [in=180,out=270] (string);
+\draw[->,black,line width=1mm]  (string) to [in=270,out=0] (listener);
+\draw[->,black,line width=1mm]  (datain) to [in=90,out=180] (speakerrobot);
+\draw[->,black,line width=1mm]  (listenerrobot) to [in=0,out=60] (dataout);
+\node at (9.75, 5) {\texttt{\color{red} 1}};
+\node[rotate=90] at (.5,3) {Conditional Language Model};
+\node[rotate=-90] at (10.5,3) {Text Classifier};
+
+
+
+%\node [block]               (a) {A};
+
+%\node [block,below=of a]    (b) {B};
+%\node [FIT=(a) (b)] (ssys) {};
+%    \node[below right=0mm of ssys.north west] {System special};
+%\node [block, below left=of ssys] (c) {C};
+%\node [FIT=(ssys) (c)] (gsys) {};
+%     \node[below right=0mm of gsys.north west] {System general};
+%
+\end{tikzpicture}
+\end{document}

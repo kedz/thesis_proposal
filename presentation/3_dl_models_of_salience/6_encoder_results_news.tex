@@ -1,0 +1,27 @@
+    \begin{tabular}{ccgcg} 
+        & & \multicolumn{3}{c}{\textbf{Rouge-2 Recall}}\\
+      \toprule
+      \textbf{\textsc{Ext}} & \alert{\underline{\textbf{\textsc{Enc}}}}
+          & \textbf{CNN/DM} & \textbf{NYT} & \textbf{DUC} \\
+      \midrule
+      \textsc{Lead}   
+         & --         &        $24.4$ &        $32.3$ &   $21.5$  \\
+      \hline 
+      \multirow{3}{*}{\textsc{Seq2Seq}}
+         &\textsc{Avg}&
+           \alert{\textbf{25.6}}&\textbf{35.7}&\alert{\textbf{22.8}}  \\
+         &\textsc{Rnn}&        25.3 &\textbf{35.9}&        22.5   \\
+         &\textsc{Cnn}&        25.1 &        35.1 &\textbf{22.7}  \\
+         \hline
+      \multirow{3}{*}{\textsc{Cheng \& Lapata}}
+         &\textsc{Avg}&
+           \alert{25.3}&\textbf{35.6}&\alert{\textbf{23.1}}\\
+         &\textsc{Rnn}&        
+                     25.0 &          \textbf{35.8} &          \textbf{23.0} \\
+         &\textsc{Cnn}&       
+                     25.1 &                  35.0  &          \textbf{23.0} \\
+         \hline
+      \textsc{Oracle} 
+         & --         &          36.2 &        48.9 &        31.8   \\
+      \bottomrule
+    \end{tabular}
