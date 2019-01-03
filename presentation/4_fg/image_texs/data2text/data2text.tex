@@ -53,23 +53,23 @@
         Accountant \\ 
         Body Builder \\ 
         Comp. Scientist\\ 
-        D \\
+        Dentist \\
         \quad~~~~~$\vdots$ \\
         X-ray Tech. \\ 
-        Y \\ 
+        Yelp Reviewer \\ 
         Zoologist 
     \end{tabular}}; 
 
  \node[table] (d2) at (12.5, 1-.5) 
     {\begin{tabular}{l} 
-        American \\ 
+        Armenian \\ 
         British\\ 
-        Canadian \\
+        Czech \\
         Dutch \\
         \quad~$\vdots$ \\
-        German \\ 
-        Italian\\
-        French \\ 
+        Vietnamese \\ 
+        Yemeni \\
+        Zimbabwean \\ 
     \end{tabular}}; 
 
 %? \node[table] (d3) at (12.5, 0) 
@@ -94,13 +94,13 @@
 
 
 
-   \draw[-] (12.5,2.5-.5) to (14.75, 2.5-.5);
+   \draw[-] (12.5,2.5-.25) to (14.75, 2.5-.25);
    \foreach \x/\ystop in {12.75/2.65,12.95/3.1,13.14/2.65,13.35/2.65,14.15/2.65,
                           14.35/2.65,14.55/2.65} {
-     \draw[-] (\x,2.5 - .5) to (\x, \ystop -.5);
-     \node[dot] at (\x,\ystop - .5) {};
+     \draw[-] (\x,2.5 - .25) to (\x, \ystop -.25);
+     \node[dot] at (\x,\ystop - .25) {};
    }
-   \node at (13.8,2.65-.5) {$\cdots$};
+   \node at (13.8,2.65-.25) {$\cdots$};
    \node at (13.75,1-.5) {\scriptsize Nationality};
    \node at (13.75,3.25) {\scriptsize Occupation};
 

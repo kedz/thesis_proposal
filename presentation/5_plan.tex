@@ -1,4 +1,4 @@
-\section{Research Plan}
+\section{Research Plan and Contributions}
 
 \begin{frame}{Research Plan}
     \centering
@@ -25,49 +25,86 @@
 
 \end{frame}
 
-\begin{frame}{Contribution Status}
-
-\begin{itemize}
-
-    \item \textbf{Feature Based Models of Salience} 
-        \begin{itemize}
-            \item[\color{green}\ding{51}] Incorporate salience regression with
-                biased clustering. {\tiny (TREC `14, ACL `15)}
-            \item[\color{green}\ding{51}] Incorporate salience regression with
-                learning to search. {\tiny (TREC `15, IJCAI `16)}
-            \item[\color{green}\ding{51}] Evaluation in {\color{purple}Stream Summarization} task.
-        \end{itemize}
-    \item \textbf{Deep Learning Models of Salience}
-        \begin{itemize}
-            \item[\color{green}\ding{51}] Sentence Level Salience 
-                {\tiny (EMNLP `18)}
-                \begin{itemize}
-                    \item[\color{green}\ding{51}] Implemented simplified DL models.
-                    \item[\color{green}\ding{51}] Model evaluation on 
-                        {\color{purple} Single Document Summarization} task.
-            \item[\color{green}\ding{51}] Extensive ablation studies to determine important 
-                lexical/structural features for learning.
-                \end{itemize}
-            \item[\color{red}\ding{55}] Word level salience.
-                \begin{itemize}
-                    \item[\color{red}\ding{55}] Develop word level DL model and margin learning framework.
-                    \item[\color{red}\ding{55}] Model evaluation on 
-                        {\color{purple}Single Document Summarization} task
-                    \item[\color{red}\ding{55}] Adaption experiments to 
-                        {\color{purple}Multi-Document Summarization} task.
-                    \item[\color{red}\ding{55}] Adaption experiments to 
-                        {\color{purple} Abstractive Summarization} task.
-                \end{itemize}
-        \end{itemize}
-    \item \textbf{Faithful Generation}
-        \begin{itemize}
-            \item[\color{red}\ding{55}] Data-to-Text experiments. (In Progress)
-            \item[\color{red}\ding{55}] Question generation for summarization.
-            \item[\color{red}\ding{55}] Text-to-Text experiments.
-        \end{itemize}
-\end{itemize}
-
-
-
+\begin{frame}{Contributions}
+ \begin{itemize}
+  \item \textbf{Salience Estimation}
+  \begin{itemize}
+   \item[\color{green}\ding{51}] Two state-of-the-art sentence extractive 
+       stream summarization models. 
+       (TREC `14, ACL `15, TREC `15, IJCAI `16)~\\~\\
+   \item[\color{green}\ding{51}] State-of-the-art deep learning based sentence
+       extractive summarizarization models. 
+       (EMNLP `18)~\\~\\
+   \item[\color{green}\ding{51}] Extensive ablation studies to determine 
+       important lexical/structural features for learning. 
+       (EMNLP `18) ~\\~\\
+   \item A deep learning model of word importance estimation for 
+       single-document news summarization. ~\\~\\
+   \item Adaptation of the word importance model to non-news genre and 
+       multi-document summarization.
+  \end{itemize}
+ \end{itemize}
 \end{frame}
+
+\begin{frame}{Contributions}
+ \begin{itemize}
+  \item \textbf{Faithful Generation}
+  \begin{itemize}
+      \item Supervised attention with word importance estimation.\\~\\
+      \item Round-trip Speaker/Listener learning model for:
+          \begin{itemize}
+              \item data-to-text generation 
+              \item text-to-text generation/abstractive summarization.
+          \end{itemize}
+  \end{itemize}
+ \end{itemize}
+\end{frame}
+
+
+
+%\begin{frame}{Contribution Status}
+%
+%\begin{itemize}
+%
+%    \item \textbf{Feature Based Models of Salience} 
+%        \begin{itemize}
+%            \item[\color{green}\ding{51}] Incorporate salience regression with
+%                biased clustering. {\tiny (TREC `14, ACL `15)}
+%            \item[\color{green}\ding{51}] Incorporate salience regression with
+%                learning to search. {\tiny (TREC `15, IJCAI `16)}
+%            \item[\color{green}\ding{51}] Evaluation in {\color{purple}Stream Summarization} task.
+%        \end{itemize}
+%    \item \textbf{Deep Learning Models of Salience}
+%        \begin{itemize}
+%            \item[\color{green}\ding{51}] Sentence Level Salience 
+%                {\tiny (EMNLP `18)}
+%                \begin{itemize}
+%                    \item[\color{green}\ding{51}] Implemented simplified DL models.
+%                    \item[\color{green}\ding{51}] Model evaluation on 
+%                        {\color{purple} Single Document Summarization} task.
+%            \item[\color{green}\ding{51}] Extensive ablation studies to determine important 
+%                lexical/structural features for learning.
+%                \end{itemize}
+%            \item[\color{red}\ding{55}] Word level salience.
+%                \begin{itemize}
+%                    \item[\color{red}\ding{55}] Develop word level DL model and margin learning framework.
+%                    \item[\color{red}\ding{55}] Model evaluation on 
+%                        {\color{purple}Single Document Summarization} task
+%                    \item[\color{red}\ding{55}] Adaption experiments to 
+%                        {\color{purple}Multi-Document Summarization} task.
+%                    \item[\color{red}\ding{55}] Adaption experiments to 
+%                        {\color{purple} Abstractive Summarization} task.
+%                \end{itemize}
+%        \end{itemize}
+%    \item \textbf{Faithful Generation}
+%        \begin{itemize}
+%            \item[\color{red}\ding{55}] Data-to-Text experiments. (In Progress)
+%            \item[\color{red}\ding{55}] Question generation for summarization.
+%            \item[\color{red}\ding{55}] Text-to-Text experiments.
+%        \end{itemize}
+%\end{itemize}
+%
+%
+%
+%\end{frame}
 

@@ -143,8 +143,8 @@
 
 
 
-\node at ($(5)!0.5!(3)$) [text=green]{$\PlusSmall$};
-\node at ($(5)!0.5!(4)$) [text=red]{$\MinusSmall$};
+\node (PA) at ($(5)!0.5!(3)$) [text=green]{$\PlusSmall$};
+\node (MA) at ($(5)!0.5!(4)$) [text=red]{$\MinusSmall$};
 \node at ($(3)!0.5!(y)$) [text=green]{$\PlusSmall$};
 \node at ($(3)!0.5!(z)$) [text=red]{$\MinusSmall$};
 \node at ($(4)!0.5!(1)$) [text=green]{$\PlusSmall$};
@@ -174,6 +174,10 @@
 \node at ($(x)!0.5!(o)$) [text=green]{$\PlusSmall$};
 \node at ($(x)!0.5!(p)$) [text=red]{$\MinusSmall$};
 
+\node (m1) at (1,2.6) {Extract Sentence 1};
+\draw[->] (m1.south) -- (PA.west);
+\node (m2) at (5.6,2.6) {Skip Sentence 1};
+\draw[->] (m2.south) -- (MA.east);
 
    \draw[white] (-1,-1.5) rectangle (10,3);
 \end{tikzpicture}

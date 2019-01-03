@@ -16,6 +16,7 @@
 %----------------------------------------------------------------------------------------
 
 \documentclass{beamer}
+\usepackage{makecell}
 \usepackage{ulem}
 \usepackage{cancel}
 \usepackage{pifont}
@@ -134,7 +135,8 @@
 
 
 
-\title[Thesis Proposal]{Thesis Proposal} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Thesis Proposal]{Salience Estimation and Faithful Generation:\\
+\textit{\small Modeling Methods for Text Summarization and Generation.}} % The short title appears at the bottom of every slide, the full title is only on the title page
 
 \author[Chris Kedzie]{\textbf{Chris Kedzie}} % Your name
 \institute[Columbia U.] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -153,6 +155,11 @@ Columbia University \\ % Your institution for the title page
 
 \input{1_intro/1_intro.tex}
 %\input{2_problem_definition/2_problem_definition.tex}
+
+    \begin{frame}<beamer>
+        \frametitle{Talk Outline}
+        \tableofcontents
+    \end{frame}
 
 \AtBeginSection[]{
     \begin{frame}<beamer>

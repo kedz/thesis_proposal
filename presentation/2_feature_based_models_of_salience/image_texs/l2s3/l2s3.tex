@@ -52,8 +52,9 @@
    \tikzstyle{sent}=[align=left]
    \tikzstyle{doc}=[rectangle,rounded corners,draw=black, very thick]
 
-   \draw[black] (-1,-1.5) rectangle (10,3);
+   \draw[white] (-1,-1.5) rectangle (10,3);
 
+   \node at (6.,2.0) {$s_2$};
 \node[draw,circle,minimum size=.20cm,inner sep=0pt] (a) at (0,0) {};
 \node[draw,circle,minimum size=.20cm,inner sep=0pt] (b) at (.5,0) {};
 \node[draw,circle,minimum size=.20cm,inner sep=0pt] (c) at (1,0) {};
@@ -151,11 +152,11 @@
        line width=.1cm,yshift=0pt]
 ($(31,6)$) -- ($(31,9.5)+(0,0)$) node [black,midway,xshift=0.8cm] {};
 \end{pgflowlevelscope}
-\node[] at ($(x) + (1.6,1.45)$) [align=center] 
-    {\footnotesize Roll-in: $\hat{\pi}$};
+\node[text width=1.8cm] at ($(x) + (1.6,1.45)$) [align=center] 
+    {\footnotesize Roll-in: Learned Model};
 
-\node[] at ($(x) + (1.6,0)$) [align=center] 
-    {\footnotesize Roll-out: $\pi^*$};
+\node[text width=2cm] at ($(x) + (1.6,0)$) [align=center] 
+    {\footnotesize Roll-out: Oracle};
 
 
   \node[draw,circle,minimum size=.45cm,inner sep=0pt,dashed,thick] at (4) {}; 
@@ -173,7 +174,7 @@
    node[midway,rectangle,text height=.25cm,fill=red!40,yshift=.26cm] (xx) {};
   \draw[-] ($(m)+(-.5,-1)$) -- ($(m)+(.5,-1)$) 
    node[midway,rectangle,text height=.15cm,fill=red!40,yshift=.21cm] (xx) {};
-   \node at ($(i)+(-1.75,-1)$) [] {$c(s_2,select)$};
+   \node at ($(i)+(-1.75,-1)$) [] {$c(s_2,extract)$};
    \node at ($(m)+(1.75,-1)$) [] {$c(s_2,skip)$};
   
   \node[draw,circle,minimum size=.45cm,inner sep=0pt,dashed,thick] at (i) {}; 
